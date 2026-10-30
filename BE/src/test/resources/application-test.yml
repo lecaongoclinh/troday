@@ -1,0 +1,6 @@
+# Smoke tests load Spring without a database. SQL integration tests need
+# a separate MySQL test profile and database when those tests are implemented.
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration

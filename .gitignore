@@ -1,0 +1,32 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+**/application-*.private.yml
+*.pem
+*.key
+*.p12
+*.jks
+
+# Maven and runtime output
+**/target/
+**/.cache/
+**/logs/
+**/uploads/
+*.log
+
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Future frontend dependencies and builds
+**/node_modules/
+**/dist/
+**/.expo/
