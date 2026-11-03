@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${TRODAY_MYSQL_TEST_URL}
+    username: ${TRODAY_MYSQL_TEST_USERNAME:root}
+    password: ${TRODAY_MYSQL_TEST_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+app:
+  auth:
+    secret: mysql-test-only-secret-never-use-in-production-123456789
+    allowed-origins: http://localhost:5173
+    cookie-secure: true
+    login-limit: 1000
+    ip-limit: 1000
+debug: false
+logging:
+  level:
+    root: WARN

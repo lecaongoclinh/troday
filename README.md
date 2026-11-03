@@ -27,7 +27,9 @@ cd BE
 .\mvnw.cmd verify
 ```
 
-Xem [hướng dẫn backend](BE/README.md) để cấu hình MySQL và chạy local. Đây là khung dự án, các API nghiệp vụ sẽ được triển khai theo kế hoạch.
+Xem [hướng dẫn backend](BE/README.md) để cấu hình MySQL và chạy local. Đã triển khai đăng ký/đăng nhập, phiên, hồ sơ và toàn bộ 43 model JDBC; các API nghiệp vụ khác tiếp tục theo kế hoạch.
+
+Backend tổ chức package theo tầng: `controller`, `service`, `repository`, `model`, `dto`, `config`, `security`, `exception`, `integration`, `util`. Mã của mỗi chức năng đặt trong các tầng tương ứng; xem [cấu trúc chi tiết](BE/README.md#cấu-trúc).
 
 ## Git
 
