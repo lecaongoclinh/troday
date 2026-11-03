@@ -6,7 +6,11 @@ database/
 └── migrations/   # Migration được tích hợp, có thứ tự chạy rõ ràng
 ```
 
-Trong workspace hiện tại, schema và migration đã có tại `../../wireframe/room_rental_wireframe_v5/database/`. Thư mục đó nằm ngoài repository Trọday; cần tích hợp bản SQL đã review vào repository khi thực hiện task database. Khung này chưa sao chép, thay đổi hoặc thực thi SQL.
+`source/schema.sql` là bản SQL nguồn được tích hợp từ `../../wireframe/room_rental_wireframe_v5/database/schema.sql`, có 43 bảng và các view/trigger/procedure hiện có. `migrations/V001__api_idempotency.sql` bổ sung bảng lưu gửi lặp cho API, với response xác thực được mã hóa bởi backend.
+
+Với database mới: import `source/schema.sql` trước, sau đó chọn đúng database `room_rental_v5_20261023` và chạy migration V001. Với database đã có schema V5 tương ứng: chỉ chạy V001 sau khi kiểm tra đích. Không chạy lại source trên database hiện có. Backend không tự thực thi các file này.
+
+Kiểm thử tự động dùng `BE/scripts/test-mysql.py`: tạo instance và datadir mới ở temp, cổng ngẫu nhiên, import cả hai file, chạy Maven rồi dừng instance. Script không dùng server MySQL đang chạy trên máy. URL test tự cấu hình chỉ được trỏ tới DB riêng vì test có ghi dữ liệu/trigger.
 
 Schema hiện có dùng MySQL 8.0.16 trở lên, khuyến nghị MySQL 8.4; tạo database `room_rental_v5_20261023`. Script `schema.sql` tạo mới database nên phải kiểm tra môi trường và tên database trước khi chạy. Dùng database và tài khoản riêng cho local/test.
 
