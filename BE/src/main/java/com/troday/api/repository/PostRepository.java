@@ -6,4 +6,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByRoomId(Long roomId);
     List<Post> findByLandlordId(Long landlordId);
     List<Post> findByStatus(String status);
+    List<Post> findByRoomIdAndStatus(Long roomId, String status);
 }

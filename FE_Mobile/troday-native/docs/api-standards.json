@@ -1,0 +1,282 @@
+{
+  "standards": [
+    {
+      "title": "Phạm vi & phiên bản",
+      "body": "Đặc tả đề xuất cho backend cần xây dựng; base path /api/v1, JSON UTF-8, camelCase ở API, snake_case ở SQL. Không có endpoint đã triển khai chỉ vì wireframe có màn hình. GET chỉ đọc; command POST đặt tên hành động cụ thể; PUT idempotent; PATCH cập nhật whitelist, phải có ít nhất một field."
+    },
+    {
+      "title": "Kiểu dữ liệu",
+      "body": "BIGINT ID truyền bằng chuỗi số dương để tránh mất chính xác JavaScript. Money truyền decimal string tối đa 2 số lẻ, quantity tối đa 3; kiểm tra precision SQL. Date là YYYY-MM-DD theo Việt Nam, datetime ISO 8601 có offset, lưu UTC và trả UTC Z. Không dùng số tiền float."
+    },
+    {
+      "title": "Xác thực & phân quyền",
+      "body": "Bearer access token gắn session_key; kiểm tra auth_sessions còn hạn/chưa revoked và users ACTIVE mỗi request. Quyền lấy từ bảng vai trò; actorId/landlordId/paidBy/consentedBy do server lấy, không tin body. Kiểm tra quyền từng object và field; query scopes không bị bỏ qua bởi ID tùy ý. Refresh dùng cookie Secure/HttpOnly/SameSite theo origin; bảo vệ CSRF/Origin."
+    },
+    {
+      "title": "Phản hồi đồng nhất",
+      "body": "JSON thành công: {data,meta:{requestId,timestamp,pagination?},error:null}. JSON lỗi: {data:null,meta:{requestId,timestamp},error:{code,message,details:[{field,code,message}]}}. Create 201, command/update/delete mềm 200, reset request 202. Ngoại lệ: SSE text/event-stream, CSV text/csv, PUT bytes tới signed upload URL của kho. Response example chỉ minh họa envelope, hợp đồng data cụ thể ghi ở từng endpoint."
+    },
+    {
+      "title": "Phân trang & tìm kiếm",
+      "body": "Danh sách dùng page≥1, pageSize 1–100 (mặc định 20), sort từ whitelist và thêm id làm tie-breaker. Trả pagination page/pageSize/total/totalPages; kết quả rỗng totalPages=0. Messages dùng cursor (sent_at,id), limit 1–100. Trả 422 khi sai giới hạn. Filter status/from/to chỉ chấp nhận enum/ngày hợp lệ; timezone ngày lọc là Asia/Ho_Chi_Minh."
+    },
+    {
+      "title": "Idempotency & gửi đồng thời",
+      "body": "Mọi POST nghiệp vụ nhận Idempotency-Key UUID. Scope actor+method+route+key, hash payload chuẩn hóa; cùng khóa/cùng payload trả status/body cũ, khác payload 409. Request đang xử lý trả 409 REQUEST_IN_PROGRESS + Retry-After; không chạy hai lần. TTL đề xuất 24 giờ cần chốt D09. Tận dụng creation_key/proposal.client_request_key/chat.client_message_key sẵn có; lệnh khác cần store bổ sung, không giả có bảng trong schema."
+    },
+    {
+      "title": "Phiên bản & transaction",
+      "body": "House dùng row_version, post content_version, roommate profile_version. Server trả version trong data và ETag cho tài nguyên có version; If-Match nhận đúng giá trị đã trả, cập nhật dưới khóa, stale→409. Các tài nguyên chưa có version dùng expected revision/state/updated_at CAS theo D15. Stored procedure công khai tự START/COMMIT, không gọi bên trong transaction app. Không gọi helper _v5_* từ client; không cấp quyền CRUD trực tiếp tùy ý."
+    },
+    {
+      "title": "Dữ liệu lịch sử & riêng tư",
+      "body": "Không DELETE cứng hợp đồng, lượt cư trú, revision đã xác nhận, hóa đơn đã phát hành, bằng chứng nhà hoặc audit. Người trả cũ giữ hóa đơn cũ; bàn giao không ghi đè viewing/đại diện ban đầu. ACTIVE trên contract đã đóng vẫn tính tải và cần đối soát; thiếu chứng cứ để null/chưa rõ. Tài liệu riêng tư dùng URL tạm có kiểm tra context; thẻ bài đã ẩn không trả ảnh/tiêu đề cũ."
+    },
+    {
+      "title": "Lỗi & vận hành",
+      "body": "Không truyền nguyên SQLSTATE/message/stack trace ra client. Backend cần map lỗi domain ổn định, unique/check/FK và lỗi SIGNAL sang code tương ứng; procedure hiện chưa phát error code HTTP. Deadlock/lock timeout có thể retry giới hạn nếu chưa có commit mơ hồ, giữ nguyên idempotency key; lỗi sau commit phải tra kết quả trước retry. Không log mật khẩu, OTP, token hay bytes giấy tờ."
+    },
+    {
+      "title": "Trạng thái thực thi",
+      "body": "Tất cả endpoint/checklist bắt đầu Chưa làm. Nhãn Dùng procedure chỉ nói SQL có thủ tục tương ứng, vẫn cần controller/auth/DTO/mapping/errors/tests. Mục Cần chốt ghi rõ đề xuất hoặc mở rộng schema; không tự thêm bảng/migration vào CSDL hiện tại."
+    }
+  ],
+  "errors": [
+    {
+      "status": 400,
+      "code": "BAD_REQUEST",
+      "meaning": "JSON/query sai cú pháp, field không cho phép hoặc thiếu header bắt buộc."
+    },
+    {
+      "status": 401,
+      "code": "UNAUTHENTICATED",
+      "meaning": "Thiếu/sai token, phiên hết hạn/đã thu hồi."
+    },
+    {
+      "status": 403,
+      "code": "FORBIDDEN",
+      "meaning": "Sai vai trò/quyền đối tượng, tài khoản LOCKED/DISABLED."
+    },
+    {
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "meaning": "ID không tồn tại hoặc tài nguyên riêng tư không được phép tiết lộ."
+    },
+    {
+      "status": 409,
+      "code": "STATE_CONFLICT",
+      "meaning": "Trạng thái nguồn đã thay đổi hoặc thao tác không còn áp dụng."
+    },
+    {
+      "status": 409,
+      "code": "VERSION_CONFLICT",
+      "meaning": "If-Match/revisionId không khớp dữ liệu mới nhất."
+    },
+    {
+      "status": 409,
+      "code": "IDEMPOTENCY_KEY_REUSED",
+      "meaning": "Cùng khóa và actor/route nhưng payload khác."
+    },
+    {
+      "status": 422,
+      "code": "VALIDATION_ERROR",
+      "meaning": "Sai kiểu/giới hạn, quan hệ/điều kiện nghiệp vụ. Trả errors theo field."
+    },
+    {
+      "status": 429,
+      "code": "RATE_LIMITED",
+      "meaning": "Vượt hạn gọi/gửi OTP; có Retry-After."
+    },
+    {
+      "status": 503,
+      "code": "DEPENDENCY_UNAVAILABLE",
+      "meaning": "Kho tệp/provider tạm lỗi; không báo thành công giả."
+    },
+    {
+      "status": 500,
+      "code": "INTERNAL_ERROR",
+      "meaning": "Lỗi máy chủ; trả requestId, không trả SQL/stack trace."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "JOB01",
+      "title": "Hết hạn đề nghị xem",
+      "flow": "propose-viewing",
+      "schedule": "Theo phút (đề xuất)",
+      "adapter": "sp_expire_viewing_proposals",
+      "logic": "PENDING có starts_at≤UTC now → EXPIRED. Read/write vẫn kiểm tra thời gian ngay cả khi job trễ.",
+      "acceptance": "Retry không tạo thêm lịch; không công khai API job."
+    },
+    {
+      "id": "JOB02",
+      "title": "Hết hạn giữ chỗ thêm người",
+      "flow": "join-hold",
+      "schedule": "Theo phút (đề xuất)",
+      "adapter": "SERVICE: transaction mới",
+      "logic": "APPROVED hold_expires_at≤now → EXPIRED; không chạm COMPLETED/member đã tạo.",
+      "acceptance": "Capacity không tính hold quá hạn kể cả job chưa chạy."
+    },
+    {
+      "id": "JOB03",
+      "title": "Quyền nhà quá hạn",
+      "flow": "house-rights-expiry",
+      "schedule": "Hàng ngày theo Việt Nam (đề xuất)",
+      "adapter": "SERVICE: transaction mới",
+      "logic": "APPROVED valid_until < todayVN → EXPIRED, giữ hồ sơ/tệp; view hiệu lực chặn ngay.",
+      "acceptance": "Không tự kết thúc hợp đồng cũ, không tự xóa tin."
+    },
+    {
+      "id": "JOB04",
+      "title": "Hóa đơn quá hạn",
+      "flow": "pay-invoice",
+      "schedule": "Hàng ngày theo Việt Nam (đề xuất)",
+      "adapter": "SERVICE: transaction mới",
+      "logic": "UNPAID có due_date<todayVN → OVERDUE; không sửa PAID/CANCELLED.",
+      "acceptance": "Lặp không gửi trùng nhắc nợ; event_key ổn định."
+    },
+    {
+      "id": "JOB05",
+      "title": "Dọn token/phiên/tệp staged",
+      "flow": "sessions",
+      "schedule": "Hàng ngày (đề xuất)",
+      "adapter": "SERVICE: retention worker",
+      "logic": "Thu hồi/xóa theo chính sách D01/D05, không xóa tệp proof/hợp đồng đang được giữ.",
+      "acceptance": "Kiểm tra tham chiếu trước khi xóa object; không log OTP."
+    },
+    {
+      "id": "JOB06",
+      "title": "Phát sự kiện sau commit",
+      "flow": "notifications",
+      "schedule": "Liên tục (đề xuất)",
+      "adapter": "OUTBOX/queue cần bổ sung",
+      "logic": "Delivery theo eventId/recipient, retry/backoff/dedupe; chỉ phát dữ liệu tối thiểu.",
+      "acceptance": "Giữ nghiệp vụ đúng nếu kênh SSE mất kết nối; client fetch lại."
+    },
+    {
+      "id": "OPS01",
+      "title": "Triển khai schema/migration",
+      "flow": "migration",
+      "schedule": "Một lần theo phiên bản",
+      "adapter": "database/schema.sql hoặc migrations",
+      "logic": "Tạo mới HOẶC nâng cấp theo thứ tự README; dừng khi preflight lỗi; không có HTTP endpoint chạy SQL.",
+      "acceptance": "Sao lưu + dry run trên DB tạm; không dùng --force."
+    },
+    {
+      "id": "OPS02",
+      "title": "Đối soát dữ liệu cư trú",
+      "flow": "data-safety",
+      "schedule": "Khi có cảnh báo (đề xuất)",
+      "adapter": "Read-only report + xử lý có phê duyệt nghiệp vụ",
+      "logic": "ACTIVE trên contract đóng vẫn tính tải; báo cáo lỗi thay vì đoán ngày rời/nhận đại diện.",
+      "acceptance": "Không tự mở lại hợp đồng, không xóa lịch sử."
+    },
+    {
+      "id": "OPS03",
+      "title": "Hợp đồng hết ngày kết thúc",
+      "flow": "end-lease",
+      "schedule": "Cần chốt chính sách",
+      "adapter": "Chưa có worker tự kết thúc",
+      "logic": "Không tự đóng hợp đồng bỏ lại cư dân ACTIVE. EXPIRED có trong schema; cần quy trình bàn giao/kết thúc/đối soát rõ.",
+      "acceptance": "Giữ nghĩa vụ hóa đơn và người ở, không suy đoán đã rời."
+    }
+  ],
+  "qa": [
+    {
+      "id": "QA01",
+      "title": "Giới hạn tin chờ",
+      "flow": "submit-post",
+      "scenario": "4 submit đồng thời cùng room: tối đa 3 PENDING; sửa một tin PENDING không chiếm slot mới."
+    },
+    {
+      "id": "QA02",
+      "title": "Tranh cùng khoảng giờ",
+      "flow": "schedule-viewing",
+      "scenario": "2 accept/propose khác nhau cùng khoảng giờ: chỉ một SCHEDULED; hai lịch liền kề được phép."
+    },
+    {
+      "id": "QA03",
+      "title": "Tranh giữ phòng",
+      "flow": "create-contract",
+      "scenario": "2 lịch COMPLETED+AGREED cùng room tạo hợp đồng: chỉ một open contract; rollback mọi side effect bên thua."
+    },
+    {
+      "id": "QA04",
+      "title": "Đóng lịch khi giữ phòng",
+      "flow": "reserve-cleanup",
+      "scenario": "Hủy SCHEDULED tương lai và reject pending còn hạn trên tất cả bài cùng room; giữ lịch đang diễn ra/đã kết thúc. Hủy contract không hồi lịch."
+    },
+    {
+      "id": "QA05",
+      "title": "Giới hạn người ở",
+      "flow": "join-hold",
+      "scenario": "2 approve tranh chỗ cuối: chỉ một giữ được. Hold quá 48h không tính capacity/không complete dù job chưa chạy."
+    },
+    {
+      "id": "QA06",
+      "title": "Xác nhận revision cũ",
+      "flow": "contract-revision",
+      "scenario": "Đại diện mở revision A, chủ gửi B trước confirm: request A phải 409, không xác nhận B ngoài ý muốn (D10)."
+    },
+    {
+      "id": "QA07",
+      "title": "Bàn giao đại diện",
+      "flow": "handover",
+      "scenario": "Người cũ LEFT, người mới cùng hợp đồng ACTIVE, history đúng; request cũ hủy; payer/viewing/giá/ngày hợp đồng cũ giữ."
+    },
+    {
+      "id": "QA08",
+      "title": "Rollback đổi phòng",
+      "flow": "transfer",
+      "scenario": "Đích mất chỗ/quyền trước apply: không đóng nguồn. Thành công chuyển đủ ACTIVE+PLANNED, đích PLANNED chờ move-in."
+    },
+    {
+      "id": "QA09",
+      "title": "Mất quyền nhà",
+      "flow": "house-rights-expiry",
+      "scenario": "Hết hạn/thu hồi/đổi định danh/khóa landlord: public ẩn ngay, thuê mới/gia hạn/đích bị chặn, rời/kết thúc cũ vẫn hoạt động."
+    },
+    {
+      "id": "QA10",
+      "title": "Hóa đơn bất biến",
+      "flow": "pay-invoice",
+      "scenario": "Đổi giá dịch vụ/đại diện sau phát hành: invoice cũ không đổi. Kỳ trùng bị chặn; override=0 giữ 0; meter cuối<đầu bị chặn."
+    },
+    {
+      "id": "QA11",
+      "title": "Phân quyền chéo tài khoản",
+      "flow": "data-safety",
+      "scenario": "Thử ID nhà/contract/member/file/chat/invoice của người khác, bao gồm nested route không khớp parent; không lộ PII."
+    },
+    {
+      "id": "QA12",
+      "title": "Idempotency và mất mạng",
+      "flow": "data-safety",
+      "scenario": "Retry sau commit/trả response lỗi: cùng key/payload nhận kết quả cũ; khác payload 409; không lặp member/invoice/notification."
+    },
+    {
+      "id": "QA13",
+      "title": "Thẻ bài chia sẻ bị ẩn",
+      "flow": "share-post",
+      "scenario": "Ẩn đúng postId đã share: sharedPost null/unavailable, không lộ ảnh/tiêu đề hoặc tự đổi sang tin khác của phòng."
+    },
+    {
+      "id": "QA14",
+      "title": "Ngày giờ Việt Nam",
+      "flow": "schedule-viewing",
+      "scenario": "Thiết bị timezone khác, lịch vẫn đúng UTC+7; kiểm thử sát 00:00, expiredAt và endDate inclusive."
+    },
+    {
+      "id": "QA15",
+      "title": "Chứng cứ tệp",
+      "flow": "file-storage",
+      "scenario": "MIME giả, size vượt, file của người khác, PRIVATE đổi PUBLIC, file proof đã nộp bị xóa/đổi bytes: đều bị từ chối."
+    },
+    {
+      "id": "QA16",
+      "title": "Tài khoản nhiều vai trò/phiên",
+      "flow": "account-access",
+      "scenario": "Role demo không cấp quyền; users.role không thay bảng role; JWT phiên revoked/LOCKED bị chặn trên mọi endpoint riêng tư."
+    }
+  ]
+}

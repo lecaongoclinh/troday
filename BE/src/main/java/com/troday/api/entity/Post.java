@@ -16,6 +16,7 @@ public class Post {
     @Column(name = "availability_confirmed_at") private LocalDateTime availabilityConfirmedAt;
     @Column(name = "availability_expires_at") private LocalDateTime availabilityExpiresAt;
     @Column(name = "content_version") private Long contentVersion = 1L;
+    @Column(name = "pending_review_slot") private Integer pendingReviewSlot;
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public void setTitle(String value) { title = value; }
@@ -37,4 +38,6 @@ public class Post {
     public void setAvailabilityExpiresAt(LocalDateTime value) { availabilityExpiresAt = value; }
     public Long getContentVersion() { return contentVersion; }
     public void setContentVersion(Long value) { contentVersion = value; }
+    public Integer getPendingReviewSlot() { return pendingReviewSlot; }
+    public void setPendingReviewSlot(Integer value) { pendingReviewSlot = value; }
 }

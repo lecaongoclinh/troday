@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Trọday",
+    "slug": "troday-native",
+    "scheme": "troday",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": { "supportsTablet": true, "bundleIdentifier": "vn.troday.app" },
+    "android": { "package": "vn.troday.app" },
+    "web": { "bundler": "metro", "name": "Trọday" },
+    "plugins": ["expo-font", "expo-document-picker"]
+  }
+}

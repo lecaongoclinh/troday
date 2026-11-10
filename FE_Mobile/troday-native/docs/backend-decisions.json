@@ -1,0 +1,122 @@
+[
+  {
+    "id": "D01",
+    "title": "Chính sách xác thực",
+    "status": "Cần chốt",
+    "detail": "TTL access/refresh/OTP, giới hạn gửi/thử, mật khẩu, provider email/SMS. SQL có expires_at/max_attempts; chưa có cấu hình vận hành.",
+    "owner": "Backend + chủ sản phẩm",
+    "priority": "P0"
+  },
+  {
+    "id": "D02",
+    "title": "Thuật toán ghép cặp",
+    "status": "Cần chốt",
+    "detail": "Điểm số, trọng số, tiêu chí bắt buộc, xử lý thiếu dữ liệu và phiên bản thuật toán; chưa có thuật toán thật.",
+    "owner": "Chủ sản phẩm",
+    "priority": "P1"
+  },
+  {
+    "id": "D03",
+    "title": "Đọc chat sau kết thúc kết nối",
+    "status": "Cần chốt",
+    "detail": "Wireframe chỉ mở/gửi khi kết nối còn hiệu lực; đề xuất giữ lịch sử đọc cho hai bên sau ended, chặn gửi. Chưa coi đề xuất là rule đã duyệt.",
+    "owner": "Chủ sản phẩm",
+    "priority": "P1"
+  },
+  {
+    "id": "D04",
+    "title": "Kênh email/push",
+    "status": "Phụ thuộc hạ tầng",
+    "detail": "users có flags nhưng chưa có provider, device token registry hoặc delivery ledger; chỉ bảo đảm in-app trước.",
+    "owner": "Backend",
+    "priority": "P2"
+  },
+  {
+    "id": "D05",
+    "title": "Kho tệp và hạn lưu",
+    "status": "Cần chốt",
+    "detail": "Proof nhà có giới hạn rõ 8×5 MB; giới hạn mục đích khác, quét nội dung, TTL link, hạn lưu CCCD/hợp đồng và xóa object cần chính sách.",
+    "owner": "Chủ sản phẩm + Backend",
+    "priority": "P0"
+  },
+  {
+    "id": "D06",
+    "title": "Liên kết cư dân với tài khoản",
+    "status": "Cần chốt",
+    "detail": "Xác minh đúng người nhận token OCCUPANT_LINK, kênh gửi và xử lý danh tính không khớp; không ghép theo tên tự khai.",
+    "owner": "Chủ sản phẩm",
+    "priority": "P1"
+  },
+  {
+    "id": "D07",
+    "title": "Gửi tin kèm nhiều ảnh atomically",
+    "status": "Cần mở rộng SQL",
+    "detail": "sp_submit_post chỉ ghi posts và tự COMMIT. Muốn gửi imageFileIds/amenities cùng transaction phải mở rộng procedure/DTO; không bọc CALL trong transaction ngoài.",
+    "owner": "Backend + DBA",
+    "priority": "P0"
+  },
+  {
+    "id": "D08",
+    "title": "Get-or-create chat hỏi phòng",
+    "status": "Cần thiết kế",
+    "detail": "Giữ một conversation/room/post ở lớp ghi; gộp nhiều context theo peer ở lớp đọc. Cần unique/khóa cho cặp inquiry để chống trùng đồng thời.",
+    "owner": "Backend + DBA",
+    "priority": "P1"
+  },
+  {
+    "id": "D09",
+    "title": "Idempotency và realtime bền vững",
+    "status": "Cần hạ tầng bổ sung",
+    "detail": "Chỉ nhà/proposal/chat có khóa riêng hiện hữu; các POST khác cần idempotency store, request hash và response cache. Replay SSE bền vững cần outbox/event store, không có bảng sẵn.",
+    "owner": "Backend + DBA",
+    "priority": "P0"
+  },
+  {
+    "id": "D10",
+    "title": "Xác nhận đúng phiên bản",
+    "status": "Cần mở rộng procedure",
+    "detail": "sp_confirm_contract nhận contract+tenant, không nhận expected revision; cần so revisionId dưới cùng khóa transaction trước xác nhận để tránh TOCTOU.",
+    "owner": "Backend + DBA",
+    "priority": "P0"
+  },
+  {
+    "id": "D11",
+    "title": "Nhập hợp đồng giấy",
+    "status": "Cần thiết kế",
+    "detail": "Source PAPER_IMPORT có trong SQL nhưng chưa có import transaction đầy đủ; yêu cầu quyền riêng, chứng cứ đã ký và JSON member/state/date. Chưa tính route này sẵn sàng coding ngay.",
+    "owner": "Backend + chủ sản phẩm",
+    "priority": "P2"
+  },
+  {
+    "id": "D12",
+    "title": "Thanh toán và trường người ghi nhận",
+    "status": "Giới hạn phạm vi",
+    "detail": "Chỉ thu toàn bộ do chủ ghi nhận; kiểm tra paid_by_id/payer theo schema. Thanh toán online, trả một phần, hoàn cọc và đối soát cần bảng giao dịch mới, không thuộc API cơ sở.",
+    "owner": "Chủ sản phẩm",
+    "priority": "P1"
+  },
+  {
+    "id": "D13",
+    "title": "Chính sách đánh giá",
+    "status": "Cần chốt",
+    "detail": "SQL unique reviewer+room+contract và FK chứng cứ. Đề xuất đánh giá khi TERMINATED; hạn sửa/xóa, phản hồi chủ và thời hạn đánh giá chưa chốt.",
+    "owner": "Chủ sản phẩm",
+    "priority": "P1"
+  },
+  {
+    "id": "D14",
+    "title": "Audit cho đối tượng chưa có FK",
+    "status": "Cần thiết kế",
+    "detail": "moderation_actions chưa có target review/template/criterion/service. Nếu audit các đối tượng này cần mở rộng mô hình hoặc event audit riêng; không gán nhầm target_post_id.",
+    "owner": "Backend + DBA",
+    "priority": "P1"
+  },
+  {
+    "id": "D15",
+    "title": "Phiên bản CRUD tổng quát",
+    "status": "Cần thiết kế",
+    "detail": "Chỉ house.row_version, post.content_version, roommate.profile_version có sẵn. Các tài nguyên khác dùng revision ID/state/updated_at compare-and-swap trong service; không giả có row_version toàn hệ thống.",
+    "owner": "Backend + DBA",
+    "priority": "P0"
+  }
+]

@@ -1,21 +1,10 @@
 package com.troday.api.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.*;
 
-@Entity @Table(name = "invoices")
+@Entity @Table(name="invoices")
 public class Invoice {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
-    @Column(name = "contract_id", nullable = false) private Long contractId;
-    @Column(name = "room_id", nullable = false) private Long roomId;
-    @Column(name = "contract_revision_id", nullable = false) private Long contractRevisionId;
-    @Column(name = "payer_room_tenant_id", nullable = false) private Long payerRoomTenantId;
-    @Column(name = "billing_period", nullable = false) private LocalDate billingPeriod;
-    @Column(name = "due_date", nullable = false) private LocalDate dueDate;
-    private String status = "DRAFT";
-    public Long getId() { return id; }
-    public Long getContractId() { return contractId; }
-    public void setContractId(Long value) { contractId = value; }
-    public String getStatus() { return status; }
-    public void setStatus(String value) { status = value; }
+ @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @Column(name="contract_id",nullable=false) private Long contractId; @Column(name="room_id",nullable=false) private Long roomId; @Column(name="contract_revision_id",nullable=false) private Long contractRevisionId; @Column(name="payer_room_tenant_id",nullable=false) private Long payerRoomTenantId; @Column(name="payer_snapshot",columnDefinition="json") private String payerSnapshot; @Column(name="billing_period",nullable=false) private LocalDate billingPeriod; @Column(name="due_date",nullable=false) private LocalDate dueDate; @Column(name="occupant_count_at_billing",nullable=false) private Integer occupantCountAtBilling=0; private String status="DRAFT"; @Column(name="created_by_id",nullable=false) private Long createdById; @Column(name="paid_by_id") private Long paidById; @Column(name="cancelled_by_id") private Long cancelledById; @Column(name="cancellation_reason") private String cancellationReason; @Column(name="replacement_of_id") private Long replacementOfId; @Column(name="paid_at") private LocalDateTime paidAt; @Column(name="cancelled_at") private LocalDateTime cancelledAt;
+ public Long getId(){return id;} public Long getContractId(){return contractId;} public void setContractId(Long v){contractId=v;} public Long getRoomId(){return roomId;} public void setRoomId(Long v){roomId=v;} public Long getContractRevisionId(){return contractRevisionId;} public void setContractRevisionId(Long v){contractRevisionId=v;} public Long getPayerRoomTenantId(){return payerRoomTenantId;} public void setPayerRoomTenantId(Long v){payerRoomTenantId=v;} public String getPayerSnapshot(){return payerSnapshot;} public void setPayerSnapshot(String v){payerSnapshot=v;} public LocalDate getBillingPeriod(){return billingPeriod;} public void setBillingPeriod(LocalDate v){billingPeriod=v;} public LocalDate getDueDate(){return dueDate;} public void setDueDate(LocalDate v){dueDate=v;} public Integer getOccupantCountAtBilling(){return occupantCountAtBilling;} public void setOccupantCountAtBilling(Integer v){occupantCountAtBilling=v;} public String getStatus(){return status;} public void setStatus(String v){status=v;} public Long getCreatedById(){return createdById;} public void setCreatedById(Long v){createdById=v;} public Long getPaidById(){return paidById;} public void setPaidById(Long v){paidById=v;} public Long getCancelledById(){return cancelledById;} public void setCancelledById(Long v){cancelledById=v;} public String getCancellationReason(){return cancellationReason;} public void setCancellationReason(String v){cancellationReason=v;} public Long getReplacementOfId(){return replacementOfId;} public void setReplacementOfId(Long v){replacementOfId=v;} public LocalDateTime getPaidAt(){return paidAt;} public void setPaidAt(LocalDateTime v){paidAt=v;} public LocalDateTime getCancelledAt(){return cancelledAt;} public void setCancelledAt(LocalDateTime v){cancelledAt=v;}
 }

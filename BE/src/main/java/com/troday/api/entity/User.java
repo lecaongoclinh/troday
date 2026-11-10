@@ -13,6 +13,9 @@ public class User {
     private String role = "TENANT";
     private String status = "ACTIVE";
     @Column(name = "phone_verified_at") private LocalDateTime phoneVerifiedAt;
+    @Column(name = "locked_at") private LocalDateTime lockedAt;
+    @Column(name = "lock_reason") private String lockReason;
+    @Column(name = "locked_by_id") private Long lockedById;
     @Column(name = "in_app_enabled") private boolean inAppEnabled = true;
     @Column(name = "email_enabled") private boolean emailEnabled;
     @Column(name = "push_enabled") private boolean pushEnabled;
@@ -33,6 +36,9 @@ public class User {
     public void setStatus(String value) { status = value; }
     public LocalDateTime getPhoneVerifiedAt() { return phoneVerifiedAt; }
     public void setPhoneVerifiedAt(LocalDateTime value) { phoneVerifiedAt = value; }
+    public LocalDateTime getLockedAt(){return lockedAt;} public void setLockedAt(LocalDateTime value){lockedAt=value;}
+    public String getLockReason(){return lockReason;} public void setLockReason(String value){lockReason=value;}
+    public Long getLockedById(){return lockedById;} public void setLockedById(Long value){lockedById=value;}
     public boolean isInAppEnabled() { return inAppEnabled; }
     public void setInAppEnabled(boolean value) { inAppEnabled = value; }
     public boolean isEmailEnabled() { return emailEnabled; }
