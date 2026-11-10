@@ -1,0 +1,15 @@
+export const money = value => new Intl.NumberFormat('vi-VN').format(Number(value) || 0) + ' đ';
+export const shortMoney = value => (Number(value) / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' triệu';
+export const dateLabel = value => value ? new Date(`${value.slice(0, 10)}T12:00:00+07:00`).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '—';
+export const day = (offset = 0) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(Date.now() + offset * 86400000));
+export const totalInvoice = invoice => invoice.items.reduce((sum, item) => sum + (item.type === 'DISCOUNT' ? -1 : 1) * item.quantity * item.price, 0);
+export const normalize = value => String(value || '').toLocaleLowerCase('vi-VN').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+export const uid = prefix => `${prefix}-${crypto.randomUUID()}`;
+export const asset = name => /^(data:|blob:)/.test(name || '') ? name : `${import.meta.env.BASE_URL}${String(name || 'assets/r1.webp').replace(/^\//, '')}`;
+export const ROLE_USER = { tenant: 'lan', landlord: 'quan', admin: 'admin' };
+export const houseVerified = (data, houseId) => data.houseVerifications.some(v => v.houseId === houseId && v.status === 'APPROVED' && (!v.validUntil || v.validUntil >= day()));
+export const publicPosts = data => data.posts.filter(p => { const r = data.rooms.find(r => r.id === p.roomId); const h = data.houses.find(h => h.id === r?.houseId); return r && h && p.status === 'APPROVED' && houseVerified(data, h.id) && !data.lockedUsers.includes(h.ownerId); });
+export const listings = data => publicPosts(data).map(p => ({ ...data.rooms.find(r => r.id === p.roomId), title: p.title, description: p.description, photo: p.photo, postStatus: p.status, postId: p.id }));
+export const ownHouses = (data, me) => data.houses.filter(h => h.ownerId === me);
+export const ownRooms = (data, me) => data.rooms.filter(r => ownHouses(data, me).some(h => h.id === r.houseId));
+export const visibleContracts = (data, me, role) => data.contracts.filter(c => role === 'landlord' ? c.ownerId === me : c.tenantId === me || c.members.some(m => m.tenantId === me));
