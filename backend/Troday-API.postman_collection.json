@@ -1,0 +1,3820 @@
+{
+  "info": {
+    "_postman_id": "troday-api-176",
+    "name": "Troday API - 176 endpoints",
+    "description": "Postman collection sinh từ danh mục API hiện có của backend Troday. Đặt accessToken sau khi đăng nhập. Các body mẫu chi tiết nằm trong Troday-176-API-va-JSON.md.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "API-001 - Đăng ký tài khoản người thuê",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/register",
+        "description": "Endpoint /api/v1/auth/register. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-002 - Đăng nhập và mở phiên",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/login",
+        "description": "Endpoint /api/v1/auth/login. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-003 - Đọc tài khoản và các vai trò thực",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me",
+        "description": "Endpoint /api/v1/me. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-004 - Cập nhật hồ sơ cá nhân",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/profile",
+        "description": "Endpoint /api/v1/me/profile. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-005 - Cấu hình kênh thông báo",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/notification-settings",
+        "description": "Endpoint /api/v1/me/notification-settings. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-006 - Nộp xác minh danh tính người thuê",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/identity-verifications",
+        "description": "Endpoint /api/v1/me/identity-verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-007 - Lịch sử xác minh của mình",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/identity-verifications",
+        "description": "Endpoint /api/v1/me/identity-verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-008 - Rút hồ sơ danh tính đang chờ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/identity-verifications/:verificationId/withdraw",
+        "description": "Endpoint /api/v1/me/identity-verifications/{verificationId}/withdraw. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-009 - Xin cấp vai trò chủ trọ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/landlord-verifications",
+        "description": "Endpoint /api/v1/me/landlord-verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-010 - Lịch sử hồ sơ xin làm chủ trọ",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/landlord-verifications",
+        "description": "Endpoint /api/v1/me/landlord-verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-011 - Rút hồ sơ chủ trọ đang chờ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/landlord-verifications/:verificationId/withdraw",
+        "description": "Endpoint /api/v1/me/landlord-verifications/{verificationId}/withdraw. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-012 - Danh sách hồ sơ identity",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/identity-verifications",
+        "description": "Endpoint /api/v1/admin/identity-verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-013 - Chi tiết hồ sơ identity",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/identity-verifications/:verificationId",
+        "description": "Endpoint /api/v1/admin/identity-verifications/{verificationId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-014 - Duyệt hoặc từ chối hồ sơ identity",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/identity-verifications/:verificationId/decision",
+        "description": "Endpoint /api/v1/admin/identity-verifications/{verificationId}/decision. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-015 - Danh sách hồ sơ landlord",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/landlord-verifications",
+        "description": "Endpoint /api/v1/admin/landlord-verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-016 - Chi tiết hồ sơ landlord",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/landlord-verifications/:verificationId",
+        "description": "Endpoint /api/v1/admin/landlord-verifications/{verificationId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-017 - Duyệt hoặc từ chối hồ sơ landlord",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/landlord-verifications/:verificationId/decision",
+        "description": "Endpoint /api/v1/admin/landlord-verifications/{verificationId}/decision. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-018 - Luân chuyển refresh token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/refresh",
+        "description": "Endpoint /api/v1/auth/refresh. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-019 - Đăng xuất phiên hiện tại",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/logout",
+        "description": "Endpoint /api/v1/auth/logout. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-020 - Danh sách phiên của mình",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/sessions",
+        "description": "Endpoint /api/v1/me/sessions. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-021 - Thu hồi một phiên",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/sessions/:sessionId",
+        "description": "Endpoint /api/v1/me/sessions/{sessionId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-022 - Gửi OTP xác minh điện thoại",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/phone-verifications",
+        "description": "Endpoint /api/v1/auth/phone-verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-023 - Xác nhận OTP điện thoại",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/phone-verifications/confirm",
+        "description": "Endpoint /api/v1/auth/phone-verifications/confirm. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-024 - Yêu cầu đặt lại mật khẩu",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/password-resets",
+        "description": "Endpoint /api/v1/auth/password-resets. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-025 - Đổi OTP hợp lệ lấy quyền reset ngắn hạn",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/password-resets/verify",
+        "description": "Endpoint /api/v1/auth/password-resets/verify. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-026 - Đặt mật khẩu mới",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/password-resets/complete",
+        "description": "Endpoint /api/v1/auth/password-resets/complete. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-027 - Mời cư dân chưa có tài khoản liên kết",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/members/:memberId/account-invitations",
+        "description": "Endpoint /api/v1/contracts/{contractId}/members/{memberId}/account-invitations. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-028 - Nhận liên kết tài khoản với lượt cư trú",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/residency-links",
+        "description": "Endpoint /api/v1/me/residency-links. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-029 - Danh sách nhà thuộc chủ trọ",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses",
+        "description": "Endpoint /api/v1/houses. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-030 - Tạo nhà nháp",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses",
+        "description": "Endpoint /api/v1/houses. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-031 - Chi tiết nhà quản lý",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId",
+        "description": "Endpoint /api/v1/houses/{houseId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-032 - Sửa nhà và kiểm tra phiên bản",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId",
+        "description": "Endpoint /api/v1/houses/{houseId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-033 - Lịch sử quyền cho thuê từng nhà",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/verifications",
+        "description": "Endpoint /api/v1/houses/{houseId}/verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-034 - Nộp minh chứng quyền cho thuê",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/verifications",
+        "description": "Endpoint /api/v1/houses/{houseId}/verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-035 - Chi tiết hồ sơ quyền nhà của mình",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/verifications/:verificationId",
+        "description": "Endpoint /api/v1/houses/{houseId}/verifications/{verificationId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-036 - Rút hồ sơ quyền nhà đang chờ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/verifications/:verificationId/withdraw",
+        "description": "Endpoint /api/v1/houses/{houseId}/verifications/{verificationId}/withdraw. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-037 - Hàng đợi xác minh quyền nhà",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/house-verifications",
+        "description": "Endpoint /api/v1/admin/house-verifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-038 - Chi tiết và minh chứng để đối chiếu",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/house-verifications/:verificationId",
+        "description": "Endpoint /api/v1/admin/house-verifications/{verificationId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-039 - Duyệt/từ chối quyền cho thuê",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/house-verifications/:verificationId/decision",
+        "description": "Endpoint /api/v1/admin/house-verifications/{verificationId}/decision. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-040 - Thu hồi quyền đã duyệt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/house-verifications/:verificationId/revoke",
+        "description": "Endpoint /api/v1/admin/house-verifications/{verificationId}/revoke. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-041 - Đọc quyền hiệu lực hiện tại",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/rental-right",
+        "description": "Endpoint /api/v1/houses/{houseId}/rental-right. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-042 - Danh sách phòng của nhà",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/rooms",
+        "description": "Endpoint /api/v1/houses/{houseId}/rooms. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-043 - Thêm phòng trong nhà",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/rooms",
+        "description": "Endpoint /api/v1/houses/{houseId}/rooms. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-044 - Sửa thông tin vật lý và giá phòng",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rooms/:roomId",
+        "description": "Endpoint /api/v1/rooms/{roomId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-045 - Đổi sức chứa có khóa phòng",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rooms/:roomId/capacity",
+        "description": "Endpoint /api/v1/rooms/{roomId}/capacity. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-046 - Chi tiết phòng theo quyền người xem",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rooms/:roomId",
+        "description": "Endpoint /api/v1/rooms/{roomId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-047 - Bài đăng của một phòng",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rooms/:roomId/posts",
+        "description": "Endpoint /api/v1/rooms/{roomId}/posts. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-048 - Người đang ở trong phòng",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rooms/:roomId/residents",
+        "description": "Endpoint /api/v1/rooms/{roomId}/residents. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-049 - Dịch vụ hiệu lực của phòng",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rooms/:roomId/services",
+        "description": "Endpoint /api/v1/rooms/{roomId}/services. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-175 - Tổng quan quản lý nhà trọ",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/landlord/dashboard",
+        "description": "Endpoint /api/v1/landlord/dashboard. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-050 - Danh sách tin chủ trọ quản lý",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/landlord/posts",
+        "description": "Endpoint /api/v1/landlord/posts. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-051 - Tạo bài mới và gửi duyệt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/posts",
+        "description": "Endpoint /api/v1/posts. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-052 - Sửa đúng bài và gửi duyệt lại",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/posts/:postId",
+        "description": "Endpoint /api/v1/posts/{postId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-053 - Hàng đợi kiểm duyệt tin",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/posts",
+        "description": "Endpoint /api/v1/admin/posts. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-054 - Duyệt hoặc từ chối đúng bài",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/posts/:postId/decision",
+        "description": "Endpoint /api/v1/admin/posts/{postId}/decision. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-055 - Ẩn tin đang công khai",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/posts/:postId/hide",
+        "description": "Endpoint /api/v1/posts/{postId}/hide. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-056 - Hiện lại tin đã ẩn",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/posts/:postId/restore",
+        "description": "Endpoint /api/v1/admin/posts/{postId}/restore. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-057 - Khám phá và lọc tin công khai",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/posts",
+        "description": "Endpoint /api/v1/posts. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-058 - Chi tiết đúng tin công khai",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/posts/:postId",
+        "description": "Endpoint /api/v1/posts/{postId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-059 - Danh sách bài đã lưu",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/favorites",
+        "description": "Endpoint /api/v1/me/favorites. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-060 - Lưu bài theo ID",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/favorites/:postId",
+        "description": "Endpoint /api/v1/me/favorites/{postId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-061 - Bỏ lưu bài",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/favorites/:postId",
+        "description": "Endpoint /api/v1/me/favorites/{postId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-062 - Đọc hồ sơ ở ghép của mình",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/roommate-profile",
+        "description": "Endpoint /api/v1/me/roommate-profile. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-063 - Tạo hoặc thay thế hồ sơ ở ghép",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/roommate-profile",
+        "description": "Endpoint /api/v1/me/roommate-profile. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-064 - Xem hồ sơ ứng viên theo quyền",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/roommate-profiles/:profileId",
+        "description": "Endpoint /api/v1/roommate-profiles/{profileId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-065 - Danh mục tiêu chí đang áp dụng",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/lifestyle-criteria",
+        "description": "Endpoint /api/v1/lifestyle-criteria. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-066 - Đọc đặc điểm và mong muốn đã lưu",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/roommate-profile/lifestyles",
+        "description": "Endpoint /api/v1/me/roommate-profile/lifestyles. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-067 - Thay bộ tiêu chí của hồ sơ",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/roommate-profile/lifestyles",
+        "description": "Endpoint /api/v1/me/roommate-profile/lifestyles. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-068 - Danh sách người phù hợp",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/roommate-matches",
+        "description": "Endpoint /api/v1/roommate-matches. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-069 - Tạo tiêu chí ghép linh động",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/lifestyle-criteria",
+        "description": "Endpoint /api/v1/admin/lifestyle-criteria. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-070 - Sửa/ngừng tiêu chí",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/lifestyle-criteria/:criterionId",
+        "description": "Endpoint /api/v1/admin/lifestyle-criteria/{criterionId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-071 - Lời mời đến/đã gửi và bộ đếm",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/roommate-requests",
+        "description": "Endpoint /api/v1/roommate-requests. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-072 - Gửi lời mời kết nối",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/roommate-requests",
+        "description": "Endpoint /api/v1/roommate-requests. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-073 - Người nhận chấp nhận/từ chối kết nối",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/roommate-requests/:requestId/response",
+        "description": "Endpoint /api/v1/roommate-requests/{requestId}/response. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-074 - Người gửi hủy lời mời chờ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/roommate-requests/:requestId/cancel",
+        "description": "Endpoint /api/v1/roommate-requests/{requestId}/cancel. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-075 - Kết thúc kết nối đã nhận",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/roommate-requests/:requestId/end",
+        "description": "Endpoint /api/v1/roommate-requests/{requestId}/end. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-076 - Mở/lấy hội thoại hỏi đúng bài",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/conversations/room-inquiries",
+        "description": "Endpoint /api/v1/conversations/room-inquiries. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-077 - Hội thoại của tài khoản",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/conversations",
+        "description": "Endpoint /api/v1/conversations. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-078 - Chi tiết hội thoại và thành viên",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/conversations/:conversationId",
+        "description": "Endpoint /api/v1/conversations/{conversationId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-079 - Lịch sử tin và thẻ chia sẻ",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/conversations/:conversationId/messages",
+        "description": "Endpoint /api/v1/conversations/{conversationId}/messages. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-080 - Gửi tin nhắn chữ/ảnh",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/conversations/:conversationId/messages",
+        "description": "Endpoint /api/v1/conversations/{conversationId}/messages. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-081 - Đánh dấu đã đọc đến tin xác định",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/conversations/:conversationId/read-state",
+        "description": "Endpoint /api/v1/conversations/{conversationId}/read-state. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-082 - Ẩn/lưu trữ/tắt thông báo phía mình",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/conversations/:conversationId/preferences",
+        "description": "Endpoint /api/v1/conversations/{conversationId}/preferences. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-083 - Thẻ lịch và đề nghị trong chat",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/conversations/:conversationId/viewing-timeline",
+        "description": "Endpoint /api/v1/conversations/{conversationId}/viewing-timeline. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-084 - Mở lại đúng chat bạn ghép",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/roommate-requests/:requestId/conversation",
+        "description": "Endpoint /api/v1/roommate-requests/{requestId}/conversation. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-085 - Chia sẻ đúng bài cho bạn ghép",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/conversations/:conversationId/post-shares",
+        "description": "Endpoint /api/v1/conversations/{conversationId}/post-shares. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-086 - Feed thông báo của mình",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/notifications",
+        "description": "Endpoint /api/v1/me/notifications. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-087 - Bộ đếm chưa đọc",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/notification-counts",
+        "description": "Endpoint /api/v1/me/notification-counts. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-088 - Đánh dấu một thông báo đã đọc",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/notifications/:notificationId/read-state",
+        "description": "Endpoint /api/v1/me/notifications/{notificationId}/read-state. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-089 - Đọc tất cả đến mốc xác định",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/notifications/read-all",
+        "description": "Endpoint /api/v1/me/notifications/read-all. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-090 - Kênh sự kiện SSE có xác thực",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/events",
+        "description": "Endpoint /api/v1/events. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-091 - Danh sách đề nghị đúng các bên",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewing-proposals",
+        "description": "Endpoint /api/v1/viewing-proposals. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-092 - Người thuê gửi đề nghị lịch xem",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewing-proposals",
+        "description": "Endpoint /api/v1/viewing-proposals. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-093 - Chủ trọ chấp nhận/từ chối đề nghị",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewing-proposals/:proposalId/decision",
+        "description": "Endpoint /api/v1/viewing-proposals/{proposalId}/decision. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-094 - Rút đề nghị của mình",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewing-proposals/:proposalId/withdraw",
+        "description": "Endpoint /api/v1/viewing-proposals/{proposalId}/withdraw. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-095 - Danh sách lịch đã chốt",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewings",
+        "description": "Endpoint /api/v1/viewings. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-096 - Chi tiết lịch xem",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewings/:viewingId",
+        "description": "Endpoint /api/v1/viewings/{viewingId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-097 - Chủ trọ tự chốt lịch sau trao đổi",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewings",
+        "description": "Endpoint /api/v1/viewings. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-098 - Chủ trọ ghi nhận đã xem hoặc không đến",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewings/:viewingId/attendance",
+        "description": "Endpoint /api/v1/viewings/{viewingId}/attendance. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-099 - Hai bên hủy lịch đang hẹn",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewings/:viewingId/cancel",
+        "description": "Endpoint /api/v1/viewings/{viewingId}/cancel. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-100 - Người thuê quyết định sau khi xem",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewings/:viewingId/rental-decision",
+        "description": "Endpoint /api/v1/viewings/{viewingId}/rental-decision. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-101 - Danh sách hợp đồng được quyền xem",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts",
+        "description": "Endpoint /api/v1/contracts. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-102 - Chi tiết hợp đồng và quyền thao tác",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId",
+        "description": "Endpoint /api/v1/contracts/{contractId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-103 - Gửi hợp đồng thuê mới và giữ phòng",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts",
+        "description": "Endpoint /api/v1/contracts. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-104 - Dự kiến lịch/đề nghị bị đóng khi gửi hợp đồng",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/viewings/:viewingId/contract-impact",
+        "description": "Endpoint /api/v1/viewings/{viewingId}/contract-impact. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-105 - Lịch sử phiên bản hợp đồng",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/revisions",
+        "description": "Endpoint /api/v1/contracts/{contractId}/revisions. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-106 - Đại diện yêu cầu sửa bản đang chờ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/revision-requests",
+        "description": "Endpoint /api/v1/contracts/{contractId}/revision-requests. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-107 - Chủ trọ chỉnh bản nháp hợp đồng",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/revisions/:revisionId",
+        "description": "Endpoint /api/v1/contracts/{contractId}/revisions/{revisionId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-108 - Gửi lại phiên bản nháp",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/revisions/:revisionId/submit",
+        "description": "Endpoint /api/v1/contracts/{contractId}/revisions/{revisionId}/submit. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-109 - Đại diện xác nhận phiên bản hiện hành",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/confirm",
+        "description": "Endpoint /api/v1/contracts/{contractId}/confirm. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-110 - Xác nhận vào ở theo nhóm/từng người",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/move-ins",
+        "description": "Endpoint /api/v1/contracts/{contractId}/move-ins. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-111 - Hủy hợp đồng trước vào ở",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/cancel",
+        "description": "Endpoint /api/v1/contracts/{contractId}/cancel. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-112 - Hủy thành viên dự kiến chưa đến",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/members/:memberId/cancel",
+        "description": "Endpoint /api/v1/contracts/{contractId}/members/{memberId}/cancel. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-113 - Nhập hợp đồng giấy có chứng cứ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contract-imports",
+        "description": "Endpoint /api/v1/contract-imports. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-114 - Danh sách và lịch sử người ở quản lý",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/residents",
+        "description": "Endpoint /api/v1/residents. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-115 - Thành viên của hợp đồng",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/members",
+        "description": "Endpoint /api/v1/contracts/{contractId}/members. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-116 - Xuất danh sách cư dân đang ở",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/residents/export",
+        "description": "Endpoint /api/v1/residents/export. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-117 - Yêu cầu thêm người trong phạm vi được xem",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/occupant-join-requests",
+        "description": "Endpoint /api/v1/occupant-join-requests. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-118 - Đại diện đề nghị thêm người",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/occupant-join-requests",
+        "description": "Endpoint /api/v1/occupant-join-requests. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-119 - Ghi đồng ý riêng của đại diện hoặc người xin vào",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/occupant-join-requests/:requestId/consents",
+        "description": "Endpoint /api/v1/occupant-join-requests/{requestId}/consents. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-120 - Rút yêu cầu chưa được duyệt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/occupant-join-requests/:requestId/cancel",
+        "description": "Endpoint /api/v1/occupant-join-requests/{requestId}/cancel. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-121 - Chủ trọ duyệt và giữ một chỗ 48 giờ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/occupant-join-requests/:requestId/approve",
+        "description": "Endpoint /api/v1/occupant-join-requests/{requestId}/approve. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-122 - Chủ trọ từ chối thêm người",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/occupant-join-requests/:requestId/reject",
+        "description": "Endpoint /api/v1/occupant-join-requests/{requestId}/reject. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-123 - Chủ trọ hủy giữ chỗ đã duyệt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/occupant-join-requests/:requestId/cancel-hold",
+        "description": "Endpoint /api/v1/occupant-join-requests/{requestId}/cancel-hold. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-124 - Hoàn tất vào ở từ giữ chỗ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/occupant-join-requests/:requestId/complete",
+        "description": "Endpoint /api/v1/occupant-join-requests/{requestId}/complete. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-125 - Ghi nhận thành viên thực tế rời",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/members/:memberId/move-out",
+        "description": "Endpoint /api/v1/contracts/{contractId}/members/{memberId}/move-out. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-126 - Người đủ điều kiện nhận đại diện",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/representative-candidates",
+        "description": "Endpoint /api/v1/contracts/{contractId}/representative-candidates. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-127 - Lịch sử đại diện theo giai đoạn",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/representative-history",
+        "description": "Endpoint /api/v1/contracts/{contractId}/representative-history. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-128 - Bàn giao và ghi người cũ rời",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/representative-handovers",
+        "description": "Endpoint /api/v1/contracts/{contractId}/representative-handovers. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-129 - Lịch sử yêu cầu điều chỉnh hợp đồng",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/change-requests",
+        "description": "Endpoint /api/v1/contracts/{contractId}/change-requests. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-130 - Gửi yêu cầu gia hạn/đổi phòng/chấm dứt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/change-requests",
+        "description": "Endpoint /api/v1/contracts/{contractId}/change-requests. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-131 - Đọc phương án điều chỉnh",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contract-change-requests/:requestId",
+        "description": "Endpoint /api/v1/contract-change-requests/{requestId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-132 - Chủ trọ duyệt/từ chối phương án",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contract-change-requests/:requestId/decision",
+        "description": "Endpoint /api/v1/contract-change-requests/{requestId}/decision. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-133 - Đại diện xác nhận đúng phương án",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contract-change-requests/:requestId/confirm",
+        "description": "Endpoint /api/v1/contract-change-requests/{requestId}/confirm. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-134 - Hủy yêu cầu điều chỉnh còn mở",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contract-change-requests/:requestId/cancel",
+        "description": "Endpoint /api/v1/contract-change-requests/{requestId}/cancel. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-135 - Áp dụng yêu cầu đã đủ xác nhận",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contract-change-requests/:requestId/apply",
+        "description": "Endpoint /api/v1/contract-change-requests/{requestId}/apply. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-136 - Phòng đích có thể chuyển toàn bộ nhóm",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contracts/:contractId/transfer-options",
+        "description": "Endpoint /api/v1/contracts/{contractId}/transfer-options. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-137 - Danh mục dịch vụ cho cấu hình",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rental-services",
+        "description": "Endpoint /api/v1/rental-services. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-138 - Quản trị bổ sung danh mục dịch vụ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/rental-services",
+        "description": "Endpoint /api/v1/admin/rental-services. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-139 - Sửa nội dung mẫu dịch vụ",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/rental-services/:serviceId",
+        "description": "Endpoint /api/v1/admin/rental-services/{serviceId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-140 - Cấu hình dịch vụ của nhà",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/services",
+        "description": "Endpoint /api/v1/houses/{houseId}/services. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-141 - Thêm dịch vụ vào nhà",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/services",
+        "description": "Endpoint /api/v1/houses/{houseId}/services. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-142 - Sửa/bật/ngừng dịch vụ nhà",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/houses/:houseId/services/:houseServiceId",
+        "description": "Endpoint /api/v1/houses/{houseId}/services/{houseServiceId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-143 - Gán hoặc đổi giá dịch vụ tại phòng",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rooms/:roomId/service-settings/:houseServiceId",
+        "description": "Endpoint /api/v1/rooms/{roomId}/service-settings/{houseServiceId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-144 - Cấu hình dịch vụ phòng để quản lý",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rooms/:roomId/service-settings",
+        "description": "Endpoint /api/v1/rooms/{roomId}/service-settings. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-145 - Danh sách hóa đơn được xem",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/invoices",
+        "description": "Endpoint /api/v1/invoices. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-146 - Chi tiết dòng tiền và người trả tại kỳ lập",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/invoices/:invoiceId",
+        "description": "Endpoint /api/v1/invoices/{invoiceId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-147 - Lập hóa đơn nháp theo kỳ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/invoices",
+        "description": "Endpoint /api/v1/invoices. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-148 - Sửa toàn bộ nội dung hóa đơn nháp",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/invoices/:invoiceId",
+        "description": "Endpoint /api/v1/invoices/{invoiceId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-149 - Phát hành hóa đơn có dòng tiền",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/invoices/:invoiceId/issue",
+        "description": "Endpoint /api/v1/invoices/{invoiceId}/issue. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-150 - Ghi nhận chủ trọ đã thu đủ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/invoices/:invoiceId/payment-confirmation",
+        "description": "Endpoint /api/v1/invoices/{invoiceId}/payment-confirmation. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-151 - Hủy hóa đơn phát hành chưa thu",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/invoices/:invoiceId/cancel",
+        "description": "Endpoint /api/v1/invoices/{invoiceId}/cancel. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-152 - Lập bản nháp thay hóa đơn đã hủy",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/invoices/:invoiceId/replacements",
+        "description": "Endpoint /api/v1/invoices/{invoiceId}/replacements. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-153 - Đánh giá phòng được công khai",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/rooms/:roomId/reviews",
+        "description": "Endpoint /api/v1/rooms/{roomId}/reviews. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-154 - Đánh giá bằng lượt cư trú thực tế",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/reviews",
+        "description": "Endpoint /api/v1/reviews. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-155 - Ẩn/khôi phục/xóa mềm đánh giá",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/reviews/:reviewId/moderation",
+        "description": "Endpoint /api/v1/admin/reviews/{reviewId}/moderation. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-156 - Gửi báo cáo hoặc tranh chấp",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/reports",
+        "description": "Endpoint /api/v1/reports. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-157 - Báo cáo mình đã gửi và kết luận",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/me/reports",
+        "description": "Endpoint /api/v1/me/reports. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-158 - Hàng đợi báo cáo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/reports",
+        "description": "Endpoint /api/v1/admin/reports. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-159 - Chi tiết báo cáo và bằng chứng",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/reports/:reportId",
+        "description": "Endpoint /api/v1/admin/reports/{reportId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-160 - Điều tra hoặc kết luận báo cáo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/reports/:reportId/decision",
+        "description": "Endpoint /api/v1/admin/reports/{reportId}/decision. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-161 - Quản lý tài khoản và vai trò",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/users",
+        "description": "Endpoint /api/v1/admin/users. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-162 - Chi tiết trạng thái tài khoản",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/users/:userId",
+        "description": "Endpoint /api/v1/admin/users/{userId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-163 - Khóa tài khoản có lý do",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/users/:userId/lock",
+        "description": "Endpoint /api/v1/admin/users/{userId}/lock. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-164 - Mở khóa tài khoản",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/users/:userId/unlock",
+        "description": "Endpoint /api/v1/admin/users/{userId}/unlock. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-165 - Mẫu hợp đồng theo phiên bản",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/contract-templates",
+        "description": "Endpoint /api/v1/contract-templates. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-166 - Tạo mẫu hoặc phiên bản tiếp theo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/contract-templates",
+        "description": "Endpoint /api/v1/admin/contract-templates. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-167 - Bật/ngừng phiên bản mẫu",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/contract-templates/:templateId",
+        "description": "Endpoint /api/v1/admin/contract-templates/{templateId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-168 - Tra nhật ký quyết định",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/moderation-actions",
+        "description": "Endpoint /api/v1/admin/moderation-actions. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-169 - Chi tiết quyết định trước/sau",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/moderation-actions/:actionId",
+        "description": "Endpoint /api/v1/admin/moderation-actions/{actionId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-176 - Tổng quan hàng đợi quản trị",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/admin/dashboard",
+        "description": "Endpoint /api/v1/admin/dashboard. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-170 - Xin phiên upload theo mục đích",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/files/upload-sessions",
+        "description": "Endpoint /api/v1/files/upload-sessions. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-171 - Xác minh tệp upload hoàn tất",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/files/:fileId/complete",
+        "description": "Endpoint /api/v1/files/{fileId}/complete. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-172 - Metadata tệp được phép xem",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/files/:fileId",
+        "description": "Endpoint /api/v1/files/{fileId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    },
+    {
+      "name": "API-173 - Cấp URL đọc riêng tư có hạn",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/files/:fileId/download-links",
+        "description": "Endpoint /api/v1/files/{fileId}/download-links. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "API-174 - Xóa mềm tệp chưa bị giữ làm chứng cứ",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/files/:fileId",
+        "description": "Endpoint /api/v1/files/{fileId}. Xem request body mẫu và quyền truy cập trong Troday-176-API-va-JSON.md."
+      }
+    }
+  ]
+}
