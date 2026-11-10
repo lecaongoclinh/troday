@@ -1,0 +1,941 @@
+{
+  "favorites": [
+    "p-r2"
+  ],
+  "houses": [
+    {
+      "id": "h1",
+      "ownerId": "quan",
+      "name": "Nhà trọ An Nhiên",
+      "address": "85 Trần Duy Hưng, Cầu Giấy, Hà Nội",
+      "area": "Cầu Giấy",
+      "provinceCode": "01",
+      "version": 1,
+      "verificationVersion": 1,
+      "localityCode": null,
+      "latitude": null,
+      "longitude": null,
+      "notes": ""
+    },
+    {
+      "id": "h2",
+      "ownerId": "huong",
+      "name": "Nhà trọ Hương Giang",
+      "address": "12 Nguyễn Trãi, Thanh Xuân, Hà Nội",
+      "area": "Thanh Xuân",
+      "provinceCode": "01",
+      "version": 1,
+      "verificationVersion": 1,
+      "localityCode": null,
+      "latitude": null,
+      "longitude": null,
+      "notes": ""
+    }
+  ],
+  "rooms": [
+    {
+      "id": "r1",
+      "code": "P101",
+      "houseId": "h1",
+      "title": "Studio sáng, đầy đủ nội thất",
+      "area": 22,
+      "price": 3800000,
+      "deposit": 3800000,
+      "capacity": 2,
+      "status": "AVAILABLE",
+      "distance": 1.2,
+      "photo": "assets/r1.webp",
+      "amenities": [
+        "Điều hòa",
+        "Wi-Fi",
+        "Máy giặt"
+      ],
+      "description": "Studio cửa sổ lớn, bếp riêng, vệ sinh khép kín. Giờ giấc tự do."
+    },
+    {
+      "id": "r2",
+      "code": "P204",
+      "houseId": "h1",
+      "title": "Phòng ban công thoáng, gần công viên",
+      "area": 28,
+      "price": 4600000,
+      "deposit": 4600000,
+      "capacity": 2,
+      "status": "AVAILABLE",
+      "distance": 1.8,
+      "photo": "assets/r2.webp",
+      "amenities": [
+        "Ban công",
+        "Điều hòa",
+        "Wi-Fi"
+      ],
+      "description": "Ban công riêng, bếp gọn và chỗ để xe tầng một. Có thể vào ở ngay."
+    },
+    {
+      "id": "r3",
+      "code": "P305",
+      "houseId": "h1",
+      "title": "Căn hộ mini 30 m²",
+      "area": 30,
+      "price": 5400000,
+      "deposit": 5400000,
+      "capacity": 3,
+      "status": "OCCUPIED",
+      "distance": 1.9,
+      "photo": "assets/r3.webp",
+      "amenities": [
+        "Điều hòa",
+        "Thang máy",
+        "Wi-Fi"
+      ],
+      "description": "Căn hộ mini có bếp riêng."
+    },
+    {
+      "id": "r4",
+      "code": "B12",
+      "houseId": "h2",
+      "title": "Căn hộ nhỏ cạnh ga tàu",
+      "area": 24,
+      "price": 4100000,
+      "deposit": 4100000,
+      "capacity": 2,
+      "status": "AVAILABLE",
+      "distance": 2.4,
+      "photo": "assets/r4.webp",
+      "amenities": [
+        "Điều hòa",
+        "Thang máy",
+        "Máy giặt"
+      ],
+      "description": "Không gian yên tĩnh, có thang máy và bảo vệ 24/7."
+    },
+    {
+      "id": "r5",
+      "code": "A02",
+      "houseId": "h1",
+      "title": "Phòng góc yên tĩnh",
+      "area": 18,
+      "price": 3200000,
+      "deposit": 3200000,
+      "capacity": 1,
+      "status": "RESERVED",
+      "distance": 1.3,
+      "photo": "assets/r5.webp",
+      "amenities": [
+        "Wi-Fi",
+        "Máy giặt"
+      ],
+      "description": "Phòng một người, ánh sáng tự nhiên."
+    },
+    {
+      "id": "r6",
+      "code": "P408",
+      "houseId": "h1",
+      "title": "Studio mới sửa tầng 4",
+      "area": 26,
+      "price": 4300000,
+      "deposit": 4300000,
+      "capacity": 2,
+      "status": "AVAILABLE",
+      "distance": 1.5,
+      "photo": "assets/r6.webp",
+      "amenities": [
+        "Wi-Fi",
+        "Ban công"
+      ],
+      "description": "Phòng mới sửa, có ban công và khu phơi riêng."
+    },
+    {
+      "id": "r7",
+      "code": "P203",
+      "houseId": "h1",
+      "title": "Phòng đang thuê của Lan",
+      "area": 25,
+      "price": 4200000,
+      "deposit": 4200000,
+      "capacity": 2,
+      "status": "OCCUPIED",
+      "distance": 1.4,
+      "photo": "assets/r2.webp",
+      "amenities": [
+        "Điều hòa",
+        "Wi-Fi",
+        "Ban công"
+      ],
+      "description": "Phòng có ban công, bếp và vệ sinh riêng."
+    }
+  ],
+  "posts": [
+    {
+      "id": "p-r1",
+      "roomId": "r1",
+      "title": "Studio sáng, đầy đủ nội thất",
+      "description": "Studio cửa sổ lớn, bếp riêng, vệ sinh khép kín. Giờ giấc tự do.",
+      "photo": "assets/r1.webp",
+      "status": "APPROVED",
+      "version": 1,
+      "rejectionReason": ""
+    },
+    {
+      "id": "p-r2",
+      "roomId": "r2",
+      "title": "Phòng ban công thoáng, gần công viên",
+      "description": "Ban công riêng, bếp gọn và chỗ để xe tầng một. Có thể vào ở ngay.",
+      "photo": "assets/r2.webp",
+      "status": "APPROVED",
+      "version": 1,
+      "rejectionReason": ""
+    },
+    {
+      "id": "p-r3",
+      "roomId": "r3",
+      "title": "Căn hộ mini 30 m²",
+      "description": "Căn hộ mini có bếp riêng.",
+      "photo": "assets/r3.webp",
+      "status": "APPROVED",
+      "version": 1,
+      "rejectionReason": ""
+    },
+    {
+      "id": "p-r4",
+      "roomId": "r4",
+      "title": "Căn hộ nhỏ cạnh ga tàu",
+      "description": "Không gian yên tĩnh, có thang máy và bảo vệ 24/7.",
+      "photo": "assets/r4.webp",
+      "status": "APPROVED",
+      "version": 1,
+      "rejectionReason": ""
+    },
+    {
+      "id": "p-r5",
+      "roomId": "r5",
+      "title": "Phòng góc yên tĩnh",
+      "description": "Phòng một người, ánh sáng tự nhiên.",
+      "photo": "assets/r5.webp",
+      "status": "APPROVED",
+      "version": 1,
+      "rejectionReason": ""
+    },
+    {
+      "id": "p-r6",
+      "roomId": "r6",
+      "title": "Studio mới sửa tầng 4",
+      "description": "Phòng mới sửa, có ban công và khu phơi riêng.",
+      "photo": "assets/r6.webp",
+      "status": "PENDING_REVIEW",
+      "version": 1,
+      "rejectionReason": ""
+    }
+  ],
+  "services": [
+    {
+      "id": "s1",
+      "houseId": "h1",
+      "name": "Điện",
+      "unit": "kWh",
+      "price": 3800,
+      "method": "METERED",
+      "active": true
+    },
+    {
+      "id": "s2",
+      "houseId": "h1",
+      "name": "Nước",
+      "unit": "m³",
+      "price": 28000,
+      "method": "METERED",
+      "active": true
+    },
+    {
+      "id": "s3",
+      "houseId": "h1",
+      "name": "Internet",
+      "unit": "phòng",
+      "price": 100000,
+      "method": "PER_ROOM",
+      "active": true
+    },
+    {
+      "id": "s4",
+      "houseId": "h1",
+      "name": "Gửi xe",
+      "unit": "người",
+      "price": 70000,
+      "method": "PER_PERSON",
+      "active": true
+    },
+    {
+      "id": "s5",
+      "houseId": "h2",
+      "name": "Điện",
+      "unit": "kWh",
+      "price": 4000,
+      "method": "METERED",
+      "active": true
+    }
+  ],
+  "roomServices": [
+    {
+      "roomId": "r1",
+      "serviceId": "s1",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r1",
+      "serviceId": "s2",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r1",
+      "serviceId": "s3",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r2",
+      "serviceId": "s1",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r2",
+      "serviceId": "s2",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r2",
+      "serviceId": "s3",
+      "active": true,
+      "override": 90000
+    },
+    {
+      "roomId": "r3",
+      "serviceId": "s1",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r3",
+      "serviceId": "s2",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r3",
+      "serviceId": "s3",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r3",
+      "serviceId": "s4",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r5",
+      "serviceId": "s1",
+      "active": true,
+      "override": null
+    },
+    {
+      "roomId": "r5",
+      "serviceId": "s2",
+      "active": true,
+      "override": null
+    }
+  ],
+  "conversations": [
+    {
+      "id": "c1",
+      "users": [
+        "lan",
+        "quan"
+      ],
+      "messages": [
+        {
+          "id": "m1",
+          "senderId": "lan",
+          "roomId": "r1",
+          "text": "Chào anh, phòng P101 còn trống không ạ?",
+          "time": "09:14",
+          "postId": "p-r1"
+        },
+        {
+          "id": "m2",
+          "senderId": "quan",
+          "roomId": "r1",
+          "text": "Còn em nhé. Phòng có thể xem chiều mai.",
+          "time": "09:16",
+          "postId": "p-r1"
+        },
+        {
+          "id": "m3",
+          "senderId": "lan",
+          "roomId": "r2",
+          "text": "Em vừa xem P204, phòng này có ban công riêng không anh?",
+          "time": "10:32",
+          "postId": "p-r2"
+        },
+        {
+          "id": "m4",
+          "senderId": "quan",
+          "roomId": "r2",
+          "text": "Có ban công riêng. Giá 4,6 triệu chưa gồm điện nước.",
+          "time": "10:35",
+          "postId": "p-r2"
+        },
+        {
+          "id": "m5",
+          "senderId": "lan",
+          "roomId": "r1",
+          "text": "Vậy em muốn hẹn xem P101 vào cuối tuần ạ.",
+          "time": "11:08",
+          "postId": "p-r1"
+        }
+      ],
+      "postIds": [
+        "p-r1",
+        "p-r2"
+      ]
+    },
+    {
+      "id": "c2",
+      "users": [
+        "lan",
+        "huong"
+      ],
+      "messages": [
+        {
+          "id": "m6",
+          "senderId": "lan",
+          "roomId": "r4",
+          "text": "Chị ơi, phí gửi xe ở B12 là bao nhiêu ạ?",
+          "time": "08:40",
+          "postId": "p-r4"
+        },
+        {
+          "id": "m7",
+          "senderId": "huong",
+          "roomId": "r4",
+          "text": "Miễn phí một xe máy em nhé.",
+          "time": "08:47",
+          "postId": "p-r4"
+        }
+      ],
+      "postIds": [
+        "p-r4"
+      ]
+    },
+    {
+      "id": "c3",
+      "users": [
+        "mai",
+        "quan"
+      ],
+      "messages": [
+        {
+          "id": "m8",
+          "senderId": "mai",
+          "roomId": "r3",
+          "text": "Anh Quân ơi, em muốn cập nhật thông tin bạn ở cùng.",
+          "time": "08:22",
+          "postId": "p-r3"
+        }
+      ],
+      "postIds": [
+        "p-r3"
+      ]
+    }
+  ],
+  "viewingProposals": [],
+  "viewings": [
+    {
+      "id": "v1",
+      "roomId": "r1",
+      "tenantId": "lan",
+      "ownerId": "quan",
+      "conversationId": "c1",
+      "date": "2026-11-05",
+      "time": "17:00",
+      "status": "SCHEDULED",
+      "decision": "WAITING",
+      "postId": "p-r1"
+    },
+    {
+      "id": "v2",
+      "roomId": "r2",
+      "tenantId": "lan",
+      "ownerId": "quan",
+      "conversationId": "c1",
+      "date": "2026-10-22",
+      "time": "18:00",
+      "status": "COMPLETED",
+      "decision": "WAITING",
+      "postId": "p-r2"
+    },
+    {
+      "id": "v3",
+      "roomId": "r5",
+      "tenantId": "lan",
+      "ownerId": "quan",
+      "conversationId": "c1",
+      "date": "2026-10-19",
+      "time": "16:00",
+      "status": "COMPLETED",
+      "decision": "AGREED",
+      "postId": "p-r5"
+    },
+    {
+      "id": "v4",
+      "roomId": "r4",
+      "tenantId": "lan",
+      "ownerId": "huong",
+      "conversationId": "c2",
+      "date": "2026-11-06",
+      "time": "15:30",
+      "status": "SCHEDULED",
+      "decision": "WAITING",
+      "postId": "p-r4"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "k1",
+      "number": "HD-2026-041",
+      "roomId": "r5",
+      "ownerId": "quan",
+      "tenantId": "lan",
+      "viewingId": "v3",
+      "source": "NEW_RENTAL",
+      "status": "PENDING_CONFIRMATION",
+      "revisionNo": 1,
+      "revisionStatus": "PENDING_CONFIRMATION",
+      "start": "2026-10-23",
+      "end": "2027-10-22",
+      "rent": 3200000,
+      "deposit": 3200000,
+      "terms": "Thanh toán trước ngày 05 hằng tháng. Báo trước 30 ngày khi kết thúc.",
+      "feedback": "",
+      "members": [
+        {
+          "id": "o1",
+          "tenantId": "lan",
+          "name": "Trần Ngọc Lan",
+          "identity": "001206******",
+          "dob": "2002-04-12",
+          "status": "PLANNED",
+          "moveIn": ""
+        }
+      ],
+      "revisions": [
+        {
+          "version": 1,
+          "status": "PENDING_CONFIRMATION"
+        }
+      ]
+    },
+    {
+      "id": "k2",
+      "number": "HD-2026-018",
+      "roomId": "r3",
+      "ownerId": "quan",
+      "tenantId": "mai",
+      "viewingId": null,
+      "source": "PAPER_IMPORT",
+      "status": "ACTIVE",
+      "revisionNo": 1,
+      "revisionStatus": "IMPORTED",
+      "start": "2026-06-01",
+      "end": "2027-05-31",
+      "rent": 5400000,
+      "deposit": 5400000,
+      "terms": "Thanh toán trước ngày 05 hằng tháng.",
+      "feedback": "",
+      "members": [
+        {
+          "id": "o2",
+          "tenantId": "mai",
+          "name": "Phạm Thu Mai",
+          "identity": "001202******",
+          "dob": "2002-06-15",
+          "status": "ACTIVE",
+          "moveIn": "2026-06-01"
+        },
+        {
+          "id": "o3",
+          "tenantId": "ngoc",
+          "name": "Đỗ Bích Ngọc",
+          "identity": "001204******",
+          "dob": "2004-01-09",
+          "status": "ACTIVE",
+          "moveIn": "2026-08-01"
+        }
+      ],
+      "revisions": [
+        {
+          "version": 1,
+          "status": "IMPORTED"
+        }
+      ]
+    },
+    {
+      "id": "k3",
+      "number": "HD-2025-072",
+      "roomId": "r1",
+      "ownerId": "quan",
+      "tenantId": "lan",
+      "viewingId": null,
+      "source": "PAPER_IMPORT",
+      "status": "TERMINATED",
+      "revisionNo": 1,
+      "revisionStatus": "IMPORTED",
+      "start": "2025-09-01",
+      "end": "2026-08-31",
+      "rent": 3700000,
+      "deposit": 3700000,
+      "terms": "Hợp đồng lưu từ hồ sơ giấy.",
+      "feedback": "",
+      "members": [
+        {
+          "id": "o4",
+          "tenantId": "lan",
+          "name": "Trần Ngọc Lan",
+          "identity": "001206******",
+          "dob": "2002-04-12",
+          "status": "LEFT",
+          "moveIn": "2025-09-01"
+        }
+      ],
+      "revisions": [
+        {
+          "version": 1,
+          "status": "IMPORTED"
+        }
+      ]
+    },
+    {
+      "id": "k4",
+      "number": "HD-2026-099",
+      "roomId": "r7",
+      "ownerId": "quan",
+      "tenantId": "lan",
+      "viewingId": null,
+      "source": "PAPER_IMPORT",
+      "status": "ACTIVE",
+      "revisionNo": 1,
+      "revisionStatus": "IMPORTED",
+      "start": "2026-10-01",
+      "end": "2027-09-30",
+      "rent": 4200000,
+      "deposit": 4200000,
+      "terms": "Thanh toán trước ngày 05 hằng tháng. Báo trước 30 ngày khi chấm dứt hợp đồng.",
+      "feedback": "",
+      "members": [
+        {
+          "id": "o5",
+          "tenantId": "lan",
+          "name": "Trần Ngọc Lan",
+          "identity": "001206******",
+          "dob": "2002-04-12",
+          "status": "ACTIVE",
+          "moveIn": "2026-10-01"
+        }
+      ],
+      "revisions": [
+        {
+          "version": 1,
+          "status": "IMPORTED"
+        }
+      ]
+    }
+  ],
+  "changeRequests": [
+    {
+      "id": "chg1",
+      "contractId": "k2",
+      "type": "RENEWAL",
+      "status": "PENDING",
+      "requestedBy": "mai",
+      "effective": "2027-06-01",
+      "note": "Mong gia hạn thêm 12 tháng."
+    }
+  ],
+  "joinRequests": [
+    {
+      "id": "join1",
+      "contractId": "k2",
+      "applicantId": "bao",
+      "requestedBy": "mai",
+      "status": "PENDING_LANDLORD",
+      "date": "2026-10-23",
+      "representativeConsent": true,
+      "applicantConsent": true
+    }
+  ],
+  "roommateProfile": null,
+  "roommateProfiles": {
+    "bao": {
+      "location": "Cầu Giấy",
+      "budgetMin": 3000000,
+      "budgetMax": 5000000,
+      "habits": "Không hút thuốc · Muốn cùng tìm phòng",
+      "available": "2026-11-01",
+      "housingStatus": "NO_ACCOMMODATION"
+    },
+    "ngoc": {
+      "location": "Thanh Xuân",
+      "budgetMin": 2000000,
+      "budgetMax": 3500000,
+      "habits": "Ưu tiên không hút thuốc · Giữ vệ sinh chung",
+      "available": "2026-11-01",
+      "housingStatus": "IN_SYSTEM"
+    },
+    "mai": {
+      "location": "Cầu Giấy",
+      "budgetMin": 2000000,
+      "budgetMax": 3000000,
+      "habits": "Giờ giấc ổn định · Muốn trao đổi trước khi ở chung",
+      "available": "2026-11-01",
+      "housingStatus": "IN_SYSTEM"
+    }
+  },
+  "roommateInvites": [
+    {
+      "id": "rm1",
+      "senderId": "bao",
+      "receiverId": "lan",
+      "status": "PENDING",
+      "scenario": "SEARCH_TOGETHER",
+      "note": "Mình đang tìm phòng khu Cầu Giấy, bạn cùng tìm nhé?"
+    },
+    {
+      "id": "rm2",
+      "senderId": "mai",
+      "receiverId": "lan",
+      "status": "PENDING",
+      "scenario": "JOIN_SYSTEM_ROOM",
+      "contractId": "k2",
+      "note": "Phòng P305 còn một chỗ, bạn muốn ở cùng không?"
+    }
+  ],
+  "invoices": [
+    {
+      "id": "i1",
+      "code": "INV-2026-10-018",
+      "contractId": "k2",
+      "period": "2026-10-01",
+      "due": "2026-10-05",
+      "status": "UNPAID",
+      "payerId": "mai",
+      "items": [
+        {
+          "name": "Tiền phòng",
+          "quantity": 1,
+          "unit": "tháng",
+          "price": 5400000
+        },
+        {
+          "name": "Điện",
+          "quantity": 55,
+          "unit": "kWh",
+          "price": 3800
+        },
+        {
+          "name": "Nước",
+          "quantity": 4,
+          "unit": "m³",
+          "price": 28000
+        },
+        {
+          "name": "Internet",
+          "quantity": 1,
+          "unit": "phòng",
+          "price": 100000
+        }
+      ]
+    },
+    {
+      "id": "i2",
+      "code": "INV-2026-09-018",
+      "contractId": "k2",
+      "period": "2026-09-01",
+      "due": "2026-09-05",
+      "status": "PAID",
+      "payerId": "mai",
+      "items": [
+        {
+          "name": "Tiền phòng",
+          "quantity": 1,
+          "unit": "tháng",
+          "price": 5400000
+        },
+        {
+          "name": "Điện",
+          "quantity": 48,
+          "unit": "kWh",
+          "price": 3800
+        },
+        {
+          "name": "Nước",
+          "quantity": 4,
+          "unit": "m³",
+          "price": 28000
+        },
+        {
+          "name": "Internet",
+          "quantity": 1,
+          "unit": "phòng",
+          "price": 100000
+        }
+      ]
+    },
+    {
+      "id": "i3",
+      "code": "INV-2026-08-072",
+      "contractId": "k3",
+      "period": "2026-08-01",
+      "due": "2026-08-05",
+      "status": "PAID",
+      "payerId": "lan",
+      "items": [
+        {
+          "name": "Tiền phòng",
+          "quantity": 1,
+          "unit": "tháng",
+          "price": 3700000
+        },
+        {
+          "name": "Điện",
+          "quantity": 39,
+          "unit": "kWh",
+          "price": 3800
+        }
+      ]
+    }
+  ],
+  "verifications": [
+    {
+      "id": "ver1",
+      "userId": "huong",
+      "type": "Chủ trọ",
+      "status": "PENDING",
+      "date": "2026-10-22"
+    },
+    {
+      "id": "ver2",
+      "userId": "bao",
+      "type": "Căn cước người thuê",
+      "status": "PENDING",
+      "date": "2026-10-23"
+    }
+  ],
+  "reports": [
+    {
+      "id": "rep1",
+      "from": "lan",
+      "target": "Tin đăng P408",
+      "reason": "Hình ảnh cần kiểm tra lại",
+      "status": "PENDING",
+      "date": "2026-10-23"
+    }
+  ],
+  "templates": [
+    {
+      "id": "tpl1",
+      "name": "Hợp đồng thuê phòng",
+      "version": 1,
+      "content": "Thanh toán trước ngày 05 hằng tháng. Báo trước 30 ngày khi kết thúc.",
+      "active": true
+    },
+    {
+      "id": "tpl2",
+      "name": "Phụ lục gia hạn",
+      "version": 1,
+      "content": "Gia hạn thời hạn thuê theo thỏa thuận của hai bên.",
+      "active": true
+    }
+  ],
+  "audit": [
+    {
+      "id": "audit1",
+      "actorId": "admin",
+      "action": "APPROVE_POST",
+      "target": "Tin đăng P204",
+      "reason": "Đã kiểm tra nội dung và hình ảnh",
+      "date": "2026-10-21"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "n1",
+      "userId": "lan",
+      "text": "Chủ trọ đã gửi hợp đồng HD-2026-041 để bạn xác nhận.",
+      "read": false
+    },
+    {
+      "id": "n2",
+      "userId": "quan",
+      "text": "Có yêu cầu gia hạn hợp đồng HD-2026-018.",
+      "read": false
+    },
+    {
+      "id": "n3",
+      "userId": "admin",
+      "text": "Có 2 hồ sơ đang chờ xác minh.",
+      "read": false
+    }
+  ],
+  "reviews": [],
+  "houseVerifications": [
+    {
+      "id": "hv-demo-h1",
+      "houseId": "h1",
+      "applicantId": "quan",
+      "houseVersion": 1,
+      "houseSnapshot": {
+        "ownerId": "quan",
+        "address": "85 Trần Duy Hưng, Cầu Giấy, Hà Nội",
+        "provinceCode": "01",
+        "localityCode": null,
+        "latitude": null,
+        "longitude": null
+      },
+      "rightType": "OWNER",
+      "scope": "Toàn bộ nhà trọ trong dữ liệu mẫu",
+      "validFrom": "2025-01-01",
+      "validUntil": null,
+      "status": "APPROVED",
+      "submittedAt": "2026-10-01T00:00:00.000Z",
+      "reviewedBy": "admin",
+      "reviewedAt": "2026-10-01T01:00:00.000Z",
+      "isDemo": true
+    },
+    {
+      "id": "hv-demo-h2",
+      "houseId": "h2",
+      "applicantId": "huong",
+      "houseVersion": 1,
+      "houseSnapshot": {
+        "ownerId": "huong",
+        "address": "12 Nguyễn Trãi, Thanh Xuân, Hà Nội",
+        "provinceCode": "01",
+        "localityCode": null,
+        "latitude": null,
+        "longitude": null
+      },
+      "rightType": "OWNER",
+      "scope": "Toàn bộ nhà trọ trong dữ liệu mẫu",
+      "validFrom": "2025-01-01",
+      "validUntil": null,
+      "status": "APPROVED",
+      "submittedAt": "2026-10-01T00:00:00.000Z",
+      "reviewedBy": "admin",
+      "reviewedAt": "2026-10-01T01:00:00.000Z",
+      "isDemo": true
+    }
+  ]
+}

@@ -2,6 +2,8 @@
 
 Repository dự án Trọday. Backend nằm trong [`BE/`](BE/README.md), dùng Java 21, Spring Boot, Maven Wrapper và MySQL theo kế hoạch BE hiện có.
 
+Frontend web **ReactJS + Vite** nằm trong [`FE/`](FE/README.md), đã có giao diện cho người thuê, chủ trọ và quản trị với dữ liệu mẫu, chưa kết nối API. Chạy `cd FE`, `npm.cmd install`, `npm.cmd run dev` để xem.
+
 ```text
 troday/
 ├── BE/                 # Ứng dụng Spring Boot và kiểm thử
@@ -11,6 +13,7 @@ troday/
 │   ├── src/test/
 │   ├── pom.xml
 │   └── mvnw / mvnw.cmd
+├── FE/                 # Giao diện ReactJS + Vite, dữ liệu demo
 ├── database/           # Nguồn SQL và migration do team tích hợp
 ├── .editorconfig
 ├── .gitattributes
