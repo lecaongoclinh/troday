@@ -1,0 +1,232 @@
+.api-stack {
+    display: grid;
+    gap: 16px;
+}
+.api-resource-grid,
+.api-post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 22px;
+}
+.api-resource-card {
+    border: 1px solid var(--line, #dce3d7);
+    border-radius: 20px;
+    overflow: hidden;
+    background: white;
+}
+.api-card-content {
+    padding: 22px;
+    display: grid;
+    gap: 12px;
+}
+.api-card-heading {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+.api-card-heading h2 {
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.api-room-image {
+    height: 170px;
+    display: grid;
+    gap: 10px;
+    place-content: center;
+    text-align: center;
+    justify-items: center;
+    background: #edf2e6;
+    color: #6d8371;
+}
+.api-price {
+    font-size: 21px;
+    color: #235847;
+}
+.api-excerpt {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.6;
+}
+.api-details {
+    margin: 0;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.api-details > div {
+    min-width: 0;
+}
+.api-details dt {
+    font-size: 12px;
+    color: #6b786c;
+    margin-bottom: 6px;
+}
+.api-details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+.api-details .api-details {
+    margin-top: 10px;
+    grid-template-columns: 1fr;
+}
+.api-action-bar,
+.api-pagination {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+.api-pagination {
+    justify-content: center;
+}
+.api-filter {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin: 22px 0;
+    padding: 18px;
+    border: 1px solid #dce3d7;
+    border-radius: 16px;
+}
+.api-filter .field {
+    flex: 1 1 150px;
+}
+.api-filter input,
+.api-fieldset input,
+.api-fieldset textarea,
+.api-fieldset select {
+    width: 100%;
+}
+.api-operations {
+    border-top: 1px solid #dce3d7;
+    margin: 36px 0 12px;
+    padding-top: 22px;
+}
+.api-operations summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+.api-operation-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 18px;
+}
+.api-operations .button {
+    font-size: 12px;
+}
+.api-loading {
+    padding: 60px;
+    text-align: center;
+    color: #4f6756;
+}
+.api-error {
+    padding: 24px;
+    border: 1px solid #e8b5a6;
+    border-radius: 16px;
+    background: #fff8f5;
+    display: grid;
+    gap: 16px;
+}
+.api-fieldset {
+    border: 0;
+    padding: 0;
+    min-width: 0;
+}
+.api-fieldset .form-grid {
+    gap: 18px;
+}
+.api-fieldset select + input {
+    margin-top: 8px;
+}
+.api-nested {
+    padding: 16px;
+    border: 1px solid #dce3d7;
+    border-radius: 12px;
+    display: grid;
+    gap: 12px;
+}
+.api-chat {
+    display: grid;
+    gap: 16px;
+    max-width: 900px;
+    margin: auto;
+}
+.api-message {
+    max-width: 80%;
+    padding: 14px 20px;
+    border: 1px solid #dce3d7;
+    border-radius: 18px;
+    background: white;
+    justify-self: start;
+    white-space: pre-wrap;
+}
+.api-message.mine {
+    justify-self: end;
+    background: #e7f1e7;
+}
+.api-message p {
+    margin: 0 0 6px;
+}
+.api-message small {
+    color: #627769;
+}
+.api-chat form {
+    padding: 20px;
+    background: white;
+    border: 1px solid #dce3d7;
+    border-radius: 16px;
+    display: grid;
+    gap: 16px;
+}
+.api-chat textarea {
+    min-height: 90px;
+}
+.app-dialog {
+    max-height: 90dvh;
+}
+.app-dialog fieldset:disabled {
+    opacity: 0.65;
+}
+.topbar-actions .api-account-action {
+    font-size: 12px;
+}
+.api-session-banner {
+    padding: 12px 20px;
+    background: #edf2e6;
+}
+.api-profile-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+@media (max-width: 640px) {
+    .api-resource-grid,
+    .api-post-grid {
+        grid-template-columns: 1fr;
+    }
+    .api-details {
+        grid-template-columns: 1fr;
+    }
+    .api-filter {
+        padding: 12px;
+    }
+    .api-filter .field {
+        flex-basis: 100%;
+    }
+    .api-action-bar .button {
+        flex: 1;
+    }
+    .api-message {
+        max-width: 94%;
+    }
+}

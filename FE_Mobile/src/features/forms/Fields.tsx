@@ -29,15 +29,7 @@ export function Fields({
   const update = (name: string, value: unknown) =>
     onChange({ ...values, [name]: value });
   const visibleFields = fields.filter((field) => {
-    if (schema === "InvoiceInputItem") {
-      if (values.type === "RENT") return field.name === "type";
-      if (values.type === "SERVICE")
-        return !["name", "quantity", "unitPrice"].includes(field.name);
-      if (["OTHER", "DISCOUNT"].includes(String(values.type)))
-        return !["roomServiceId", "previousReading", "currentReading"].includes(
-          field.name,
-        );
-    }
+    if (schema === 'InvoiceInputItem' && values.type !== 'SERVICE' && ['roomServiceId', 'calculationMethod', 'previousReading', 'currentReading'].includes(field.name)) return false;
     if (
       schema === "ContractChange" &&
       values.type !== "TRANSFER" &&

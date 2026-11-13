@@ -1,6 +1,7 @@
 import { NAV, ROLES } from '../data/navigation';
 import { useApp } from '../context/AppContext';
 import { Avatar, Icon } from './ui';
+import { useApi } from '../api/useApi';
 
 export function Brand({ sidebar = false }) {
   const { role, navigate } = useApp();
@@ -23,14 +24,15 @@ export function Brand({ sidebar = false }) {
 }
 
 export default function Layout({ children }) {
-  const { data, route, role, me, person, navigate, switchRole, openDialog, mainRef } = useApp();
+  const { route, role, me, user, roles, person, navigate, switchRole, openDialog, mainRef } = useApp();
+  const counts = useApi(user ? 87 : null);
   const roleLabel = `Không gian ${ROLES[role].toLowerCase()}`;
   const active = route.view === 'room-detail'
     ? role === 'tenant' ? 'discover' : role === 'admin' ? 'moderation' : 'properties'
     : route.view === 'detail'
       ? role === 'tenant' ? 'discover' : role === 'admin' ? 'moderation' : 'listings'
       : route.view;
-  const unread = data.notifications.filter(notification => notification.userId === me && !notification.read).length;
+  const unread = Number(counts.result?.data?.unreadCount ?? counts.result?.data?.unread ?? 0);
   const mobile = role === 'tenant'
     ? ['discover', 'favorites', 'chats', 'contracts']
     : role === 'landlord'
@@ -91,11 +93,11 @@ export default function Layout({ children }) {
               trọ<span>day.</span>
             </a>
             <div className="topbar-actions">
-              <span className="preview-tag"><span />Bản xem trước</span>
+              <button type="button" className="preview-tag" onClick={() => openDialog('connection')}><span />Kết nối API</button>
               <label className="role-select-label">
-                <span className="sr-only">Chọn vai trò xem trước</span>
-                <select value={role} onChange={event => switchRole(event.target.value)} aria-label="Chọn vai trò xem trước">
-                  {Object.entries(ROLES).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                <span className="sr-only">Không gian của tài khoản</span>
+                <select value={role} disabled={roles.length < 2} onChange={event => switchRole(event.target.value)} aria-label="Không gian của tài khoản">
+                  {(roles.length ? roles : ['tenant']).map(id => <option key={id} value={id}>{ROLES[id]}</option>)}
                 </select>
               </label>
               <span className="topbar-divider" />
@@ -103,7 +105,7 @@ export default function Layout({ children }) {
                 className={`icon-button notification-button ${unread ? 'has-unread' : ''}`}
                 type="button"
                 aria-label={`Thông báo${unread ? `: ${unread} chưa đọc` : ''}`}
-                onClick={() => openDialog('notifications')}
+                onClick={() => navigate('notifications')}
               >
                 <Icon name="bell" />
                 {unread > 0 && <span className="notification-badge">{unread}</span>}

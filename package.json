@@ -1,0 +1,19 @@
+{
+  "name": "troday",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "setup": "node scripts/setup.cjs",
+    "dev": "docker compose up --build -d --wait --wait-timeout 300",
+    "stop": "docker compose down",
+    "logs": "docker compose logs -f --tail 100",
+    "mobile": "node FE_Mobile/scripts/start.cjs",
+    "mobile:web": "node FE_Mobile/scripts/start.cjs --web",
+    "mobile:tunnel": "node FE_Mobile/scripts/start.cjs --tunnel ngrok",
+    "mobile:android": "node FE_Mobile/scripts/start.cjs --android",
+    "test:env": "node --test --test-isolation=none scripts/environment.test.cjs",
+    "check:api": "node scripts/audit-api-contract.cjs",
+    "smoke": "node scripts/smoke-environment.cjs"
+  }
+}

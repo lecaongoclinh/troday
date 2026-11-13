@@ -1,0 +1,16 @@
+.git
+**/node_modules
+**/target
+**/dist
+**/dist-native
+**/.expo
+**/.cache
+**/artifacts
+**/logs
+**/uploads
+**/.env
+**/.env.*
+**/application-*.private.yml
+**/*.log
+.idea
+.vscode

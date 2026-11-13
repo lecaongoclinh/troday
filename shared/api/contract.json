@@ -1,20 +1,68 @@
 {
   "basePath": "/api/v1",
-  "version": "1.0-draft",
-  "date": "2026-10-29",
+  "version": "backend-implemented-v1",
+  "date": "2026-11-12",
   "groups": [
-    ["account", "Tài khoản & xác minh", "user-round"],
-    ["property", "Nhà, quyền cho thuê & phòng", "building-2"],
-    ["posts", "Tin đăng & tìm phòng", "search"],
-    ["roommates", "Hồ sơ & kết nối ở ghép", "users"],
-    ["messages", "Tin nhắn & thông báo", "message-circle"],
-    ["viewings", "Hẹn xem & quyết định thuê", "calendar-days"],
-    ["contracts", "Hợp đồng & vào ở", "file-text"],
-    ["residents", "Người ở & đại diện", "contact-round"],
-    ["changes", "Gia hạn, đổi phòng, kết thúc", "refresh-cw"],
-    ["billing", "Dịch vụ & hóa đơn", "receipt"],
-    ["moderation", "Đánh giá & quản trị", "shield-check"],
-    ["integrity", "Dữ liệu & tích hợp", "database"]
+    [
+      "account",
+      "Tài khoản & xác minh",
+      "user-round"
+    ],
+    [
+      "property",
+      "Nhà, quyền cho thuê & phòng",
+      "building-2"
+    ],
+    [
+      "posts",
+      "Tin đăng & tìm phòng",
+      "search"
+    ],
+    [
+      "roommates",
+      "Hồ sơ & kết nối ở ghép",
+      "users"
+    ],
+    [
+      "messages",
+      "Tin nhắn & thông báo",
+      "message-circle"
+    ],
+    [
+      "viewings",
+      "Hẹn xem & quyết định thuê",
+      "calendar-days"
+    ],
+    [
+      "contracts",
+      "Hợp đồng & vào ở",
+      "file-text"
+    ],
+    [
+      "residents",
+      "Người ở & đại diện",
+      "contact-round"
+    ],
+    [
+      "changes",
+      "Gia hạn, đổi phòng, kết thúc",
+      "refresh-cw"
+    ],
+    [
+      "billing",
+      "Dịch vụ & hóa đơn",
+      "receipt"
+    ],
+    [
+      "moderation",
+      "Đánh giá & quản trị",
+      "shield-check"
+    ],
+    [
+      "integrity",
+      "Dữ liệu & tích hợp",
+      "database"
+    ]
   ],
   "schemas": {
     "Reason": [
@@ -107,36 +155,6 @@
         "required": true,
         "rule": "Mã tỉnh từ danh mục được backend cấu hình; tối đa 30 ký tự.",
         "example": "79"
-      },
-      {
-        "name": "localityCode",
-        "type": "string",
-        "required": false,
-        "rule": "Tối đa 30 ký tự; cùng tỉnh."
-      },
-      {
-        "name": "areaLabel",
-        "type": "string",
-        "required": false,
-        "rule": "Tối đa 150 ký tự."
-      },
-      {
-        "name": "latitude",
-        "type": "decimal",
-        "required": false,
-        "rule": "[-90,90]; phải có cả latitude và longitude hoặc cùng null."
-      },
-      {
-        "name": "longitude",
-        "type": "decimal",
-        "required": false,
-        "rule": "[-180,180]; tối đa 7 số thập phân."
-      },
-      {
-        "name": "notes",
-        "type": "string",
-        "required": false,
-        "rule": "Tối đa 2.000 ký tự."
       }
     ],
     "Room": [
@@ -181,19 +199,6 @@
         "required": true,
         "rule": "Chỉ chọn AVAILABLE/MAINTENANCE nếu không có người/chỗ/hợp đồng mở; RESERVED/OCCUPIED do nghiệp vụ tính.",
         "example": "AVAILABLE"
-      },
-      {
-        "name": "allowAdditionalOccupants",
-        "type": "boolean",
-        "required": false,
-        "rule": "Ánh xạ allow_additional_occupants, điều kiện tiếp nhận thêm người.",
-        "example": false
-      },
-      {
-        "name": "notes",
-        "type": "string",
-        "required": false,
-        "rule": "Tối đa 2.000 ký tự."
       }
     ],
     "Post": [
@@ -217,13 +222,6 @@
         "required": true,
         "rule": "Không trống; posts.content là TEXT (≤65.535 bytes UTF-8), dù tham số procedure LONGTEXT. API kiểm tra byte length trước ghi.",
         "example": "Phòng có bếp và vệ sinh riêng."
-      },
-      {
-        "name": "imageFileIds",
-        "type": "id[]",
-        "required": true,
-        "rule": "Ít nhất 1 tệp POST_IMAGE ACTIVE của chủ trọ; thứ tự mảng là thứ tự ảnh.",
-        "example": ["501"]
       },
       {
         "name": "amenities",
@@ -266,6 +264,12 @@
         "type": "string",
         "required": false,
         "rule": "Tối đa 2.000 ký tự."
+      },
+      {
+        "name": "clientRequestKey",
+        "type": "uuid",
+        "required": true,
+        "rule": "Giữ nguyên khi gửi lại cùng một đề nghị."
       }
     ],
     "PlannedMember": [
@@ -344,19 +348,6 @@
         "required": true,
         "rule": "Điều khoản đã chuẩn bị; không trống.",
         "example": "Nội dung hợp đồng được hai bên đối chiếu."
-      },
-      {
-        "name": "templateId",
-        "type": "id",
-        "required": false,
-        "rule": "Mẫu còn active; không thay thế snapshot nội dung."
-      },
-      {
-        "name": "extraMembers",
-        "type": "PlannedMember[]",
-        "required": true,
-        "rule": "Không gồm đại diện từ viewing; tổng đại diện + mảng ≤ capacity.",
-        "example": []
       }
     ],
     "ContractRevision": [
@@ -425,12 +416,6 @@
         "example": "2026-11-02"
       },
       {
-        "name": "roommateRequestId",
-        "type": "id",
-        "required": false,
-        "rule": "Kết nối đúng hai bên, không dùng ACCEPTED làm đồng thuận."
-      },
-      {
         "name": "message",
         "type": "string",
         "required": false,
@@ -467,23 +452,10 @@
         "example": "Gia hạn theo thỏa thuận"
       },
       {
-        "name": "newEndDate",
-        "type": "date",
-        "required": false,
-        "rule": "RENEWAL bắt buộc và > ngày kết thúc cũ.",
-        "example": "2028-11-01"
-      },
-      {
         "name": "targetRoomId",
         "type": "id",
         "required": false,
         "rule": "TRANSFER bắt buộc; phòng khác, cùng chủ và đủ quyền."
-      },
-      {
-        "name": "proposal",
-        "type": "object",
-        "required": false,
-        "rule": "TRANSFER: content, endDate bắt buộc; rentAmount/depositAmount tùy chọn. Backend ánh xạ proposal_snapshot snake_case."
       }
     ],
     "HouseService": [
@@ -535,47 +507,55 @@
         "name": "type",
         "type": "enum",
         "required": true,
-        "rule": "RENT / SERVICE / OTHER / DISCOUNT.",
-        "example": "SERVICE"
+        "rule": "RENT / SERVICE / OTHER"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": true,
+        "rule": ""
+      },
+      {
+        "name": "unit",
+        "type": "string",
+        "required": true,
+        "rule": ""
+      },
+      {
+        "name": "quantity",
+        "type": "decimal",
+        "required": true,
+        "rule": ""
+      },
+      {
+        "name": "unitPrice",
+        "type": "money",
+        "required": true,
+        "rule": ""
       },
       {
         "name": "roomServiceId",
         "type": "id",
         "required": false,
-        "rule": "Bắt buộc chỉ cho SERVICE; phải đúng phòng.",
-        "example": "61"
+        "rule": ""
       },
       {
-        "name": "name",
-        "type": "string",
+        "name": "calculationMethod",
+        "type": "enum",
         "required": false,
-        "rule": "Bắt buộc OTHER/DISCOUNT; tối đa 200 ký tự."
-      },
-      {
-        "name": "quantity",
-        "type": "decimal",
-        "required": false,
-        "rule": "Server tính RENT/PER_ROOM=1, PER_PERSON=số ACTIVE; OTHER/DISCOUNT cần quantity ≥ 0."
-      },
-      {
-        "name": "unitPrice",
-        "type": "money",
-        "required": false,
-        "rule": "Chỉ tự nhập OTHER/DISCOUNT; SERVICE lấy giá hiệu lực, RENT lấy hợp đồng."
+        "rule": "METERED / PER_PERSON / PER_ROOM"
       },
       {
         "name": "previousReading",
         "type": "decimal",
         "required": false,
-        "rule": "METERED bắt buộc; ≥ 0.",
-        "example": "100.000"
+        "rule": ""
       },
       {
         "name": "currentReading",
         "type": "decimal",
         "required": false,
-        "rule": "METERED bắt buộc; ≥ previousReading.",
-        "example": "125.000"
+        "rule": ""
       }
     ],
     "InvoiceDraft": [
@@ -613,6 +593,12 @@
             "currentReading": "125.000"
           }
         ]
+      },
+      {
+        "name": "payerRoomTenantId",
+        "type": "id",
+        "required": true,
+        "rule": "Mã người thanh toán trong danh sách thành viên hợp đồng."
       }
     ],
     "Register": [
@@ -790,18 +776,6 @@
         "type": "date",
         "required": false,
         "rule": "Bắt buộc AUTHORIZED/SUBLESSOR; ≥ validFrom và không trước hôm nay."
-      },
-      {
-        "name": "documents",
-        "type": "object[]",
-        "required": true,
-        "rule": "1–8 phần tử {fileId,documentType}. OWNER: OWNER_PROOF; AUTHORIZED thêm AUTHORIZATION; SUBLESSOR: LEASE_AGREEMENT + SUBLET_CONSENT.",
-        "example": [
-          {
-            "fileId": "503",
-            "documentType": "OWNER_PROOF"
-          }
-        ]
       }
     ],
     "HouseDecision": [
@@ -817,13 +791,6 @@
         "type": "string",
         "required": false,
         "rule": "Bắt buộc khi REJECT; tối đa 1.000 ký tự."
-      },
-      {
-        "name": "evidenceChecked",
-        "type": "boolean",
-        "required": false,
-        "rule": "Bắt buộc true khi APPROVE.",
-        "example": true
       }
     ],
     "Capacity": [
@@ -884,34 +851,25 @@
         "rule": "≤30 ký tự."
       },
       {
-        "name": "requirementsSnapshot",
-        "type": "object",
-        "required": false,
-        "rule": "Nhu cầu tự khai; schema cần chốt."
-      },
-      {
         "name": "active",
         "type": "boolean",
         "required": true,
         "rule": "Bật cho phép tìm kiếm.",
         "example": true
+      },
+      {
+        "name": "profileVersion",
+        "type": "integer",
+        "required": false,
+        "rule": "Phiên bản hồ sơ nhận từ máy chủ khi cập nhật."
       }
     ],
     "Lifestyles": [
       {
         "name": "criteria",
-        "type": "object[]",
+        "type": "LifestyleValue[]",
         "required": true,
-        "rule": "Mỗi criterionId duy nhất; có selfValue hoặc preferredValue; mandatory cần preferredValue; importance 0–5.",
-        "example": [
-          {
-            "criterionId": "1",
-            "selfValue": false,
-            "preferredValue": false,
-            "isMandatory": true,
-            "importance": 5
-          }
-        ]
+        "rule": ""
       }
     ],
     "LifestyleCriterion": [
@@ -973,12 +931,6 @@
         "example": "SEARCH_TOGETHER"
       },
       {
-        "name": "targetContractId",
-        "type": "id",
-        "required": false,
-        "rule": "Bắt buộc chỉ JOIN_SYSTEM_ROOM, đúng ngữ cảnh đại diện."
-      },
-      {
         "name": "message",
         "type": "string",
         "required": false,
@@ -1015,7 +967,7 @@
         "name": "type",
         "type": "enum",
         "required": true,
-        "rule": "TEXT / IMAGE; SYSTEM chỉ server, POST_SHARE dùng route riêng.",
+        "rule": "TEXT",
         "example": "TEXT"
       },
       {
@@ -1024,12 +976,6 @@
         "required": false,
         "rule": "TEXT bắt buộc trim không rỗng, tối đa 2.000 ký tự.",
         "example": "Tôi muốn hỏi thêm về phòng này."
-      },
-      {
-        "name": "fileIds",
-        "type": "id[]",
-        "required": false,
-        "rule": "IMAGE bắt buộc file CHAT_IMAGE ACTIVE PRIVATE thuộc mình."
       }
     ],
     "ReadState": [
@@ -1089,8 +1035,7 @@
         "name": "isRead",
         "type": "boolean",
         "required": true,
-        "rule": "Chỉ true trong hợp đồng API này.",
-        "example": true
+        "rule": ""
       }
     ],
     "ReadAll": [
@@ -1189,13 +1134,6 @@
     ],
     "MoveIn": [
       {
-        "name": "memberIds",
-        "type": "id[]",
-        "required": true,
-        "rule": "Các room_tenant ID PLANNED của contract, không lặp; lần đầu gồm đại diện.",
-        "example": ["1101"]
-      },
-      {
         "name": "moveInDate",
         "type": "date",
         "required": true,
@@ -1252,19 +1190,6 @@
         "required": true,
         "rule": "Không âm.",
         "example": "3800000.00"
-      },
-      {
-        "name": "content",
-        "type": "string",
-        "required": true,
-        "rule": "Snapshot nội dung đã ký.",
-        "example": "Điều khoản trong hợp đồng giấy"
-      },
-      {
-        "name": "members",
-        "type": "object[]",
-        "required": true,
-        "rule": "Danh sách + đại diện, trạng thái và chứng cứ ngày vào thực tế; cần chốt JSON chi tiết."
       }
     ],
     "JoinConsent": [
@@ -1397,22 +1322,32 @@
         "required": false,
         "rule": "SQL TEXT; giới hạn API được cấu hình.",
         "example": "Phòng sạch, dịch vụ rõ ràng."
+      },
+      {
+        "name": "contractId",
+        "type": "id",
+        "required": true,
+        "rule": ""
+      },
+      {
+        "name": "roomId",
+        "type": "id",
+        "required": true,
+        "rule": ""
       }
     ],
     "ReviewModeration": [
       {
-        "name": "status",
+        "name": "decision",
         "type": "enum",
         "required": true,
-        "rule": "HIDDEN / PUBLISHED / DELETED.",
-        "example": "HIDDEN"
+        "rule": "HIDE / RESTORE / DELETE"
       },
       {
         "name": "reason",
         "type": "string",
         "required": true,
-        "rule": "Lý do không trống, ≤1.000 ký tự.",
-        "example": "Nội dung vi phạm quy định"
+        "rule": ""
       }
     ],
     "Report": [
@@ -1424,20 +1359,6 @@
         "example": "VIOLATION"
       },
       {
-        "name": "targetType",
-        "type": "enum",
-        "required": true,
-        "rule": "POST / USER / CONTRACT / ROOMMATE_REQUEST.",
-        "example": "POST"
-      },
-      {
-        "name": "targetId",
-        "type": "id",
-        "required": true,
-        "rule": "Đối tượng actor có quyền truy cập.",
-        "example": "201"
-      },
-      {
         "name": "reason",
         "type": "string",
         "required": true,
@@ -1445,26 +1366,42 @@
         "example": "Thông tin không đúng thực tế"
       },
       {
-        "name": "evidenceFileIds",
-        "type": "id[]",
+        "name": "reportedUserId",
+        "type": "id",
         "required": false,
-        "rule": "REPORT_EVIDENCE PRIVATE ACTIVE của actor."
+        "rule": "Chọn đúng một đối tượng báo cáo."
+      },
+      {
+        "name": "reportedPostId",
+        "type": "id",
+        "required": false,
+        "rule": "Chọn đúng một đối tượng báo cáo."
+      },
+      {
+        "name": "contractId",
+        "type": "id",
+        "required": false,
+        "rule": "Chọn đúng một đối tượng báo cáo."
+      },
+      {
+        "name": "roommateRequestId",
+        "type": "id",
+        "required": false,
+        "rule": "Chọn đúng một đối tượng báo cáo."
       }
     ],
     "ReportDecision": [
       {
-        "name": "status",
+        "name": "decision",
         "type": "enum",
         "required": true,
-        "rule": "INVESTIGATING / RESOLVED / DISMISSED.",
-        "example": "RESOLVED"
+        "rule": "INVESTIGATE / RESOLVE / DISMISS"
       },
       {
         "name": "resolution",
         "type": "string",
         "required": false,
-        "rule": "RESOLVED/DISMISSED bắt buộc nội dung kết luận.",
-        "example": "Đã đối chiếu và yêu cầu chỉnh tin."
+        "rule": ""
       }
     ],
     "ContractTemplate": [
@@ -1481,13 +1418,6 @@
         "required": true,
         "rule": "Không trống.",
         "example": "Nội dung mẫu"
-      },
-      {
-        "name": "active",
-        "type": "boolean",
-        "required": true,
-        "rule": "Bật cho hợp đồng mới.",
-        "example": true
       }
     ],
     "TemplateState": [
@@ -1535,6 +1465,38 @@
         "rule": "64 ký tự hex; xác minh sau upload.",
         "example": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       }
+    ],
+    "LifestyleValue": [
+      {
+        "name": "criterionId",
+        "type": "id",
+        "required": true,
+        "rule": ""
+      },
+      {
+        "name": "selfValue",
+        "type": "json",
+        "required": false,
+        "rule": ""
+      },
+      {
+        "name": "preferredValue",
+        "type": "json",
+        "required": false,
+        "rule": ""
+      },
+      {
+        "name": "isMandatory",
+        "type": "boolean",
+        "required": false,
+        "rule": ""
+      },
+      {
+        "name": "importance",
+        "type": "integer",
+        "required": false,
+        "rule": "0–5"
+      }
     ]
   },
   "endpoints": [
@@ -1575,11 +1537,15 @@
         }
       ],
       "output": "User {id,fullName,roles,status}; không trả passwordHash",
-      "headers": ["Content-Type: application/json", "Idempotency-Key: <UUID>"],
+      "headers": [
+        "Content-Type: application/json"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Ít nhất một email/phone; transaction tạo users + tenants + personal_profiles. Không nhận ADMIN/LANDLORD từ body.",
-      "flowIds": ["account-access"],
+      "flowIds": [
+        "account-access"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1590,8 +1556,10 @@
         "409 CONTACT_ALREADY_USED",
         "422 CONTACT_REQUIRED"
       ],
-      "status": 201,
-      "dependencies": ["D09: idempotency store nếu chưa có khóa tự nhiên"]
+      "status": 200,
+      "dependencies": [
+        "D09: idempotency store nếu chưa có khóa tự nhiên"
+      ]
     },
     {
       "id": "API-002",
@@ -1616,12 +1584,16 @@
           "example": "Example-only-change-me"
         }
       ],
-      "output": "Session {accessToken,expiresAt,user}; refresh cookie HttpOnly",
-      "headers": ["Content-Type: application/json", "Idempotency-Key: <UUID>"],
+      "output": "Session {accessToken,refreshToken,expiresAt,user}",
+      "headers": [
+        "Content-Type: application/json"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Chặn LOCKED/DISABLED; rate limit; tạo auth_sessions, lưu hash refresh token. Access token gắn sessionKey. Không dùng bộ chuyển vai trò demo làm xác thực.",
-      "flowIds": ["account-access"],
+      "flowIds": [
+        "account-access"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1633,7 +1605,9 @@
         "422 CONTACT_REQUIRED"
       ],
       "status": 200,
-      "dependencies": ["D09: idempotency store nếu chưa có khóa tự nhiên"]
+      "dependencies": [
+        "D09: idempotency store nếu chưa có khóa tự nhiên"
+      ]
     },
     {
       "id": "API-003",
@@ -1644,11 +1618,15 @@
       "input": null,
       "inputFields": [],
       "output": "User {id,fullName,email,phoneNumber,roles,status,profile}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Roles lấy từ tenants/landlords/admins. role trong users là vai trò hiển thị; mỗi request kiểm tra lại quyền đối tượng.",
-      "flowIds": ["account-access"],
+      "flowIds": [
+        "account-access"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1657,7 +1635,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-004",
@@ -1703,12 +1683,6 @@
           "type": "string",
           "required": false,
           "rule": "Giới hạn API cần cấu hình; SQL TEXT."
-        },
-        {
-          "name": "avatarFileId",
-          "type": "id",
-          "required": false,
-          "rule": "Tệp AVATAR ACTIVE thuộc người dùng."
         }
       ],
       "output": "PersonalProfile sau cập nhật",
@@ -1719,7 +1693,9 @@
       "query": "",
       "pagination": null,
       "logic": "Chỉ cập nhật whitelist; không sửa role/status/contact xác thực bằng form profile. Tệp avatar phải thuộc mình. Ghi users.full_name và personal_profiles trong một giao dịch.",
-      "flowIds": ["profile"],
+      "flowIds": [
+        "profile"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1773,7 +1749,9 @@
       "query": "",
       "pagination": null,
       "logic": "Cập nhật flags users. Việc bật flag không đồng nghĩa có dịch vụ email/push hiện tại.",
-      "flowIds": ["profile"],
+      "flowIds": [
+        "profile"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1818,13 +1796,14 @@
       "output": "IdentityVerification {id,status:PENDING,createdAt}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ một PENDING/người; lưu số giấy tờ, tệp và hạn lưu theo chính sách. Không công khai giấy tờ.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1837,7 +1816,7 @@
         "409 PENDING_VERIFICATION_EXISTS",
         "422 FILE_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
@@ -1853,11 +1832,15 @@
       "input": null,
       "inputFields": [],
       "output": "IdentityVerification[]; che số giấy tờ, không trả URL kho",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Chỉ tenant_id = actor; giấy tờ mở bằng API file có quyền.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1867,7 +1850,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-008",
@@ -1879,13 +1864,14 @@
       "inputFields": [],
       "output": "IdentityVerification {id,status:WITHDRAWN}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa hồ sơ thuộc mình; chỉ PENDING → WITHDRAWN; giữ lịch sử.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1930,13 +1916,14 @@
       "output": "LandlordVerification {id,status:PENDING}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "applicant_user_id lấy từ phiên. Chỉ một PENDING; tệp IDENTITY PRIVATE thuộc mình. Duyệt tài khoản không tự xác minh nhà.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1949,7 +1936,7 @@
         "409 PENDING_VERIFICATION_EXISTS",
         "422 FILE_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -1964,11 +1951,15 @@
       "input": null,
       "inputFields": [],
       "output": "LandlordVerification[]",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Chỉ hồ sơ applicant_user_id của mình.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -1978,7 +1969,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-011",
@@ -1990,13 +1983,14 @@
       "inputFields": [],
       "output": "LandlordVerification {id,status:WITHDRAWN}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ applicant và hồ sơ PENDING; không thu hồi vai trò đã có.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2024,11 +2018,15 @@
       "input": null,
       "inputFields": [],
       "output": "Verification[]; status,applicant,submittedAt",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Lọc status/ngày; không nhúng bytes giấy tờ vào danh sách.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2038,7 +2036,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-013",
@@ -2049,11 +2049,15 @@
       "input": null,
       "inputFields": [],
       "output": "Verification và danh sách fileId có quyền mở",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Đọc đủ chứng cứ hiện hành; ghi truy vết việc truy cập tài liệu nhạy cảm.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2062,7 +2066,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-014",
@@ -2089,13 +2095,14 @@
       "output": "Verification sau quyết định",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa PENDING; REJECT cần reason; APPROVE hồ sơ landlord tạo dòng landlords trong cùng transaction. Ghi reviewer/time + moderation_actions; không duyệt quyền nhà.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2123,11 +2130,15 @@
       "input": null,
       "inputFields": [],
       "output": "Verification[]; status,applicant,submittedAt",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Lọc status/ngày; không nhúng bytes giấy tờ vào danh sách.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2137,7 +2148,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-016",
@@ -2148,11 +2161,15 @@
       "input": null,
       "inputFields": [],
       "output": "Verification và danh sách fileId có quyền mở",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Đọc đủ chứng cứ hiện hành; ghi truy vết việc truy cập tài liệu nhạy cảm.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2161,7 +2178,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-017",
@@ -2188,13 +2207,14 @@
       "output": "Verification sau quyết định",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa PENDING; REJECT cần reason; APPROVE hồ sơ landlord tạo dòng landlords trong cùng transaction. Ghi reviewer/time + moderation_actions; không duyệt quyền nhà.",
-      "flowIds": ["identity"],
+      "flowIds": [
+        "identity"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2221,12 +2241,16 @@
       "access": "PUBLIC",
       "input": null,
       "inputFields": [],
-      "output": "Session {accessToken,expiresAt}; refresh cookie mới",
-      "headers": ["Idempotency-Key: <UUID>"],
+      "output": "Session {accessToken,expiresAt,user}; không có refresh token kế tiếp",
+      "headers": [
+        "Refresh-Token: <refreshToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Đọc refresh cookie; khóa phiên còn hạn/chưa revoked, so sánh hash, đổi token nguyên tử; token cũ không dùng lại. CSRF/Origin bảo vệ cookie.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2239,7 +2263,9 @@
         "429 RATE_LIMITED"
       ],
       "status": 200,
-      "dependencies": ["D09: idempotency store nếu chưa có khóa tự nhiên"]
+      "dependencies": [
+        "D09: idempotency store nếu chưa có khóa tự nhiên"
+      ]
     },
     {
       "id": "API-019",
@@ -2251,13 +2277,14 @@
       "inputFields": [],
       "output": "{revoked:true}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Thu hồi session gắn token/cookie và xóa refresh cookie. Không cho logout user khác.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2286,11 +2313,15 @@
       "input": null,
       "inputFields": [],
       "output": "Session[] {id,createdAt,lastSeenAt,expiresAt,revokedAt,isCurrent}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Không trả refresh hash/session secret.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2300,7 +2331,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-021",
@@ -2311,11 +2344,15 @@
       "input": null,
       "inputFields": [],
       "output": "{id,revoked:true}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ phiên của actor; gọi lặp không tạo tác dụng phụ mới. Middleware từ chối token gắn phiên đã thu hồi.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2354,13 +2391,14 @@
       "output": "{selector,expiresAt,retryAfterSeconds}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Purpose PHONE_VERIFICATION; hash/HMAC mã; hạn dùng và giới hạn thử/gửi. Không trả OTP trong response.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2374,7 +2412,7 @@
         "409 TOKEN_ALREADY_CONSUMED",
         "429 RATE_LIMITED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
@@ -2402,18 +2440,25 @@
           "required": true,
           "rule": "Mã người dùng nhận; không log.",
           "example": "123456"
+        },
+        {
+          "name": "phoneNumber",
+          "type": "string",
+          "required": true,
+          "rule": "Số điện thoại đã yêu cầu xác minh."
         }
       ],
       "output": "{phoneNumber,phoneVerifiedAt}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa token; chưa consumed/revoked, còn hạn, đúng actor/target, tăng attempt khi sai; kiểm tra trùng số trước cập nhật users.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2450,11 +2495,15 @@
         }
       ],
       "output": "{accepted:true}",
-      "headers": ["Content-Type: application/json", "Idempotency-Key: <UUID>"],
+      "headers": [
+        "Content-Type: application/json"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Trả 202 đồng nhất dù tài khoản không tồn tại; cấp PASSWORD_RESET_OTP có hạn và rate limit.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2466,11 +2515,12 @@
         "409 TOKEN_ALREADY_CONSUMED",
         "429 RATE_LIMITED"
       ],
-      "status": 202,
+      "status": 200,
       "dependencies": [
         "D09: idempotency store nếu chưa có khóa tự nhiên",
         "D01"
-      ]
+      ],
+      "blockedReason": "Chức năng khôi phục mật khẩu hiện chưa khả dụng. Vui lòng liên hệ quản trị viên."
     },
     {
       "id": "API-025",
@@ -2496,11 +2546,15 @@
         }
       ],
       "output": "{resetGrant,expiresAt}",
-      "headers": ["Content-Type: application/json", "Idempotency-Key: <UUID>"],
+      "headers": [
+        "Content-Type: application/json"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Tiêu thụ OTP một lần, tạo PASSWORD_RESET_GRANT băm, ràng đúng user; không tạo phiên đăng nhập.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2513,7 +2567,10 @@
         "429 RATE_LIMITED"
       ],
       "status": 200,
-      "dependencies": ["D09: idempotency store nếu chưa có khóa tự nhiên"]
+      "dependencies": [
+        "D09: idempotency store nếu chưa có khóa tự nhiên"
+      ],
+      "blockedReason": "Chức năng khôi phục mật khẩu hiện chưa khả dụng. Vui lòng liên hệ quản trị viên."
     },
     {
       "id": "API-026",
@@ -2539,11 +2596,15 @@
         }
       ],
       "output": "{passwordChanged:true}",
-      "headers": ["Content-Type: application/json", "Idempotency-Key: <UUID>"],
+      "headers": [
+        "Content-Type: application/json"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Khóa và tiêu thụ grant; cập nhật password_hash + thu hồi các phiên trong một transaction.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2556,7 +2617,10 @@
         "429 RATE_LIMITED"
       ],
       "status": 200,
-      "dependencies": ["D09: idempotency store nếu chưa có khóa tự nhiên"]
+      "dependencies": [
+        "D09: idempotency store nếu chưa có khóa tự nhiên"
+      ],
+      "blockedReason": "Chức năng khôi phục mật khẩu hiện chưa khả dụng. Vui lòng liên hệ quản trị viên."
     },
     {
       "id": "API-027",
@@ -2568,13 +2632,14 @@
       "inputFields": [],
       "output": "{selector,expiresAt}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Member đúng contract/phòng, tenant_id null. Tạo OCCUPANT_LINK gắn target_room_tenant_id; xác minh người nhận qua kênh được chốt.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2588,7 +2653,7 @@
         "409 TOKEN_ALREADY_CONSUMED",
         "429 RATE_LIMITED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
@@ -2621,13 +2686,14 @@
       "output": "Resident {id,tenantId,status}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa token + member; đối chiếu danh tính, không nhận thay người; kiểm tra một ACTIVE toàn hệ thống; cập nhật liên kết và consumed atomically.",
-      "flowIds": ["sessions"],
+      "flowIds": [
+        "sessions"
+      ],
       "group": "account",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2641,7 +2707,7 @@
         "409 TOKEN_ALREADY_CONSUMED",
         "429 RATE_LIMITED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
@@ -2657,11 +2723,15 @@
       "input": null,
       "inputFields": [],
       "output": "House[] và effectiveRentalRight",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Luôn scope landlord_id = actor; gồm cả nhà nháp chưa có phòng.",
-      "flowIds": ["create-house"],
+      "flowIds": [
+        "create-house"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2671,7 +2741,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-030",
@@ -2706,13 +2778,14 @@
       "output": "House {id,rowVersion,verificationVersion,effectiveRentalRight:null}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Idempotency-Key → creation_key; sp_create_rental_house chỉ nhận name/address/province/key. Các field vị trí/ghi chú gửi PATCH sau tạo; response nói rõ field nào đã lưu.",
-      "flowIds": ["create-house"],
+      "flowIds": [
+        "create-house"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2725,7 +2798,7 @@
         "409 HOUSE_VERSION_CHANGED",
         "422 HOUSE_COORDINATES_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -2740,11 +2813,15 @@
       "input": null,
       "inputFields": [],
       "output": "House và quyền hiện hành/lịch sử tóm tắt",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ nhà thuộc mình. Admin đọc qua route admin verification, không tự cấp quyền sửa.",
-      "flowIds": ["create-house"],
+      "flowIds": [
+        "create-house"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2753,7 +2830,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-032",
@@ -2797,18 +2876,6 @@
           "rule": "Tối đa 150 ký tự."
         },
         {
-          "name": "latitude",
-          "type": "decimal",
-          "required": false,
-          "rule": "[-90,90]; phải có cả latitude và longitude hoặc cùng null."
-        },
-        {
-          "name": "longitude",
-          "type": "decimal",
-          "required": false,
-          "rule": "[-180,180]; tối đa 7 số thập phân."
-        },
-        {
           "name": "notes",
           "type": "string",
           "required": false,
@@ -2818,13 +2885,14 @@
       "output": "House {rowVersion,verificationVersion,effectiveRentalRight}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "If-Match: \"<currentVersion>\""
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "If-Match → p_version. Đổi địa chỉ/tỉnh/địa phương/tọa độ tăng verification_version, hồ sơ chờ bị rút, quyền cũ không còn khớp; đổi tên/notes không đổi định danh. API đọc field hiện tại để truyền đủ tham số vào procedure.",
-      "flowIds": ["create-house"],
+      "flowIds": [
+        "create-house"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2853,11 +2921,15 @@
       "input": null,
       "inputFields": [],
       "output": "HouseVerification[] và effectiveRentalRight",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Không suy quyền từ việc chỉ có status APPROVED; đối chiếu version/chủ/thời hạn qua view.",
-      "flowIds": ["house-proof"],
+      "flowIds": [
+        "house-proof"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2867,7 +2939,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-034",
@@ -2903,30 +2977,19 @@
           "type": "date",
           "required": false,
           "rule": "Bắt buộc AUTHORIZED/SUBLESSOR; ≥ validFrom và không trước hôm nay."
-        },
-        {
-          "name": "documents",
-          "type": "object[]",
-          "required": true,
-          "rule": "1–8 phần tử {fileId,documentType}. OWNER: OWNER_PROOF; AUTHORIZED thêm AUTHORIZATION; SUBLESSOR: LEASE_AGREEMENT + SUBLET_CONSENT.",
-          "example": [
-            {
-              "fileId": "503",
-              "documentType": "OWNER_PROOF"
-            }
-          ]
         }
       ],
       "output": "HouseVerification {id,status:PENDING,houseVersion}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Tệp PRIVATE ACTIVE LANDLORD_PROOF, đúng chủ, 1–5.242.880 bytes, PDF/JPEG/PNG/WebP, chưa hết hạn; snapshot bất biến. Chỉ một PENDING/nhà.",
-      "flowIds": ["house-proof"],
+      "flowIds": [
+        "house-proof"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2940,7 +3003,7 @@
         "422 HOUSE_PROOF_INVALID",
         "409 HOUSE_IDENTITY_CHANGED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -2955,11 +3018,15 @@
       "input": null,
       "inputFields": [],
       "output": "HouseVerification,houseSnapshot,documents[]",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Kiểm tra verification.house_id thuộc houseId; trả fileId và metadata, URL riêng lấy từ file API.",
-      "flowIds": ["house-proof"],
+      "flowIds": [
+        "house-proof"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -2968,7 +3035,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-036",
@@ -2980,13 +3049,14 @@
       "inputFields": [],
       "output": "HouseVerification {id,status:WITHDRAWN}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ chủ nộp và PENDING; giữ snapshot/tệp/lịch sử.",
-      "flowIds": ["house-proof"],
+      "flowIds": [
+        "house-proof"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3015,11 +3085,15 @@
       "input": null,
       "inputFields": [],
       "output": "HouseVerification[]",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Lọc status/houseId/applicantId; không lộ file URL cố định.",
-      "flowIds": ["house-proof"],
+      "flowIds": [
+        "house-proof"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3029,7 +3103,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-038",
@@ -3040,11 +3116,15 @@
       "input": null,
       "inputFields": [],
       "output": "HouseVerification,houseSnapshot,currentHouse,documents[]",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "So sánh snapshot với nhà hiện tại; quản trị phải mở kiểm tra nội dung tệp và phạm vi.",
-      "flowIds": ["house-proof"],
+      "flowIds": [
+        "house-proof"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3053,7 +3133,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-039",
@@ -3075,25 +3157,19 @@
           "type": "string",
           "required": false,
           "rule": "Bắt buộc khi REJECT; tối đa 1.000 ký tự."
-        },
-        {
-          "name": "evidenceChecked",
-          "type": "boolean",
-          "required": false,
-          "rule": "Bắt buộc true khi APPROVE.",
-          "example": true
         }
       ],
       "output": "HouseVerification và effectiveRentalRight",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "APPROVE chỉ PENDING, định danh khớp, người nộp ACTIVE, hiệu lực ngày Việt Nam, đủ tệp; thay quyền APPROVED cũ bằng SUPERSEDED. REJECT cần lý do; audit + thông báo cùng transaction.",
-      "flowIds": ["house-proof"],
+      "flowIds": [
+        "house-proof"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3132,13 +3208,14 @@
       "output": "HouseVerification {id,status:REVOKED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ APPROVED; truyền decision REVOKE và reason vào procedure. Tin công khai mất quyền qua view; hợp đồng đang có giữ nguyên.",
-      "flowIds": ["house-rights-expiry"],
+      "flowIds": [
+        "house-rights-expiry"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3165,11 +3242,15 @@
       "input": null,
       "inputFields": [],
       "output": "{effective,verificationId,validFrom,validUntil,reason,verificationVersion}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Dùng v_effective_house_verifications, ngày Asia/Ho_Chi_Minh; hết hạn không chờ job.",
-      "flowIds": ["house-rights-expiry"],
+      "flowIds": [
+        "house-rights-expiry"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3178,7 +3259,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-042",
@@ -3189,11 +3272,15 @@
       "input": null,
       "inputFields": [],
       "output": "Room[] kèm currentLoad,activeCount,pendingPostCount",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Scope đúng nhà thuộc actor; load tính ACTIVE + PLANNED hợp đồng mở + hold còn hạn chưa thành member.",
-      "flowIds": ["rooms"],
+      "flowIds": [
+        "rooms"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3203,7 +3290,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-043",
@@ -3254,31 +3343,19 @@
           "required": true,
           "rule": "Chỉ chọn AVAILABLE/MAINTENANCE nếu không có người/chỗ/hợp đồng mở; RESERVED/OCCUPIED do nghiệp vụ tính.",
           "example": "AVAILABLE"
-        },
-        {
-          "name": "allowAdditionalOccupants",
-          "type": "boolean",
-          "required": false,
-          "rule": "Ánh xạ allow_additional_occupants, điều kiện tiếp nhận thêm người.",
-          "example": false
-        },
-        {
-          "name": "notes",
-          "type": "string",
-          "required": false,
-          "rule": "Tối đa 2.000 ký tự."
         }
       ],
       "output": "Room {id,status,capacity}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Nhà nháp vẫn thêm được; code duy nhất theo house; giá/cọc không âm, area>0. Không nhận RESERVED/OCCUPIED khi tạo chưa có người.",
-      "flowIds": ["rooms"],
+      "flowIds": [
+        "rooms"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3292,7 +3369,7 @@
         "422 ROOM_CAPACITY_EXCEEDED",
         "409 ROOM_STILL_OCCUPIED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -3306,13 +3383,6 @@
       "access": "LANDLORD: sở hữu nhà/phòng/hợp đồng",
       "input": "Room",
       "inputFields": [
-        {
-          "name": "code",
-          "type": "string",
-          "required": false,
-          "rule": "Ánh xạ room_number; không trùng trong nhà; tối đa 100 ký tự.",
-          "example": "P101"
-        },
         {
           "name": "area",
           "type": "decimal",
@@ -3340,31 +3410,19 @@
           "required": false,
           "rule": "Chỉ chọn AVAILABLE/MAINTENANCE nếu không có người/chỗ/hợp đồng mở; RESERVED/OCCUPIED do nghiệp vụ tính.",
           "example": "AVAILABLE"
-        },
-        {
-          "name": "allowAdditionalOccupants",
-          "type": "boolean",
-          "required": false,
-          "rule": "Ánh xạ allow_additional_occupants, điều kiện tiếp nhận thêm người.",
-          "example": false
-        },
-        {
-          "name": "notes",
-          "type": "string",
-          "required": false,
-          "rule": "Tối đa 2.000 ký tự."
         }
       ],
       "output": "Room sau cập nhật",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "If-Match: \"<currentVersion>\""
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ field vật lý/giá/allowAdditionalOccupants/notes và trạng thái bảo trì; capacity đi route riêng. Không sửa dữ liệu giá trong hợp đồng/hóa đơn cũ; không đặt AVAILABLE cho phòng còn tải/hợp đồng.",
-      "flowIds": ["rooms"],
+      "flowIds": [
+        "rooms"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3409,7 +3467,9 @@
       "query": "",
       "pagination": null,
       "logic": "API kiểm tra actor ACTIVE rồi gọi procedure, không chỉ đếm phía client.",
-      "flowIds": ["rooms"],
+      "flowIds": [
+        "rooms"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3442,9 +3502,14 @@
       "query": "",
       "pagination": null,
       "logic": "Người ngoài chỉ đọc phòng có tin công khai đủ quyền. Chủ/admin xem theo phạm vi được xác thực. Tách số lượng công khai khỏi danh sách người ở.",
-      "flowIds": ["room-detail"],
+      "flowIds": [
+        "room-detail"
+      ],
       "group": "property",
-      "errorCodes": ["400 BAD_REQUEST", "404 RESOURCE_NOT_FOUND"],
+      "errorCodes": [
+        "400 BAD_REQUEST",
+        "404 RESOURCE_NOT_FOUND"
+      ],
       "status": 200,
       "dependencies": []
     },
@@ -3461,7 +3526,9 @@
       "query": "",
       "pagination": "page",
       "logic": "Public chỉ từ v_public_house_posts; chủ sở hữu/admin có thể xem mọi trạng thái của phòng có quyền. Không trả nháp cho người thuê.",
-      "flowIds": ["room-detail"],
+      "flowIds": [
+        "room-detail"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3480,11 +3547,15 @@
       "input": null,
       "inputFields": [],
       "output": "Resident[] {id,fullName,isRepresentative,moveInDate,reconciliationRequired}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Chỉ ACTIVE, kể cả contract đã đóng sai; không trộn PLANNED/LEFT/CANCELLED; trả 403 cho người ngoài.",
-      "flowIds": ["room-detail"],
+      "flowIds": [
+        "room-detail"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3494,7 +3565,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-049",
@@ -3509,7 +3582,9 @@
       "query": "",
       "pagination": "page",
       "logic": "Kiểm tra quyền xem phòng; active cả house_services và room_services; COALESCE override, 0 là giá hợp lệ.",
-      "flowIds": ["room-detail"],
+      "flowIds": [
+        "room-detail"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3528,11 +3603,15 @@
       "input": null,
       "inputFields": [],
       "output": "Post[] {id,roomId,status,contentVersion,pendingReviewCount}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Lọc đúng các phòng thuộc mình; trả đủ mọi trạng thái.",
-      "flowIds": ["submit-post"],
+      "flowIds": [
+        "submit-post"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3542,7 +3621,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-051",
@@ -3574,13 +3655,6 @@
           "example": "Phòng có bếp và vệ sinh riêng."
         },
         {
-          "name": "imageFileIds",
-          "type": "id[]",
-          "required": true,
-          "rule": "Ít nhất 1 tệp POST_IMAGE ACTIVE của chủ trọ; thứ tự mảng là thứ tự ảnh.",
-          "example": ["501"]
-        },
-        {
           "name": "amenities",
           "type": "string[]",
           "required": false,
@@ -3590,13 +3664,14 @@
       "output": "Post {id,status:PENDING_REVIEW,contentVersion,pendingReviewCount}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Gọi sp_submit_post(p_post=NULL) cấp slot 1–3, nhà chưa xác minh vẫn nộp chờ được. sp_submit_post không ghi ảnh/amenities: cần mở rộng thủ tục trước khi coi toàn bộ body là nguyên tử. Không tạo post nửa chừng rồi báo thành công.",
-      "flowIds": ["submit-post"],
+      "flowIds": [
+        "submit-post"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3610,7 +3685,7 @@
         "409 POST_VERSION_CHANGED",
         "422 POST_IMAGE_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
@@ -3635,41 +3710,43 @@
         {
           "name": "title",
           "type": "string",
-          "required": false,
+          "required": true,
           "rule": "1–200 ký tự sau trim.",
-          "example": "Studio thoáng sáng"
+          "example": "Studio thoáng sáng",
+          "requiredOnPatch": true
         },
         {
           "name": "content",
           "type": "string",
-          "required": false,
+          "required": true,
           "rule": "Không trống; posts.content là TEXT (≤65.535 bytes UTF-8), dù tham số procedure LONGTEXT. API kiểm tra byte length trước ghi.",
-          "example": "Phòng có bếp và vệ sinh riêng."
-        },
-        {
-          "name": "imageFileIds",
-          "type": "id[]",
-          "required": false,
-          "rule": "Ít nhất 1 tệp POST_IMAGE ACTIVE của chủ trọ; thứ tự mảng là thứ tự ảnh.",
-          "example": ["501"]
+          "example": "Phòng có bếp và vệ sinh riêng.",
+          "requiredOnPatch": true
         },
         {
           "name": "amenities",
           "type": "string[]",
           "required": false,
           "rule": "Chuẩn hóa, loại trùng; mỗi amenity ≤100 ký tự theo SQL; giới hạn số mục API cần cấu hình."
+        },
+        {
+          "name": "contentVersion",
+          "type": "integer",
+          "required": false,
+          "rule": "Phiên bản tin được máy chủ trả về."
         }
       ],
       "output": "Post {id,status:PENDING_REVIEW,contentVersion}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "If-Match: \"<currentVersion>\""
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Giữ roomId. If-Match → p_expected_version. Sửa bài PENDING giữ slot, bài khác cần slot trống. Ảnh/amenities cần mở rộng procedure cùng transaction; không tác động bài khác.",
-      "flowIds": ["submit-post"],
+      "flowIds": [
+        "submit-post"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3700,11 +3777,15 @@
       "input": null,
       "inputFields": [],
       "output": "Post[] kèm trạng thái quyền nhà",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Lọc trạng thái; đọc tin và ảnh riêng phục vụ kiểm duyệt, không dùng route public.",
-      "flowIds": ["moderate-post"],
+      "flowIds": [
+        "moderate-post"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3714,7 +3795,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-054",
@@ -3741,14 +3824,14 @@
       "output": "Post và contentVersion",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>",
-        "If-Match: \"<currentVersion>\""
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa room + post, kiểm tra If-Match/content_version, PENDING_REVIEW; APPROVE cần quyền nhà hiệu lực; REJECT cần reason. Giải phóng slot; ghi audit + thông báo.",
-      "flowIds": ["moderate-post"],
+      "flowIds": [
+        "moderate-post"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3787,13 +3870,14 @@
       "output": "Post {id,status:HIDDEN}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ APPROVED; kiểm tra chủ phòng/admin, không đổi bài khác. Giữ ID đã lưu/chia sẻ; ghi audit.",
-      "flowIds": ["moderate-post"],
+      "flowIds": [
+        "moderate-post"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3831,13 +3915,14 @@
       "output": "Post {id,status:APPROVED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ HIDDEN; kiểm tra quyền nhà, giữ nội dung, ghi người/lý do/thời điểm; nếu chủ sửa bài thì phải đi lại hàng chờ.",
-      "flowIds": ["moderate-post"],
+      "flowIds": [
+        "moderate-post"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3869,7 +3954,9 @@
       "query": "q,provinceCode,minArea,maxRent,amenities,lat,lng,radiusKm,sort",
       "pagination": "page",
       "logic": "Dùng v_public_house_posts; khám phá loại OCCUPIED, vẫn gắn nhãn RESERVED/MAINTENANCE. q,provinceCode,minArea,maxRent,amenities,lat,lng,radiusKm; tọa độ phải cùng cặp. Khoảng cách do backend tính, không dùng demo distance.",
-      "flowIds": ["discover"],
+      "flowIds": [
+        "discover"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3892,9 +3979,14 @@
       "query": "",
       "pagination": null,
       "logic": "Tin không còn quyền/ẩn/từ chối trả 404; không tự thay bài khác cùng roomId. Giá/tình trạng/sức chứa lấy rooms hiện tại.",
-      "flowIds": ["discover"],
+      "flowIds": [
+        "discover"
+      ],
       "group": "posts",
-      "errorCodes": ["400 BAD_REQUEST", "404 RESOURCE_NOT_FOUND"],
+      "errorCodes": [
+        "400 BAD_REQUEST",
+        "404 RESOURCE_NOT_FOUND"
+      ],
       "status": 200,
       "dependencies": []
     },
@@ -3907,11 +3999,15 @@
       "input": null,
       "inputFields": [],
       "output": "Favorite[] {postId,savedAt,availability,post|null}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Chỉ favorites actor. Nếu bài mất quyền thì trả placeholder không lộ ảnh/tiêu đề cũ.",
-      "flowIds": ["discover"],
+      "flowIds": [
+        "discover"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3921,7 +4017,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-060",
@@ -3932,11 +4030,15 @@
       "input": null,
       "inputFields": [],
       "output": "{postId,saved:true}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Bài còn công khai khi lưu; uq tenant+post chống trùng; gọi lặp cùng kết quả.",
-      "flowIds": ["discover"],
+      "flowIds": [
+        "discover"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3963,11 +4065,15 @@
       "input": null,
       "inputFields": [],
       "output": "{postId,saved:false}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ favorite actor; bỏ lưu được cả khi bài đã ẩn; gọi lặp vẫn thành công.",
-      "flowIds": ["discover"],
+      "flowIds": [
+        "discover"
+      ],
       "group": "posts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -3994,11 +4100,15 @@
       "input": null,
       "inputFields": [],
       "output": "RoommateProfile hoặc 404 PROFILE_NOT_CREATED",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Trả profileVersion/housingStatus/currentRoomTenantId; phát hiện hồ sơ IN_SYSTEM cũ khi cư trú đã đổi.",
-      "flowIds": ["roommate-profile"],
+      "flowIds": [
+        "roommate-profile"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4007,7 +4117,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-063",
@@ -4065,29 +4177,30 @@
           "rule": "≤30 ký tự."
         },
         {
-          "name": "requirementsSnapshot",
-          "type": "object",
-          "required": false,
-          "rule": "Nhu cầu tự khai; schema cần chốt."
-        },
-        {
           "name": "active",
           "type": "boolean",
           "required": true,
           "rule": "Bật cho phép tìm kiếm.",
           "example": true
+        },
+        {
+          "name": "profileVersion",
+          "type": "integer",
+          "required": false,
+          "rule": "Phiên bản hồ sơ nhận từ máy chủ khi cập nhật."
         }
       ],
       "output": "RoommateProfile {id,profileVersion,...}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "If-Match: \"<currentVersion>\""
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Một hồ sơ/tenant; tra ACTIVE bằng khóa, tự ghi IN_SYSTEM + đúng member nếu có; không tin currentRoomTenantId client. If-Match cho cập nhật, If-None-Match:* khi tạo. Lưu không gửi lời mời.",
-      "flowIds": ["roommate-profile"],
+      "flowIds": [
+        "roommate-profile"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4116,11 +4229,15 @@
       "input": null,
       "inputFields": [],
       "output": "PublicRoommateProfile; không có CCCD/địa chỉ cư trú cụ thể",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Hồ sơ active được tìm; người nhận lời mời vẫn được xem nội dung đủ quyết định theo quyền lời mời. Không trả định danh căn cước.",
-      "flowIds": ["roommate-profile"],
+      "flowIds": [
+        "roommate-profile"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4129,7 +4246,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-065",
@@ -4140,11 +4259,15 @@
       "input": null,
       "inputFields": [],
       "output": "LifestyleCriterion[] {id,code,name,category,valueType,allowedValues}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Chỉ active; cấu trúc JSON theo valueType được validate bởi service.",
-      "flowIds": ["matching-criteria"],
+      "flowIds": [
+        "matching-criteria"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4154,7 +4277,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-066",
@@ -4165,11 +4290,15 @@
       "input": null,
       "inputFields": [],
       "output": "ProfileLifestyle[]",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Chỉ profile actor; trả selfValue/preferredValue/isMandatory/importance.",
-      "flowIds": ["matching-criteria"],
+      "flowIds": [
+        "matching-criteria"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4179,7 +4308,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-067",
@@ -4191,18 +4322,9 @@
       "inputFields": [
         {
           "name": "criteria",
-          "type": "object[]",
+          "type": "LifestyleValue[]",
           "required": true,
-          "rule": "Mỗi criterionId duy nhất; có selfValue hoặc preferredValue; mandatory cần preferredValue; importance 0–5.",
-          "example": [
-            {
-              "criterionId": "1",
-              "selfValue": false,
-              "preferredValue": false,
-              "isMandatory": true,
-              "importance": 5
-            }
-          ]
+          "rule": ""
         }
       ],
       "output": "ProfileLifestyle[] và profileVersion",
@@ -4213,7 +4335,9 @@
       "query": "",
       "pagination": null,
       "logic": "Khóa profile; kiểm tra criterion active, kiểu JSON BOOLEAN/NUMBER/CATEGORY/TIME/RANGE và allowed_values; thay bộ giá trị atomically, tăng profile_version.",
-      "flowIds": ["matching-criteria"],
+      "flowIds": [
+        "matching-criteria"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4241,11 +4365,15 @@
       "input": null,
       "inputFields": [],
       "output": "Match[] {profile,score|null,algorithmVersion,explanations}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Loại bản thân, hồ sơ inactive; lọc khu vực/ngân sách/tiêu chí bắt buộc. Thuật toán điểm/trọng số chưa tồn tại: chốt D02 trước khi trả score.",
-      "flowIds": ["matching-criteria"],
+      "flowIds": [
+        "matching-criteria"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4255,7 +4383,10 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope", "D02"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope",
+        "D02"
+      ]
     },
     {
       "id": "API-069",
@@ -4310,13 +4441,14 @@
       "output": "LifestyleCriterion",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Không thêm cột hồ sơ cho từng tiêu chí; ghi audit vận hành riêng nếu cần vì moderation_actions không có target tiêu chí.",
-      "flowIds": ["matching-criteria"],
+      "flowIds": [
+        "matching-criteria"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4329,7 +4461,7 @@
         "422 INVALID_CRITERION_VALUE",
         "409 CRITERION_IN_USE"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -4346,43 +4478,49 @@
         {
           "name": "code",
           "type": "string",
-          "required": false,
+          "required": true,
           "rule": "Duy nhất; ≤80 ký tự.",
-          "example": "SMOKING"
+          "example": "SMOKING",
+          "requiredOnPatch": true
         },
         {
           "name": "name",
           "type": "string",
-          "required": false,
+          "required": true,
           "rule": "≤100 ký tự.",
-          "example": "Hút thuốc"
+          "example": "Hút thuốc",
+          "requiredOnPatch": true
         },
         {
           "name": "category",
           "type": "string",
-          "required": false,
+          "required": true,
           "rule": "≤100 ký tự.",
-          "example": "Thói quen"
+          "example": "Thói quen",
+          "requiredOnPatch": true
         },
         {
           "name": "valueType",
           "type": "enum",
-          "required": false,
+          "required": true,
           "rule": "BOOLEAN/NUMBER/CATEGORY/TIME/RANGE.",
-          "example": "BOOLEAN"
+          "example": "BOOLEAN",
+          "requiredOnPatch": true
         },
         {
           "name": "allowedValues",
           "type": "object",
           "required": false,
-          "rule": "JSON phải tương thích kiểu."
+          "rule": "JSON phải tương thích kiểu.",
+          "requiredOnPatch": false
         },
         {
           "name": "active",
           "type": "boolean",
-          "required": false,
+          "required": true,
           "rule": "Bật/ngừng.",
-          "example": true
+          "example": true,
+          "requiredOnPatch": true
         }
       ],
       "output": "LifestyleCriterion",
@@ -4393,7 +4531,9 @@
       "query": "",
       "pagination": null,
       "logic": "Không đổi code/kiểu khiến giá trị lịch sử mất nghĩa; đổi kiểu đang dùng cần phiên bản/migration được thiết kế.",
-      "flowIds": ["matching-criteria"],
+      "flowIds": [
+        "matching-criteria"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4422,11 +4562,15 @@
       "input": null,
       "inputFields": [],
       "output": "{items:RoommateRequest[],counts:{incoming,outgoing}}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "direction,status",
       "pagination": "page",
       "logic": "direction=incoming/outgoing; actor phải là sender/receiver; bộ đếm gồm mục đã phản hồi theo tab hiện tại.",
-      "flowIds": ["roommate-invite"],
+      "flowIds": [
+        "roommate-invite"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4436,7 +4580,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-072",
@@ -4461,12 +4607,6 @@
           "example": "SEARCH_TOGETHER"
         },
         {
-          "name": "targetContractId",
-          "type": "id",
-          "required": false,
-          "rule": "Bắt buộc chỉ JOIN_SYSTEM_ROOM, đúng ngữ cảnh đại diện."
-        },
-        {
           "name": "message",
           "type": "string",
           "required": false,
@@ -4476,13 +4616,14 @@
       "output": "RoommateRequest {id,status:PENDING}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Người gửi có profile; unique cặp chuẩn hóa chống cả hai chiều PENDING/ACCEPTED chưa ended. Không tự accept lời mời ngược chiều.",
-      "flowIds": ["roommate-invite"],
+      "flowIds": [
+        "roommate-invite"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4496,7 +4637,7 @@
         "422 PROFILE_REQUIRED",
         "409 CONNECTION_ENDED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -4521,13 +4662,14 @@
       "output": "RoommateRequest và conversationId|null",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ receiver, PENDING; ACCEPT tạo/lấy ROOMMATE và đúng hai participant trong transaction, không tạo join request/giữ chỗ. Lời mời cũ không bắt buộc có profile mới.",
-      "flowIds": ["roommate-invite"],
+      "flowIds": [
+        "roommate-invite"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4566,13 +4708,14 @@
       "output": "RoommateRequest {id,status:CANCELLED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ sender và PENDING; giữ dữ liệu, không đổi ACCEPTED.",
-      "flowIds": ["roommate-invite"],
+      "flowIds": [
+        "roommate-invite"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4611,13 +4754,14 @@
       "output": "RoommateRequest {id,status:ACCEPTED,endedAt,endReason}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Một trong hai bên, ACCEPTED chưa ended; khóa kết nối, ghi ended_at; chặn gửi mới. Chính sách đọc chat cũ cần chốt D03.",
-      "flowIds": ["roommate-invite"],
+      "flowIds": [
+        "roommate-invite"
+      ],
       "group": "roommates",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4657,13 +4801,14 @@
       "output": "Conversation {id,type:ROOM_INQUIRY,postId,roomId,participants}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Backend tra room/landlord từ post, không tin client chọn chủ. SQL không có unique cho cặp hỏi phòng: cần khóa/unique migration hoặc kho idempotency khi get-or-create đồng thời.",
-      "flowIds": ["room-chat"],
+      "flowIds": [
+        "room-chat"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4676,7 +4821,7 @@
         "403 NOT_A_PARTICIPANT",
         "422 MESSAGE_OR_CONTEXT_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
@@ -4692,11 +4837,15 @@
       "input": null,
       "inputFields": [],
       "output": "Conversation[] hoặc nhóm theo peer với contexts[]",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Chỉ participant chưa left/deleted; nhóm cùng cặp ở read model, vẫn giữ conversationId từng post/room khi gửi/hẹn. Không ghi một conversation nhiều room vào SQL v5.",
-      "flowIds": ["room-chat"],
+      "flowIds": [
+        "room-chat"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4706,7 +4855,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-078",
@@ -4717,11 +4868,15 @@
       "input": null,
       "inputFields": [],
       "output": "Conversation,participants,context,relationshipLabel",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Kiểm tra membership; ROOMMATE còn kết nối khi gửi; nhãn quan hệ tính theo context, không đổi role users.",
-      "flowIds": ["room-chat"],
+      "flowIds": [
+        "room-chat"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4730,7 +4885,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-079",
@@ -4741,11 +4898,15 @@
       "input": null,
       "inputFields": [],
       "output": "Message[] {id,senderId,type,content,sentAt,sharedPost|null}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "before,limit",
       "pagination": "cursor",
       "logic": "Phân trang cursor theo sent_at,id; không lộ thẻ tin đã mất quyền, trả unavailable. Đọc quyền connection theo D03.",
-      "flowIds": ["room-chat"],
+      "flowIds": [
+        "room-chat"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4755,7 +4916,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-080",
@@ -4776,7 +4939,7 @@
           "name": "type",
           "type": "enum",
           "required": true,
-          "rule": "TEXT / IMAGE; SYSTEM chỉ server, POST_SHARE dùng route riêng.",
+          "rule": "TEXT",
           "example": "TEXT"
         },
         {
@@ -4785,24 +4948,19 @@
           "required": false,
           "rule": "TEXT bắt buộc trim không rỗng, tối đa 2.000 ký tự.",
           "example": "Tôi muốn hỏi thêm về phòng này."
-        },
-        {
-          "name": "fileIds",
-          "type": "id[]",
-          "required": false,
-          "rule": "IMAGE bắt buộc file CHAT_IMAGE ACTIVE PRIVATE thuộc mình."
         }
       ],
       "output": "Message và eventId",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa membership/kết nối; UNIQUE sender+clientMessageKey; ghi message, file context, last_message và notification cùng transaction. Realtime phát sau commit.",
-      "flowIds": ["room-chat"],
+      "flowIds": [
+        "room-chat"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4815,7 +4973,7 @@
         "403 NOT_A_PARTICIPANT",
         "422 MESSAGE_OR_CONTEXT_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -4845,7 +5003,9 @@
       "query": "",
       "pagination": null,
       "logic": "Server tra sent_at của message, cập nhật last_read_at tăng đơn điệu; không tin thời gian tùy ý từ client. Chỉ thông báo của actor.",
-      "flowIds": ["room-chat"],
+      "flowIds": [
+        "room-chat"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4900,7 +5060,9 @@
       "query": "",
       "pagination": null,
       "logic": "Whitelist field trên conversation_participants, không xóa chat_messages hoặc đổi người khác.",
-      "flowIds": ["room-chat"],
+      "flowIds": [
+        "room-chat"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4928,11 +5090,17 @@
       "input": null,
       "inputFields": [],
       "output": "{viewings:Viewing[],proposals:ViewingProposal[]}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ ROOM_INQUIRY/member; read từ bảng lịch/proposal đúng conversation. Không tạo tin SYSTEM thay bản ghi trạng thái.",
-      "flowIds": ["room-chat", "propose-viewing", "schedule-viewing"],
+      "flowIds": [
+        "room-chat",
+        "propose-viewing",
+        "schedule-viewing"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4941,7 +5109,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-084",
@@ -4953,13 +5123,14 @@
       "inputFields": [],
       "output": "Conversation {id,type:ROOMMATE}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Actor là một trong hai người ACCEPTED chưa ended; unique roommate_request_id, get-or-create hai participant. Không yêu cầu phòng còn chỗ; không đưa lịch chủ trọ vào đây.",
-      "flowIds": ["roommate-chat"],
+      "flowIds": [
+        "roommate-chat"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -4972,7 +5143,7 @@
         "409 CONNECTION_ENDED",
         "403 NOT_A_PARTICIPANT"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -5010,13 +5181,14 @@
       "output": "Message {type:POST_SHARE,sharedPostId,sharedPost}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ ROOMMATE ACCEPTED chưa ended; kiểm tra lại bài/kết nối khi gửi. Không nhúng snapshot lộ tin ẩn; không thêm chủ trọ hoặc tạo thuê chung.",
-      "flowIds": ["share-post"],
+      "flowIds": [
+        "share-post"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5029,7 +5201,7 @@
         "409 CONNECTION_ENDED",
         "404 POST_UNAVAILABLE"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -5044,11 +5216,15 @@
       "input": null,
       "inputFields": [],
       "output": "Notification[] {id,type,title,content,isRead,resource,createdAt}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "isRead,type",
       "pagination": "page",
       "logic": "Chỉ user_id=actor; dữ liệu preview tối thiểu, quyền mở đối tượng kiểm tra lại.",
-      "flowIds": ["notifications"],
+      "flowIds": [
+        "notifications"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5058,7 +5234,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-087",
@@ -5069,11 +5247,15 @@
       "input": null,
       "inputFields": [],
       "output": "{notificationsUnread,messagesUnread}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Đếm server theo cùng quy tắc read-state; label 99+ do UI; tắt popup không đánh dấu đã đọc.",
-      "flowIds": ["notifications"],
+      "flowIds": [
+        "notifications"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5082,7 +5264,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-088",
@@ -5096,8 +5280,7 @@
           "name": "isRead",
           "type": "boolean",
           "required": true,
-          "rule": "Chỉ true trong hợp đồng API này.",
-          "example": true
+          "rule": ""
         }
       ],
       "output": "Notification {id,isRead:true,readAt}",
@@ -5108,7 +5291,9 @@
       "query": "",
       "pagination": null,
       "logic": "Chỉ thông báo actor; idempotent; giữ read_at nếu đã đọc.",
-      "flowIds": ["notifications"],
+      "flowIds": [
+        "notifications"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5132,26 +5317,19 @@
       "path": "/me/notifications/read-all",
       "title": "Đọc tất cả đến mốc xác định",
       "access": "USER: tài khoản ACTIVE; chỉ dữ liệu của mình",
-      "input": "ReadAll",
-      "inputFields": [
-        {
-          "name": "throughCreatedAt",
-          "type": "datetime",
-          "required": true,
-          "rule": "Mốc server trả trong feed; không đánh dấu thông báo mới đến sau đó.",
-          "example": "2026-10-29T03:00:00Z"
-        }
-      ],
+      "input": null,
+      "inputFields": [],
       "output": "{updatedCount}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Một UPDATE scoped user_id + thời gian; notification đến sau mốc vẫn unread.",
-      "flowIds": ["notifications"],
+      "flowIds": [
+        "notifications"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5178,11 +5356,15 @@
       "input": null,
       "inputFields": [],
       "output": "text/event-stream: {id,type,resourceId,occurredAt}; không bọc JSON HTTP thông thường",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "GET SSE là ngoại lệ content type. Auth phiên qua fetch stream có Bearer; Last-Event-ID để nối lại. Phát sau commit, client dedupe eventId rồi fetch resource theo quyền. Replay bền vững cần outbox/event store bổ sung.",
-      "flowIds": ["notifications"],
+      "flowIds": [
+        "notifications"
+      ],
       "group": "messages",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5191,7 +5373,11 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope", "D09"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope",
+        "D09"
+      ],
+      "blockedReason": "Thông báo trực tiếp chưa khả dụng. Hãy tải lại để nhận cập nhật."
     },
     {
       "id": "API-091",
@@ -5202,11 +5388,15 @@
       "input": null,
       "inputFields": [],
       "output": "ViewingProposal[] {id,status,effectiveStatus,startsAt,viewingId}",
-      "headers": ["Authorization: Bearer <accessToken>"],
-      "query": "status,roomId,conversationId",
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
+      "query": "status",
       "pagination": "page",
       "logic": "Tenant chỉ đề nghị của mình, landlord chỉ phòng của mình; effectiveStatus EXPIRED nếu tới giờ dù DB còn PENDING.",
-      "flowIds": ["propose-viewing"],
+      "flowIds": [
+        "propose-viewing"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5216,7 +5406,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-092",
@@ -5259,18 +5451,25 @@
           "type": "string",
           "required": false,
           "rule": "Tối đa 2.000 ký tự."
+        },
+        {
+          "name": "clientRequestKey",
+          "type": "uuid",
+          "required": true,
+          "rule": "Giữ nguyên khi gửi lại cùng một đề nghị."
         }
       ],
       "output": "ViewingProposal {id,status:PENDING,startsAt}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Idempotency-Key UUID → p_key; tenant lấy actor. Một PENDING/tenant+room; không giữ khoảng giờ. Nếu chưa có conversation thì mở inquiry trước, không gửi roommate chat.",
-      "flowIds": ["propose-viewing"],
+      "flowIds": [
+        "propose-viewing"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5285,7 +5484,7 @@
         "409 PROPOSAL_EXPIRED",
         "422 VIEWING_TIME_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -5316,13 +5515,14 @@
       "output": "{proposal:ViewingProposal,viewing:Viewing|null}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "p_action ACCEPT/REJECT. Accept khóa phòng, kiểm tra lại hợp đồng/quyền/ngữ cảnh/trùng giờ; tạo lịch cùng transaction. Duyệt lại trả linked viewing đã có.",
-      "flowIds": ["propose-viewing"],
+      "flowIds": [
+        "propose-viewing"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5353,13 +5553,14 @@
       "inputFields": [],
       "output": "ViewingProposal {id,status:WITHDRAWN}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ PENDING chưa tới giờ; đã ACCEPTED thì hủy lịch, không sửa lịch sử proposal.",
-      "flowIds": ["propose-viewing"],
+      "flowIds": [
+        "propose-viewing"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5389,11 +5590,15 @@
       "input": null,
       "inputFields": [],
       "output": "Viewing[] và decision",
-      "headers": ["Authorization: Bearer <accessToken>"],
-      "query": "status,from,to,roomId,conversationId",
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
+      "query": "status",
       "pagination": "page",
       "logic": "Scope người thuê/chủ, lọc ngày theo VN rồi đổi UTC; tổng quan chỉ SCHEDULED chưa kết thúc, sort starts_at.",
-      "flowIds": ["schedule-viewing"],
+      "flowIds": [
+        "schedule-viewing"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5403,7 +5608,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-096",
@@ -5414,11 +5621,15 @@
       "input": null,
       "inputFields": [],
       "output": "Viewing {id,startsAt,endsAt,status,tenantDecision,cancelReason}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ hai bên của lịch; trả cùng bản ghi mà chat dùng.",
-      "flowIds": ["schedule-viewing"],
+      "flowIds": [
+        "schedule-viewing"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5427,7 +5638,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-097",
@@ -5482,13 +5695,14 @@
       "output": "Viewing {id,status:SCHEDULED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Gọi giờ UTC; 30/60/90/120 phút, khóa room, không trùng interval [start,end), liền kề hợp lệ. Không tạo lịch từ ROOMMATE.",
-      "flowIds": ["schedule-viewing"],
+      "flowIds": [
+        "schedule-viewing"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5502,7 +5716,7 @@
         "422 VIEWING_CONTEXT_INVALID",
         "422 VIEWING_TIME_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -5527,13 +5741,14 @@
       "output": "Viewing {id,status,attendanceConfirmedAt}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "ATTENDED chỉ khi đến giờ bắt đầu; NO_SHOW chỉ khi đã hết giờ. SCHEDULED là trạng thái nguồn.",
-      "flowIds": ["viewing-outcome"],
+      "flowIds": [
+        "viewing-outcome"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5572,13 +5787,14 @@
       "output": "Viewing {id,status:CANCELLED,cancelledAt}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "p_action CANCEL; chỉ SCHEDULED; lưu reason/actor/time và giải phóng khoảng giờ, giữ thẻ lịch.",
-      "flowIds": ["viewing-outcome"],
+      "flowIds": [
+        "viewing-outcome"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5617,13 +5833,14 @@
       "output": "Viewing {id,tenantDecision,tenantDecidedAt}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "COMPLETED: WAITING→AGREED/DECLINED; AGREED→WITHDRAWN nếu không hợp đồng mở. Không giữ phòng/hủy lịch người khác khi AGREE.",
-      "flowIds": ["viewing-outcome"],
+      "flowIds": [
+        "viewing-outcome"
+      ],
       "group": "viewings",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5652,11 +5869,15 @@
       "input": null,
       "inputFields": [],
       "output": "Contract[] {id,number,status,room,dates,currentRepresentative}",
-      "headers": ["Authorization: Bearer <accessToken>"],
-      "query": "status,roomId,source",
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
+      "query": "",
       "pagination": "page",
       "logic": "Owner theo landlord; tenant theo lịch gốc/member/history được phép, giữ quyền xem lịch sử phù hợp; không chỉ lọc đại diện hiện tại.",
-      "flowIds": ["create-contract"],
+      "flowIds": [
+        "create-contract"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5666,7 +5887,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-102",
@@ -5677,11 +5900,15 @@
       "input": null,
       "inputFields": [],
       "output": "Contract,currentRevision,members,allowedActions",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Member cũ được xem phần lịch sử có quyền; số giấy tờ thành viên khác được che. allowedActions chỉ hướng dẫn UI, server vẫn kiểm tra mỗi lệnh.",
-      "flowIds": ["create-contract"],
+      "flowIds": [
+        "create-contract"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5690,7 +5917,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-103",
@@ -5748,31 +5977,20 @@
           "required": true,
           "rule": "Điều khoản đã chuẩn bị; không trống.",
           "example": "Nội dung hợp đồng được hai bên đối chiếu."
-        },
-        {
-          "name": "templateId",
-          "type": "id",
-          "required": false,
-          "rule": "Mẫu còn active; không thay thế snapshot nội dung."
-        },
-        {
-          "name": "extraMembers",
-          "type": "PlannedMember[]",
-          "required": true,
-          "rule": "Không gồm đại diện từ viewing; tổng đại diện + mảng ≤ capacity.",
-          "example": []
         }
       ],
       "output": "Contract {id,status:PENDING_CONFIRMATION,revisionId,members}; roomStatus:RESERVED",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "p_extra_members ánh xạ full_name,tenant_id,identity_number,date_of_birth. Lịch COMPLETED+AGREED, nhà hiệu lực, room chưa open contract/load; tạo phiên bản, PLANNED, lịch sử đại diện, đóng lịch/đề nghị + notification cùng procedure. Không bọc CALL trong transaction app.",
-      "flowIds": ["create-contract", "reserve-cleanup"],
+      "flowIds": [
+        "create-contract",
+        "reserve-cleanup"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5787,7 +6005,7 @@
         "422 HOUSE_RIGHT_NOT_EFFECTIVE",
         "422 ROOM_CAPACITY_EXCEEDED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -5802,11 +6020,15 @@
       "input": null,
       "inputFields": [],
       "output": "{futureViewingsCount,pendingProposalsCount,expiredProposalsCount,asOf}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Read-only preview theo room_id trên mọi bài; không giữ chỗ. POST /contracts vẫn tính lại trong khóa phòng; preview không phải cam kết.",
-      "flowIds": ["reserve-cleanup"],
+      "flowIds": [
+        "reserve-cleanup"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5815,7 +6037,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-105",
@@ -5826,11 +6050,15 @@
       "input": null,
       "inputFields": [],
       "output": "ContractRevision[] gồm trạng thái,content,membersSnapshot,confirmedBy/At",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Không ghi đè nội dung đã xác nhận; kiểm tra quyền đọc từng hợp đồng.",
-      "flowIds": ["contract-revision"],
+      "flowIds": [
+        "contract-revision"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5840,7 +6068,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-106",
@@ -5861,13 +6091,14 @@
       "output": "{cancelledRevisionId,draftRevisionId,status:DRAFT}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ đại diện hiện tại và contract chờ xác nhận; khóa contract + current_revision, hủy bản chờ, tạo DRAFT tiếp theo; không coi là termination.",
-      "flowIds": ["contract-revision"],
+      "flowIds": [
+        "contract-revision"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5896,13 +6127,6 @@
       "input": "ContractRevision",
       "inputFields": [
         {
-          "name": "baseRevisionId",
-          "type": "id",
-          "required": false,
-          "rule": "Phiên bản hiện tại đã đọc.",
-          "example": "901"
-        },
-        {
           "name": "endDate",
           "type": "date",
           "required": false,
@@ -5929,12 +6153,6 @@
           "required": false,
           "rule": "Điều khoản phiên bản mới.",
           "example": "Điều khoản đã điều chỉnh"
-        },
-        {
-          "name": "templateId",
-          "type": "id",
-          "required": false,
-          "rule": "Mẫu active nếu có."
         }
       ],
       "output": "ContractRevision {id,version,status:DRAFT}",
@@ -5945,7 +6163,9 @@
       "query": "",
       "pagination": null,
       "logic": "Chỉ DRAFT thuộc đúng contract, baseRevision hiện tại; số version duy nhất. Không sửa trực tiếp bản đã gửi/xác nhận.",
-      "flowIds": ["contract-revision"],
+      "flowIds": [
+        "contract-revision"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -5975,13 +6195,14 @@
       "inputFields": [],
       "output": "ContractRevision PENDING_CONFIRMATION và currentRevisionId",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Kiểm tra quyền nhà/actor, snapshot thành viên/ngày/giá; chuyển bản hiện tại DRAFT→PENDING_CONFIRMATION và hợp đồng chờ, ghi thông báo trong transaction.",
-      "flowIds": ["contract-revision"],
+      "flowIds": [
+        "contract-revision"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6020,13 +6241,14 @@
       "output": "Contract {id,status:CONFIRMED,currentRevisionId}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Procedure chỉ nhận contract + tenant, không nhận revisionId: backend cần mở rộng thủ tục để so khớp expectedRevisionId dưới cùng khóa, tránh xác nhận nhầm bản mới. Thành viên vẫn PLANNED.",
-      "flowIds": ["contract-revision"],
+      "flowIds": [
+        "contract-revision"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6056,13 +6278,6 @@
       "input": "MoveIn",
       "inputFields": [
         {
-          "name": "memberIds",
-          "type": "id[]",
-          "required": true,
-          "rule": "Các room_tenant ID PLANNED của contract, không lặp; lần đầu gồm đại diện.",
-          "example": ["1101"]
-        },
-        {
           "name": "moveInDate",
           "type": "date",
           "required": true,
@@ -6073,13 +6288,14 @@
       "output": "{contract:Contract,members:Resident[],roomStatus:OCCUPIED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "p_members JSON các ID lượt ở, không phải tenantId. Kiểm tra một ACTIVE toàn hệ thống, phiên bản đã xác nhận, capacity và quyền nhà thuê mới.",
-      "flowIds": ["move-in"],
+      "flowIds": [
+        "move-in"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6093,7 +6309,7 @@
         "422 ROOM_CAPACITY_EXCEEDED",
         "422 HOUSE_RIGHT_NOT_EFFECTIVE"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -6118,13 +6334,14 @@
       "output": "Contract {id,status:CANCELLED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ DRAFT/PENDING_CONFIRMATION/CONFIRMED chưa có ACTIVE; hủy PLANNED, yêu cầu mở, tính phòng lại. Không khôi phục lịch cũ. ACTIVE phải termination.",
-      "flowIds": ["cancel-contract"],
+      "flowIds": [
+        "cancel-contract"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6162,13 +6379,14 @@
       "output": "Resident {id,status:CANCELLED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ PLANNED, không hủy riêng đại diện; không giả ngày vào/ra.",
-      "flowIds": ["cancel-contract"],
+      "flowIds": [
+        "cancel-contract"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6243,31 +6461,19 @@
           "required": true,
           "rule": "Không âm.",
           "example": "3800000.00"
-        },
-        {
-          "name": "content",
-          "type": "string",
-          "required": true,
-          "rule": "Snapshot nội dung đã ký.",
-          "example": "Điều khoản trong hợp đồng giấy"
-        },
-        {
-          "name": "members",
-          "type": "object[]",
-          "required": true,
-          "rule": "Danh sách + đại diện, trạng thái và chứng cứ ngày vào thực tế; cần chốt JSON chi tiết."
         }
       ],
       "output": "ImportResult {contractId,source:PAPER_IMPORT,warnings}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chưa có procedure nhập giấy hoàn chỉnh; cần thiết kế transaction/FK/revision/history, quyền đặc biệt và kiểm tra capacity. Không cho client chọn source=PAPER_IMPORT trên POST /contracts để né quyền nhà.",
-      "flowIds": ["cancel-contract"],
+      "flowIds": [
+        "cancel-contract"
+      ],
       "group": "contracts",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6280,12 +6486,13 @@
         "409 CONTRACT_ALREADY_ACTIVE",
         "409 REPRESENTATIVE_CANNOT_BE_CANCELLED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
         "D11"
-      ]
+      ],
+      "blockedReason": "Nhập hợp đồng giấy và thành viên hiện chưa khả dụng."
     },
     {
       "id": "API-114",
@@ -6296,11 +6503,15 @@
       "input": null,
       "inputFields": [],
       "output": "Resident[] gồm status,contract,room,moveIn/Out,representative",
-      "headers": ["Authorization: Bearer <accessToken>"],
-      "query": "houseId,roomId,contractId,status",
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
+      "query": "",
       "pagination": "page",
       "logic": "ACTIVE vẫn hiện khi contract cũ đóng sai; lọc houseId/roomId/contractId/status, không suy cư trú chỉ từ representative.",
-      "flowIds": ["residents"],
+      "flowIds": [
+        "residents"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6310,7 +6521,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-115",
@@ -6321,11 +6534,15 @@
       "input": null,
       "inputFields": [],
       "output": "Resident[] với trường được phép",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Owner thấy dữ liệu quản lý; tenant chỉ trường cần thiết và che dữ liệu nhạy cảm của người khác. Bao gồm PLANNED/ACTIVE/LEFT/CANCELLED.",
-      "flowIds": ["residents"],
+      "flowIds": [
+        "residents"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6335,7 +6552,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-116",
@@ -6345,12 +6564,16 @@
       "access": "LANDLORD: sở hữu nhà/phòng/hợp đồng",
       "input": null,
       "inputFields": [],
-      "output": "text/csv UTF-8 BOM; attachment residents.csv",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "output": "Resident[] (JSON); FE chuyển sang CSV khi xuất",
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Ngoại lệ JSON envelope: CSV scoped owner + ACTIVE, kể cả contract đóng sai. Chống CSV formula injection cho tên/chuỗi bắt đầu =,+,-,@. Không xuất CCCD mặc định.",
-      "flowIds": ["residents"],
+      "flowIds": [
+        "residents"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6359,7 +6582,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-117",
@@ -6370,11 +6595,15 @@
       "input": null,
       "inputFields": [],
       "output": "OccupantJoinRequest[] và effectiveStatus",
-      "headers": ["Authorization: Bearer <accessToken>"],
-      "query": "contractId,status",
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
+      "query": "status",
       "pagination": "page",
       "logic": "Actor là current representative/applicant hoặc owner. expired hold tính theo now kể cả job chưa chạy.",
-      "flowIds": ["join-consent"],
+      "flowIds": [
+        "join-consent"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6384,7 +6613,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-118",
@@ -6416,12 +6647,6 @@
           "example": "2026-11-02"
         },
         {
-          "name": "roommateRequestId",
-          "type": "id",
-          "required": false,
-          "rule": "Kết nối đúng hai bên, không dùng ACCEPTED làm đồng thuận."
-        },
-        {
           "name": "message",
           "type": "string",
           "required": false,
@@ -6431,13 +6656,14 @@
       "output": "OccupantJoinRequest {id,status:PENDING_CONSENT}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Thiết kế v5 requested_by khác applicant: route này chỉ đại diện hiện tại tạo. applicant không tự tạo hộ; khóa contract ACTIVE, member đại diện ACTIVE, unique yêu cầu mở; chưa tự chép đồng thuận kết nối.",
-      "flowIds": ["join-consent"],
+      "flowIds": [
+        "join-consent"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6451,7 +6677,7 @@
         "409 REPRESENTATIVE_CHANGED",
         "422 CONSENT_REQUIRED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -6476,13 +6702,14 @@
       "output": "OccupantJoinRequest và status",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Suy người đồng ý từ actor; đúng current representative hoặc applicant, ghi riêng actor/time. Chỉ đủ hai consent mới PENDING_LANDLORD, thay đại diện phải lấy lại đồng ý.",
-      "flowIds": ["join-consent"],
+      "flowIds": [
+        "join-consent"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6521,13 +6748,14 @@
       "output": "OccupantJoinRequest {id,status:CANCELLED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ applicant/đại diện hiện tại; PENDING_CONSENT hoặc PENDING_LANDLORD. APPROVED dùng hủy hold theo chủ trọ.",
-      "flowIds": ["join-consent"],
+      "flowIds": [
+        "join-consent"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6557,13 +6785,14 @@
       "inputFields": [],
       "output": "OccupantJoinRequest {id,status:APPROVED,holdExpiresAt}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ PENDING_LANDLORD đủ hai consent, đại diện ACTIVE, đủ tải. API kiểm tra actor ACTIVE. Hold có hạn, chưa tạo member.",
-      "flowIds": ["join-hold"],
+      "flowIds": [
+        "join-hold"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6603,13 +6832,14 @@
       "output": "OccupantJoinRequest {id,status:REJECTED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa request + contract, chỉ PENDING_LANDLORD; ghi reviewer/time/rejectionReason và notification.",
-      "flowIds": ["join-hold"],
+      "flowIds": [
+        "join-hold"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6649,13 +6879,14 @@
       "output": "OccupantJoinRequest {id,status:CANCELLED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "APPROVED chưa COMPLETED; ghi reason và giải phóng hold.",
-      "flowIds": ["join-hold"],
+      "flowIds": [
+        "join-hold"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6670,7 +6901,7 @@
         "409 HOLD_EXPIRED",
         "409 REPRESENTATIVE_CHANGED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -6686,13 +6917,14 @@
       "inputFields": [],
       "output": "{request:OccupantJoinRequest,member:Resident}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Procedure lấy ngày thực tế hôm nay tại VN, planned_move_in_date≤today, hold còn hạn; recheck ACTIVE contract/capacity/account. Retry qua idempotency trả kết quả cũ, không gọi lại procedure COMPLETED nếu không hỗ trợ.",
-      "flowIds": ["join-hold"],
+      "flowIds": [
+        "join-hold"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6732,13 +6964,14 @@
       "output": "{member:Resident,contractStatus,roomStatus}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "p_member là room_tenant ID. Đại diện còn người mở phải handover. Người cuối rời và không PLANNED thì đóng hợp đồng/history/yêu cầu; quyền nhà hết vẫn cho rời.",
-      "flowIds": ["departure"],
+      "flowIds": [
+        "departure"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6751,7 +6984,7 @@
         "409 HANDOVER_REQUIRED",
         "422 MOVE_OUT_DATE_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -6766,11 +6999,15 @@
       "input": null,
       "inputFields": [],
       "output": "Resident[] ACTIVE cùng contract có tài khoản ACTIVE",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Không PLANNED/LEFT, không khóa; trả rõ trường hợp chưa ai đủ điều kiện, không tự chọn người ngoài.",
-      "flowIds": ["handover"],
+      "flowIds": [
+        "handover"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6780,7 +7017,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-127",
@@ -6791,11 +7030,15 @@
       "input": null,
       "inputFields": [],
       "output": "RepresentativePeriod[] {nameSnapshot,startedAt,endedAt,consent,reason}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Không đoán thời điểm nhận từ ngày ký; thiếu chứng cứ trả null/chưa rõ; giữ chuỗi trước-sau.",
-      "flowIds": ["handover"],
+      "flowIds": [
+        "handover"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6805,7 +7048,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-128",
@@ -6847,13 +7092,14 @@
       "output": "Contract và RepresentativeHistory",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Procedure hiện không nhận ngày rời tùy chọn; backend phải đối chiếu thời điểm do procedure ghi. Đóng giai đoạn, LEFT người cũ, mở giai đoạn mới, hủy request/changement mở và thông báo. Không đổi viewing gốc/người trả hóa đơn cũ.",
-      "flowIds": ["handover"],
+      "flowIds": [
+        "handover"
+      ],
       "group": "residents",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6867,7 +7113,7 @@
         "409 REPRESENTATIVE_CHANGED",
         "409 HISTORY_RECONCILIATION_REQUIRED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -6882,11 +7128,15 @@
       "input": null,
       "inputFields": [],
       "output": "ContractChangeRequest[]",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Giữ cả rejected/cancelled/completed; tenant đọc theo quyền contract, chỉ representative hiện tại thao tác.",
-      "flowIds": ["change-request"],
+      "flowIds": [
+        "change-request"
+      ],
       "group": "changes",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6896,7 +7146,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-130",
@@ -6935,35 +7187,26 @@
           "example": "Gia hạn theo thỏa thuận"
         },
         {
-          "name": "newEndDate",
-          "type": "date",
-          "required": false,
-          "rule": "RENEWAL bắt buộc và > ngày kết thúc cũ.",
-          "example": "2028-11-01"
-        },
-        {
           "name": "targetRoomId",
           "type": "id",
           "required": false,
           "rule": "TRANSFER bắt buộc; phòng khác, cùng chủ và đủ quyền."
-        },
-        {
-          "name": "proposal",
-          "type": "object",
-          "required": false,
-          "rule": "TRANSFER: content, endDate bắt buộc; rentAmount/depositAmount tùy chọn. Backend ánh xạ proposal_snapshot snake_case."
         }
       ],
-      "output": "ContractChangeRequest {id,status:PENDING}",
+      "output": "ContractChangeRequest; effectiveDate được BE dùng làm ngày kết thúc mới cho RENEWAL",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Đại diện ACTIVE hiện tại, contract ACTIVE, một yêu cầu mở/contract; snapshot base revision + representative. Validate field theo type, không sửa contract khi gửi.",
-      "flowIds": ["change-request", "renewal", "transfer", "end-lease"],
+      "flowIds": [
+        "change-request",
+        "renewal",
+        "transfer",
+        "end-lease"
+      ],
       "group": "changes",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -6978,7 +7221,7 @@
         "422 EFFECTIVE_DATE_NOT_REACHED",
         "422 TARGET_ROOM_UNAVAILABLE"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -6993,11 +7236,15 @@
       "input": null,
       "inputFields": [],
       "output": "ContractChangeRequest,proposalRevision,proposalSnapshot",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Phương án được xác nhận phải bất biến; không suy từ giá/phòng vừa bị sửa.",
-      "flowIds": ["change-request"],
+      "flowIds": [
+        "change-request"
+      ],
       "group": "changes",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7006,7 +7253,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-132",
@@ -7033,13 +7282,14 @@
       "output": "ContractChangeRequest và proposedRevisionId",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ PENDING; APPROVE tạo proposed_revision đã snapshot theo type và chuyển APPROVED_WAITING_CONFIRMATION; REJECT reason. Không tự áp dụng contract.",
-      "flowIds": ["change-request"],
+      "flowIds": [
+        "change-request"
+      ],
       "group": "changes",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7066,32 +7316,19 @@
       "path": "/contract-change-requests/{requestId}/confirm",
       "title": "Đại diện xác nhận đúng phương án",
       "access": "TENANT: chỉ chính người thuê và tài nguyên được phép",
-      "input": "ConfirmChange",
-      "inputFields": [
-        {
-          "name": "proposedRevisionId",
-          "type": "id",
-          "required": false,
-          "rule": "RENEWAL phải khớp proposed_revision_id đã duyệt."
-        },
-        {
-          "name": "proposalHash",
-          "type": "string",
-          "required": true,
-          "rule": "Digest canonical proposal server trả; chống xác nhận bản bị đổi.",
-          "example": "example-sha256"
-        }
-      ],
+      "input": null,
+      "inputFields": [],
       "output": "ContractChangeRequest {id,status:READY_TO_APPLY}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ current representative, APPROVED_WAITING_CONFIRMATION; recheck base revision, ghi confirmed_by/time, xác nhận proposed_revision cho RENEWAL. Hash do service tính, không phải cột SQL hiện có.",
-      "flowIds": ["change-request"],
+      "flowIds": [
+        "change-request"
+      ],
       "group": "changes",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7131,13 +7368,14 @@
       "output": "ContractChangeRequest {id,status:CANCELLED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Đúng representative/owner; khóa contract/request, chưa COMPLETED/REJECTED/CANCELLED/EXPIRED; giữ lịch sử phương án và chữ xác nhận.",
-      "flowIds": ["change-request"],
+      "flowIds": [
+        "change-request"
+      ],
       "group": "changes",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7168,13 +7406,17 @@
       "inputFields": [],
       "output": "{requestId,status:COMPLETED,resultContractId,contract}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "READY_TO_APPLY, đến ngày hiệu lực, base revision/representative khớp, contract ACTIVE; lock phòng theo ID tăng dần khi đổi. CALL tự quản lý transaction, không bọc transaction ngoài.",
-      "flowIds": ["change-request", "renewal", "transfer", "end-lease"],
+      "flowIds": [
+        "change-request",
+        "renewal",
+        "transfer",
+        "end-lease"
+      ],
       "group": "changes",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7204,11 +7446,15 @@
       "input": null,
       "inputFields": [],
       "output": "Room[] và openMemberCount",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Đích khác phòng, cùng chủ, AVAILABLE không tải/open contract, đủ ACTIVE+PLANNED nhóm nguồn và quyền nhà đích. Chỉ preview; apply kiểm tra lại.",
-      "flowIds": ["transfer"],
+      "flowIds": [
+        "transfer"
+      ],
       "group": "changes",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7218,7 +7464,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-137",
@@ -7229,11 +7477,15 @@
       "input": null,
       "inputFields": [],
       "output": "RentalService[] {id,name,unit,defaultCalculationMethod}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "SQL không có code/active ở rental_services; tên duy nhất. Ngừng dùng tại house_services/room_services, không giả có cột danh mục.",
-      "flowIds": ["services"],
+      "flowIds": [
+        "services"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7243,7 +7495,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-138",
@@ -7278,13 +7532,14 @@
       "output": "RentalService",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Dịch vụ mẫu toàn hệ thống; house_services vẫn có thể dùng catalog_service_id null để tạo riêng. Đơn giá nằm tại house_services.",
-      "flowIds": ["services"],
+      "flowIds": [
+        "services"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7298,7 +7553,7 @@
         "422 CROSS_HOUSE_SERVICE",
         "422 SERVICE_PRICE_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -7342,7 +7597,9 @@
       "query": "",
       "pagination": null,
       "logic": "Không xóa dòng đã tham chiếu; đổi mẫu không sửa house_services hoặc invoice snapshot cũ.",
-      "flowIds": ["services"],
+      "flowIds": [
+        "services"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7371,11 +7628,15 @@
       "input": null,
       "inputFields": [],
       "output": "HouseService[] gồm cả inactive",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Cho cấu hình khi nhà chưa có phòng/chưa xác minh.",
-      "flowIds": ["services"],
+      "flowIds": [
+        "services"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7385,7 +7646,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-141",
@@ -7441,13 +7704,14 @@
       "output": "HouseService",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Unique nhà+service; tên không trùng sau chuẩn hóa. Ghi cấu hình giá/phương pháp, không sửa hóa đơn cũ.",
-      "flowIds": ["services"],
+      "flowIds": [
+        "services"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7461,7 +7725,7 @@
         "422 CROSS_HOUSE_SERVICE",
         "422 SERVICE_PRICE_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -7519,7 +7783,9 @@
       "query": "",
       "pagination": null,
       "logic": "house_service thuộc đúng nhà; không đổi serviceId sang danh mục khác nếu đã có tham chiếu.",
-      "flowIds": ["services"],
+      "flowIds": [
+        "services"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7577,7 +7843,9 @@
       "query": "",
       "pagination": null,
       "logic": "Kiểm tra house_service đúng house của room bằng FK; upsert room+houseService, không dùng || khi chọn giá.",
-      "flowIds": ["services"],
+      "flowIds": [
+        "services"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7595,7 +7863,8 @@
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
-      ]
+      ],
+      "blockedReason": "Lưu giá dịch vụ riêng của phòng hiện chưa khả dụng."
     },
     {
       "id": "API-144",
@@ -7606,11 +7875,15 @@
       "input": null,
       "inputFields": [],
       "output": "RoomService[] gồm active/inactive/override và giá kế thừa",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Khác route services công khai chỉ trả dịch vụ hiệu lực; dùng để bật lại cấu hình ngừng.",
-      "flowIds": ["services"],
+      "flowIds": [
+        "services"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7620,7 +7893,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-145",
@@ -7631,11 +7906,15 @@
       "input": null,
       "inputFields": [],
       "output": "Invoice[] {id,period,status,payer,total,dueDate}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "contractId,billingPeriod,status",
       "pagination": "page",
       "logic": "Owner theo landlord; tenant theo payer/participant có quyền. Người trả cũ vẫn được xem sau bàn giao; không chỉ lọc current representative.",
-      "flowIds": ["bill"],
+      "flowIds": [
+        "bill"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7645,7 +7924,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-146",
@@ -7656,11 +7937,15 @@
       "input": null,
       "inputFields": [],
       "output": "Invoice,items[],total,contractRevisionSnapshot",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Đọc snapshot đơn giá/phương pháp/số người; không tính lại hóa đơn lịch sử theo giá hiện tại.",
-      "flowIds": ["bill"],
+      "flowIds": [
+        "bill"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7669,7 +7954,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-147",
@@ -7713,18 +8000,25 @@
               "currentReading": "125.000"
             }
           ]
+        },
+        {
+          "name": "payerRoomTenantId",
+          "type": "id",
+          "required": true,
+          "rule": "Mã người thanh toán trong danh sách thành viên hợp đồng."
         }
       ],
       "output": "Invoice {id,status:DRAFT,items,total,payerId}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa contract/kỳ; unique non-cancelled contract+period. Snapshot representative/revision/ACTIVE count; server tính quantity và ROUND(q×price,2), tổng RENT+SERVICE+OTHER−DISCOUNT≥0.",
-      "flowIds": ["bill"],
+      "flowIds": [
+        "bill"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7738,7 +8032,7 @@
         "409 INVOICE_IMMUTABLE",
         "422 INVOICE_TOTAL_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -7762,7 +8056,7 @@
         {
           "name": "items",
           "type": "InvoiceInputItem[]",
-          "required": false,
+          "required": true,
           "rule": "Có tiền thuê và các dòng dịch vụ/khoản khác; tổng không âm.",
           "example": [
             {
@@ -7771,19 +8065,21 @@
               "previousReading": "100.000",
               "currentReading": "125.000"
             }
-          ]
+          ],
+          "requiredOnPatch": true
         }
       ],
       "output": "Invoice {id,status:DRAFT,items,total}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "If-Match: \"<currentVersion>\""
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ DRAFT; contractId/billingPeriod giữ cố định (đổi kỳ tạo mới). Khóa invoice, thay dòng atomically; validate METERED/PER_PERSON/PER_ROOM và current service.",
-      "flowIds": ["bill"],
+      "flowIds": [
+        "bill"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7814,13 +8110,14 @@
       "inputFields": [],
       "output": "Invoice {id,status:UNPAID,updatedAt}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ DRAFT có items và total≥0; chốt snapshot, khóa lines chống chỉnh sau phát hành, thông báo payer. SQL chưa có issued_at riêng: không giả đã lưu vĩnh viễn timestamp phát hành.",
-      "flowIds": ["pay-invoice"],
+      "flowIds": [
+        "pay-invoice"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7850,13 +8147,14 @@
       "inputFields": [],
       "output": "Invoice {id,status:PAID,paidAt,paidById}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ UNPAID/OVERDUE; thu đủ một lần. paid_by_id theo schema là người ghi nhận; payer tách riêng. Không có cổng thanh toán/thu từng phần/transaction ledger.",
-      "flowIds": ["pay-invoice"],
+      "flowIds": [
+        "pay-invoice"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7870,7 +8168,7 @@
         "409 INVOICE_PERIOD_EXISTS",
         "422 INVOICE_TOTAL_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
@@ -7896,13 +8194,14 @@
       "output": "Invoice {id,status:CANCELLED,cancelledAt}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "UNPAID/OVERDUE chưa PAID; ghi actor/time/reason. Không DELETE hoặc sửa lines; policy hủy DRAFT nếu cần chốt thêm.",
-      "flowIds": ["pay-invoice"],
+      "flowIds": [
+        "pay-invoice"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7955,13 +8254,14 @@
       "output": "Invoice {id,status:DRAFT,replacesInvoiceId}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Hóa đơn nguồn CANCELLED, cùng contract/period; unique active kỳ; links FK, giữ dữ liệu cũ. Đây là service mới chưa có UI đầy đủ.",
-      "flowIds": ["pay-invoice"],
+      "flowIds": [
+        "pay-invoice"
+      ],
       "group": "billing",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -7994,7 +8294,9 @@
       "query": "",
       "pagination": "page",
       "logic": "Chỉ PUBLISHED và room có quyền xem; không lộ contract/CCCD của reviewer.",
-      "flowIds": ["review"],
+      "flowIds": [
+        "review"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8032,18 +8334,31 @@
           "required": false,
           "rule": "SQL TEXT; giới hạn API được cấu hình.",
           "example": "Phòng sạch, dịch vụ rõ ràng."
+        },
+        {
+          "name": "contractId",
+          "type": "id",
+          "required": true,
+          "rule": ""
+        },
+        {
+          "name": "roomId",
+          "type": "id",
+          "required": true,
+          "rule": ""
         }
       ],
       "output": "Review {id,status:PUBLISHED}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Lấy room/contract từ member; unique reviewer+room+contract. Chính sách đề xuất: contract TERMINATED và có ACTIVE/LEFT thật; cần chốt thời điểm/hạn sửa D13. Không chỉ dựa contractId demo.",
-      "flowIds": ["review"],
+      "flowIds": [
+        "review"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8057,7 +8372,7 @@
         "422 TENANCY_EVIDENCE_REQUIRED",
         "422 REVIEW_NOT_YET_ALLOWED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
@@ -8073,30 +8388,29 @@
       "input": "ReviewModeration",
       "inputFields": [
         {
-          "name": "status",
+          "name": "decision",
           "type": "enum",
           "required": true,
-          "rule": "HIDDEN / PUBLISHED / DELETED.",
-          "example": "HIDDEN"
+          "rule": "HIDE / RESTORE / DELETE"
         },
         {
           "name": "reason",
           "type": "string",
           "required": true,
-          "rule": "Lý do không trống, ≤1.000 ký tự.",
-          "example": "Nội dung vi phạm quy định"
+          "rule": ""
         }
       ],
       "output": "Review {id,status}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Bảo toàn bằng chứng cư trú. Ghi hidden_by/reason/at; moderation_actions hiện không có target_review_id nên cần thiết kế mở rộng audit, không giả có cột.",
-      "flowIds": ["review"],
+      "flowIds": [
+        "review"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8133,20 +8447,6 @@
           "example": "VIOLATION"
         },
         {
-          "name": "targetType",
-          "type": "enum",
-          "required": true,
-          "rule": "POST / USER / CONTRACT / ROOMMATE_REQUEST.",
-          "example": "POST"
-        },
-        {
-          "name": "targetId",
-          "type": "id",
-          "required": true,
-          "rule": "Đối tượng actor có quyền truy cập.",
-          "example": "201"
-        },
-        {
           "name": "reason",
           "type": "string",
           "required": true,
@@ -8154,22 +8454,41 @@
           "example": "Thông tin không đúng thực tế"
         },
         {
-          "name": "evidenceFileIds",
-          "type": "id[]",
+          "name": "reportedUserId",
+          "type": "id",
           "required": false,
-          "rule": "REPORT_EVIDENCE PRIVATE ACTIVE của actor."
+          "rule": "Chọn đúng một đối tượng báo cáo."
+        },
+        {
+          "name": "reportedPostId",
+          "type": "id",
+          "required": false,
+          "rule": "Chọn đúng một đối tượng báo cáo."
+        },
+        {
+          "name": "contractId",
+          "type": "id",
+          "required": false,
+          "rule": "Chọn đúng một đối tượng báo cáo."
+        },
+        {
+          "name": "roommateRequestId",
+          "type": "id",
+          "required": false,
+          "rule": "Chọn đúng một đối tượng báo cáo."
         }
       ],
       "output": "Report {id,status:PENDING}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Ánh xạ đúng một trong 4 FK, không nhận 4 target tùy ý; liên kết evidence cùng transaction. Không tự ẩn bài/khóa user.",
-      "flowIds": ["report"],
+      "flowIds": [
+        "report"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8182,7 +8501,7 @@
         "422 REPORT_TARGET_INVALID",
         "409 REPORT_ALREADY_CLOSED"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -8197,11 +8516,15 @@
       "input": null,
       "inputFields": [],
       "output": "Report[] không lộ dữ liệu riêng tư người bị báo cáo",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Chỉ reporter_id=actor, không trả thông tin điều tra nội bộ không được phép.",
-      "flowIds": ["report"],
+      "flowIds": [
+        "report"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8211,7 +8534,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-158",
@@ -8222,11 +8547,15 @@
       "input": null,
       "inputFields": [],
       "output": "Report[] và target summary",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Lọc type/status; giữ target gốc dù bài mất quyền công khai.",
-      "flowIds": ["report"],
+      "flowIds": [
+        "report"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8236,7 +8565,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-159",
@@ -8247,11 +8578,15 @@
       "input": null,
       "inputFields": [],
       "output": "Report,evidenceFileIds,targetSnapshotIfAvailable",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Xét quyền mở tệp riêng; không tạo URL công khai.",
-      "flowIds": ["report"],
+      "flowIds": [
+        "report"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8260,7 +8595,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-160",
@@ -8271,30 +8608,29 @@
       "input": "ReportDecision",
       "inputFields": [
         {
-          "name": "status",
+          "name": "decision",
           "type": "enum",
           "required": true,
-          "rule": "INVESTIGATING / RESOLVED / DISMISSED.",
-          "example": "RESOLVED"
+          "rule": "INVESTIGATE / RESOLVE / DISMISS"
         },
         {
           "name": "resolution",
           "type": "string",
           "required": false,
-          "rule": "RESOLVED/DISMISSED bắt buộc nội dung kết luận.",
-          "example": "Đã đối chiếu và yêu cầu chỉnh tin."
+          "rule": ""
         }
       ],
       "output": "Report sau xử lý",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa trạng thái nguồn, không mở lại bản đóng bằng form cũ; đóng có handled_by/time/resolution; audit. Ẩn/khóa dùng endpoint quyết định riêng.",
-      "flowIds": ["report"],
+      "flowIds": [
+        "report"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8322,11 +8658,15 @@
       "input": null,
       "inputFields": [],
       "output": "User[] với thông tin tối thiểu",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Lọc role/status/q; không trả password/refresh/OTP hash.",
-      "flowIds": ["lock-account"],
+      "flowIds": [
+        "lock-account"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8336,7 +8676,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-162",
@@ -8347,11 +8689,15 @@
       "input": null,
       "inputFields": [],
       "output": "User,roles,verificationSummary",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ metadata cần quản trị; giấy tờ mở riêng theo quyền.",
-      "flowIds": ["lock-account"],
+      "flowIds": [
+        "lock-account"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8360,7 +8706,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-163",
@@ -8381,13 +8729,14 @@
       "output": "User {id,status:LOCKED,lockedAt}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa user, ghi reason/admin/time, revoke sessions và audit trong transaction. Không tự cho cư dân LEFT hoặc xóa nghĩa vụ/hợp đồng; view quyền nhà hết hiệu lực nếu landlord bị khóa.",
-      "flowIds": ["lock-account"],
+      "flowIds": [
+        "lock-account"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8424,13 +8773,14 @@
       "output": "User {id,status:ACTIVE}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ LOCKED; ghi audit, xóa metadata lock theo schema. Không tự khôi phục phiên đã thu hồi hoặc cấp thêm vai trò.",
-      "flowIds": ["lock-account"],
+      "flowIds": [
+        "lock-account"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8457,11 +8807,15 @@
       "input": null,
       "inputFields": [],
       "output": "ContractTemplate[]",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Chủ chỉ active, admin xem tất cả; từng row là một version.",
-      "flowIds": ["templates"],
+      "flowIds": [
+        "templates"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8471,7 +8825,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-166",
@@ -8494,25 +8850,19 @@
           "required": true,
           "rule": "Không trống.",
           "example": "Nội dung mẫu"
-        },
-        {
-          "name": "active",
-          "type": "boolean",
-          "required": true,
-          "rule": "Bật cho hợp đồng mới.",
-          "example": true
         }
       ],
       "output": "ContractTemplate {id,name,version,active}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Khóa nhóm name khi cấp version, unique name+version, version>0. Bản nội dung mới tạo row mới, không ghi đè template đã dùng.",
-      "flowIds": ["templates"],
+      "flowIds": [
+        "templates"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8525,7 +8875,7 @@
         "409 TEMPLATE_VERSION_EXISTS",
         "422 TEMPLATE_INVALID"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
@@ -8545,6 +8895,12 @@
           "required": false,
           "rule": "Không đổi nội dung phiên bản đã lưu.",
           "example": false
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "required": false,
+          "rule": ""
         }
       ],
       "output": "ContractTemplate",
@@ -8555,7 +8911,9 @@
       "query": "",
       "pagination": null,
       "logic": "Chỉ active; hợp đồng đã gửi giữ nội dung riêng trong revision; audit mẫu cần mở rộng D14 nếu muốn lưu moderation_actions.",
-      "flowIds": ["templates"],
+      "flowIds": [
+        "templates"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8584,11 +8942,15 @@
       "input": null,
       "inputFields": [],
       "output": "ModerationAction[] {actor,action,target,reason,occurredAt}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": "page",
       "logic": "Lọc actor/action/target/from/to; chỉ đọc, không có endpoint sửa/xóa audit. Snapshot che dữ liệu nhạy cảm.",
-      "flowIds": ["audit"],
+      "flowIds": [
+        "audit"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8598,7 +8960,9 @@
         "422 VALIDATION_ERROR"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-169",
@@ -8609,11 +8973,15 @@
       "input": null,
       "inputFields": [],
       "output": "ModerationAction với beforeSnapshot/afterSnapshot đã lọc",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Không trả secrets trong snapshots; house decision hiện dùng target_user_id + house/verification ID trong JSON, không có target_house_id.",
-      "flowIds": ["audit"],
+      "flowIds": [
+        "audit"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8622,7 +8990,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-170",
@@ -8671,13 +9041,14 @@
       "output": "{fileId,status:STAGED,uploadUrl,expiresAt,requiredHeaders}",
       "headers": [
         "Authorization: Bearer <accessToken>",
-        "Content-Type: application/json",
-        "Idempotency-Key: <UUID>"
+        "Content-Type: application/json"
       ],
       "query": "",
       "pagination": null,
       "logic": "Server tự owner/storage_key/PRIVATE cho giấy tờ, URL ký ngắn hạn; không tin visibility client. Chưa có object storage thật; PUT bytes tới uploadUrl là giao thức kho, không endpoint nghiệp vụ mới.",
-      "flowIds": ["file-storage"],
+      "flowIds": [
+        "file-storage"
+      ],
       "group": "integrity",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8691,12 +9062,13 @@
         "403 FILE_CONTEXT_FORBIDDEN",
         "409 EVIDENCE_IMMUTABLE"
       ],
-      "status": 201,
+      "status": 200,
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên",
         "D05"
-      ]
+      ],
+      "blockedReason": "Tải nội dung tệp lên hiện chưa khả dụng."
     },
     {
       "id": "API-171",
@@ -8708,13 +9080,14 @@
       "inputFields": [],
       "output": "File {id,status:ACTIVE,purpose,sizeBytes}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ chủ tệp STAGED; HEAD/checksum/MIME magic/quét nội dung từ kho; chỉ ACTIVE khi đạt. Không coi tên tệp client là đã upload.",
-      "flowIds": ["file-storage"],
+      "flowIds": [
+        "file-storage"
+      ],
       "group": "integrity",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8732,7 +9105,8 @@
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
-      ]
+      ],
+      "blockedReason": "Xác nhận nội dung tệp hiện chưa khả dụng."
     },
     {
       "id": "API-172",
@@ -8743,11 +9117,15 @@
       "input": null,
       "inputFields": [],
       "output": "File metadata an toàn; không storageKey/raw bucket URL",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Chủ hoặc người có quyền qua hồ sơ/report/contract/chat; kiểm tra cả purpose/context/status/hạn lưu. Đoán ID không cấp quyền.",
-      "flowIds": ["file-storage"],
+      "flowIds": [
+        "file-storage"
+      ],
       "group": "integrity",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8756,7 +9134,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-173",
@@ -8768,13 +9148,14 @@
       "inputFields": [],
       "output": "{downloadUrl,expiresAt}",
       "headers": [
-        "Authorization: Bearer <accessToken>",
-        "Idempotency-Key: <UUID>"
+        "Authorization: Bearer <accessToken>"
       ],
       "query": "",
       "pagination": null,
       "logic": "Kiểm tra role + liên kết nghiệp vụ tại thời điểm cấp; TTL ngắn, không cache công khai; admin được đọc hồ sơ phục vụ xét duyệt.",
-      "flowIds": ["file-storage"],
+      "flowIds": [
+        "file-storage"
+      ],
       "group": "integrity",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8792,7 +9173,8 @@
       "dependencies": [
         "Middleware auth/session/role + object scope",
         "D09: idempotency store nếu chưa có khóa tự nhiên"
-      ]
+      ],
+      "blockedReason": "Tải nội dung tệp về hiện chưa khả dụng."
     },
     {
       "id": "API-174",
@@ -8803,11 +9185,15 @@
       "input": null,
       "inputFields": [],
       "output": "File {id,status:DELETED}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Chỉ chủ, kiểm tra tham chiếu/retention. Proof nhà đã nộp bất biến, không cho đổi bytes/visibility/xóa; tệp hợp đồng/giấy tờ giữ theo policy D05. Không xóa thẳng object trước khi DB cho phép.",
-      "flowIds": ["file-storage"],
+      "flowIds": [
+        "file-storage"
+      ],
       "group": "integrity",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8837,11 +9223,15 @@
       "input": null,
       "inputFields": [],
       "output": "{houseCount,roomCount,occupiedRoomCount,upcomingViewingCount,unpaidInvoiceCount,unpaidAmount,pendingContractCount,pendingJoinCount,upcomingViewings}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Scope tất cả số liệu theo actor. Occupied từ ACTIVE, lịch SCHEDULED ends_at>now, hóa đơn chưa thu UNPAID/OVERDUE. Không tính phòng RESERVED là đang có người; trả asOf cho số liệu tổng hợp.",
-      "flowIds": ["rooms"],
+      "flowIds": [
+        "rooms"
+      ],
       "group": "property",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8850,7 +9240,9 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     },
     {
       "id": "API-176",
@@ -8861,11 +9253,15 @@
       "input": null,
       "inputFields": [],
       "output": "{pendingIdentityCount,pendingLandlordCount,pendingHouseProofCount,pendingPostCount,pendingReportCount,userCount}",
-      "headers": ["Authorization: Bearer <accessToken>"],
+      "headers": [
+        "Authorization: Bearer <accessToken>"
+      ],
       "query": "",
       "pagination": null,
       "logic": "Đếm các loại hồ sơ riêng, không cộng nhầm xác minh tài khoản và quyền nhà. Phân loại PENDING/INVESTIGATING cho báo cáo; chỉ tổng số liệu, không trả giấy tờ.",
-      "flowIds": ["audit"],
+      "flowIds": [
+        "audit"
+      ],
       "group": "moderation",
       "errorCodes": [
         "400 BAD_REQUEST",
@@ -8874,7 +9270,10 @@
         "404 RESOURCE_NOT_FOUND"
       ],
       "status": 200,
-      "dependencies": ["Middleware auth/session/role + object scope"]
+      "dependencies": [
+        "Middleware auth/session/role + object scope"
+      ]
     }
-  ]
+  ],
+  "source": "BE controllers/services; ApiResponseDto(success,api,method,data,timestamp)"
 }

@@ -1,5 +1,7 @@
 # Trạng thái triển khai
 
+> Phần mô tả dưới đây là lịch sử trước khi ghép BE. Trạng thái hiện tại, hợp đồng BE đang dùng và các thao tác chưa khả dụng được cập nhật tại [API-CONNECTION.md](../../docs/API-CONNECTION.md) và [feature-api-map.md](feature-api-map.md).
+
 ## Đã viết code frontend
 
 - Dự án React Native/Expo độc lập, TypeScript strict, component native trực tiếp; không ảnh hưởng source demo.

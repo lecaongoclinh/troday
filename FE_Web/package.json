@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Giao diện web Trọday với dữ liệu mẫu, chưa kết nối API",
+  "description": "Giao diện web Trọday kết nối Spring Boot API",
   "engines": { "node": ">=22.12.0" },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -11,7 +11,8 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "check": "vite build",
-    "test": "node tests/browser.cjs"
+    "test": "node --experimental-strip-types --test ../shared/tests/*.test.ts",
+    "test:browser": "node tests/api-browser.cjs"
   },
   "dependencies": { "react": "19.2.4", "react-dom": "19.2.4" },
   "devDependencies": { "vite": "7.3.3" }
