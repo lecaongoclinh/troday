@@ -19,6 +19,7 @@ const STATUSES = {
   PENDING: ['Chờ xử lý', 'yellow'], DRAFT: ['Bản nháp', 'gray'], PENDING_CONFIRMATION: ['Chờ xác nhận', 'yellow'], CONFIRMED: ['Đã xác nhận', 'green'], ACTIVE: ['Đang hiệu lực', 'green'], TERMINATED: ['Đã kết thúc', 'gray'], CANCELLED: ['Đã hủy', 'red'],
   UNPAID: ['Chưa thanh toán', 'yellow'], PAID: ['Đã thanh toán', 'green'], SCHEDULED: ['Đã hẹn', 'blue'], COMPLETED: ['Đã xem phòng', 'green'], NO_SHOW: ['Không đến', 'red'], WAITING: ['Chưa quyết định', 'gray'], AGREED: ['Đồng ý thuê', 'green'], DECLINED: ['Không thuê', 'red'], WITHDRAWN: ['Đã rút', 'gray'],
   PENDING_LANDLORD: ['Chờ chủ trọ duyệt', 'yellow'], PLANNED: ['Chờ vào ở', 'yellow'], LEFT: ['Đã rời phòng', 'gray'], ACCEPTED: ['Đã kết nối', 'green'], RESOLVED: ['Đã xử lý', 'green'], REVOKED: ['Đã thu hồi', 'red'],
+  APPROVED_WAITING_CONFIRMATION: ['Chờ người thuê xác nhận', 'yellow'], READY_TO_APPLY: ['Chờ áp dụng', 'blue'], OVERDUE: ['Quá hạn', 'red'], PENDING_CONSENT: ['Chờ hai bên đồng ý', 'yellow'], ENDED: ['Đã kết thúc kết nối', 'gray'], INVESTIGATING: ['Đang điều tra', 'blue'], DISMISSED: ['Không đủ căn cứ', 'gray'],
 };
 export function Badge({ status, children, tone = 'gray' }) { const value = STATUSES[status]; return <span className={`pill ${value?.[1] || tone}`}>{children || value?.[0] || status}</span>; }
 export function Empty({ title = 'Chưa có dữ liệu', children, icon = 'inbox', action }) { return <div className="empty-state"><Icon name={icon} /><div><strong>{title}</strong><p>{children}</p>{action}</div></div>; }

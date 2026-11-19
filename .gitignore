@@ -13,6 +13,8 @@
 **/.cache/
 **/logs/
 **/uploads/
+**/troday-backups/
+**/__pycache__/
 *.log
 
 # IDE and OS files

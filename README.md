@@ -1,48 +1,46 @@
 # Trọday
 
-Repository dự án Trọday. Backend nằm trong [`BE/`](BE/README.md), dùng Java 21, Spring Boot, Maven Wrapper và MySQL theo kế hoạch BE hiện có.
+Ứng dụng tìm và quản lý phòng trọ. Backend Spring Boot nằm trong [BE](BE/README.md); frontend React/Vite nằm trong [FE_Web](FE_Web/README.md).
 
-Frontend web **ReactJS + Vite** nằm trong [`FE/`](FE/README.md), đã có giao diện cho người thuê, chủ trọ và quản trị với dữ liệu mẫu, chưa kết nối API. Chạy `cd FE`, `npm.cmd install`, `npm.cmd run dev` để xem.
+FE_Web đã kết nối API hiện có theo wireframe v5. **[Báo cáo kết nối và bàn giao BE](FE_Web/README.md)** ghi trạng thái 47 luồng, danh mục 176 API, kết quả kiểm tra và các lỗi BE còn chặn nghiệp vụ. Việc có route không có nghĩa là toàn bộ luồng BE đã hoàn chỉnh.
 
 ```text
 troday/
-├── BE/                 # Ứng dụng Spring Boot và kiểm thử
-│   ├── .mvn/wrapper/
-│   ├── docs/contracts/
-│   ├── src/main/
-│   ├── src/test/
-│   ├── pom.xml
-│   └── mvnw / mvnw.cmd
-├── FE/                 # Giao diện ReactJS + Vite, dữ liệu demo
-├── database/           # Nguồn SQL và migration do team tích hợp
-├── .editorconfig
-├── .gitattributes
-└── .gitignore
+├── BE/                 # Spring Boot, JPA, API và SQL
+├── FE_Web/             # React + Vite, gọi API BE
+├── FE_Mobile/          # Frontend mobile
+├── AI/
+└── database/           # Tài liệu/nguồn dữ liệu của dự án
 ```
 
-## Bắt đầu
+## Cập nhật BE/FE
 
-Cần JDK 21 trở lên; `JAVA_HOME` trỏ tới thư mục JDK chứa `bin/java` và `bin/javac`. Mã được biên dịch với Java release 21. Maven Wrapper tự tải Maven 3.9.9 trong lần chạy đầu, không cần cài Maven riêng.
+[Danh sách sửa lỗi, phân trang/tìm kiếm và kết nối FE — 17/11/2026](docs/BE_FE_2026-11-17.md) là trạng thái mới nhất. Báo cáo rà soát 13/11 được giữ trong FE_Web để đối chiếu lịch sử.
+
+## Chạy local
+
+BE hiện yêu cầu Java 17 trở lên theo `BE/pom.xml`, Maven và MySQL. Thiết lập môi trường theo [BE/README.md](BE/README.md), sau đó chạy trong `BE`:
 
 ```powershell
-cd BE
-.\mvnw.cmd test
-.\mvnw.cmd verify
+mvn spring-boot:run
 ```
 
-Xem [hướng dẫn backend](BE/README.md) để cấu hình MySQL và chạy local. Đã triển khai đăng ký/đăng nhập, phiên, hồ sơ và toàn bộ 43 model JDBC; các API nghiệp vụ khác tiếp tục theo kế hoạch.
+Ở terminal khác:
 
-Backend tổ chức package theo tầng: `controller`, `service`, `repository`, `model`, `dto`, `config`, `security`, `exception`, `integration`, `util`. Mã của mỗi chức năng đặt trong các tầng tương ứng; xem [cấu trúc chi tiết](BE/README.md#cấu-trúc).
+```powershell
+cd FE_Web
+npm.cmd ci
+npm.cmd run dev
+```
+
+FE mặc định ở `http://127.0.0.1:5173`, proxy API tới BE cổng `8081`. Xem [FE_Web/README.md](FE_Web/README.md) để đổi địa chỉ API và chạy kiểm tra.
+
+## Deploy BE, web và mobile
+
+Xem [hướng dẫn deploy chi tiết](deploy/README.md): Oracle Always Free + MySQL 8.4 + Caddy HTTPS, tạo admin, build APK Android bằng Expo, cập nhật và sao lưu. Cấu hình Docker nằm ở `compose.yaml` và `deploy/`; cấu hình build mobile ở `FE_Mobile/eas.json`.
 
 ## Git
 
-Nhánh chính: `main`. Remote: `https://github.com/lecaongoclinh/troday.git`.
+Nhánh chính: `main`. Remote dự án: `https://github.com/lecaongoclinh/troday.git`.
 
-Tạo nhánh công việc từ `main`, ví dụ `be/a/be-a01-bootstrap`, rồi mở pull request để review. Quy ước nhánh BE: `be/<owner>/<task-id>-<slug>`.
-
-```powershell
-git remote -v
-git switch -c be/a/be-a01-bootstrap
-```
-
-Sau khi repository trên GitHub có nhánh `main`, thành viên khác dùng `git clone https://github.com/lecaongoclinh/troday.git`.
+Không commit `.env`, access token, dữ liệu cá nhân hoặc output/cache kiểm thử. Các file này đã được khai báo trong `.gitignore`.

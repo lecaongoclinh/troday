@@ -1,0 +1,882 @@
+[
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/register",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me",
+    "status": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/me/profile",
+    "status": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/me/notification-settings",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/identity-verifications",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/identity-verifications",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/identity-verifications/{verificationId}/withdraw",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/landlord-verifications",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/landlord-verifications",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/landlord-verifications/{verificationId}/withdraw",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/identity-verifications",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/identity-verifications/{verificationId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/identity-verifications/{verificationId}/decision",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/landlord-verifications",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/landlord-verifications/{verificationId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/landlord-verifications/{verificationId}/decision",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/refresh",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/logout",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/sessions",
+    "status": 200
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/me/sessions/{sessionId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/phone-verifications",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/phone-verifications/confirm",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/password-resets",
+    "status": 202
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/password-resets/verify",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/password-resets/complete",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/members/{memberId}/account-invitations",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/residency-links",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/houses",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/houses",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/houses/{houseId}",
+    "status": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/houses/{houseId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/houses/{houseId}/verifications",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/houses/{houseId}/verifications",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/houses/{houseId}/verifications/{verificationId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/houses/{houseId}/verifications/{verificationId}/withdraw",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/house-verifications",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/house-verifications/{verificationId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/house-verifications/{verificationId}/decision",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/house-verifications/{verificationId}/revoke",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/houses/{houseId}/rental-right",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/houses/{houseId}/rooms",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/houses/{houseId}/rooms",
+    "status": 201
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/rooms/{roomId}",
+    "status": 200
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/rooms/{roomId}/capacity",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/rooms/{roomId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/rooms/{roomId}/posts",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/rooms/{roomId}/residents",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/rooms/{roomId}/services",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/landlord/posts",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/posts",
+    "status": 201
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/posts/{postId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/posts",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/posts/{postId}/decision",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/posts/{postId}/hide",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/posts/{postId}/restore",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/posts",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/posts/{postId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/favorites",
+    "status": 200
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/me/favorites/{postId}",
+    "status": 200
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/me/favorites/{postId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/roommate-profile",
+    "status": 200
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/me/roommate-profile",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/roommate-profiles/{profileId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/lifestyle-criteria",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/roommate-profile/lifestyles",
+    "status": 200
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/me/roommate-profile/lifestyles",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/roommate-matches",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/lifestyle-criteria",
+    "status": 201
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/admin/lifestyle-criteria/{criterionId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/roommate-requests",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/roommate-requests",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/roommate-requests/{requestId}/response",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/roommate-requests/{requestId}/cancel",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/roommate-requests/{requestId}/end",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/conversations/room-inquiries",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/conversations",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/conversations/{conversationId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/conversations/{conversationId}/messages",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/conversations/{conversationId}/messages",
+    "status": 201
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/conversations/{conversationId}/read-state",
+    "status": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/conversations/{conversationId}/preferences",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/conversations/{conversationId}/viewing-timeline",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/roommate-requests/{requestId}/conversation",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/conversations/{conversationId}/post-shares",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/notifications",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/notification-counts",
+    "status": 200
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/me/notifications/{notificationId}/read-state",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/notifications/read-all",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/events",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/viewing-proposals",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/viewing-proposals",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/viewing-proposals/{proposalId}/decision",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/viewing-proposals/{proposalId}/withdraw",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/viewings",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/viewings/{viewingId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/viewings",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/viewings/{viewingId}/attendance",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/viewings/{viewingId}/cancel",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/viewings/{viewingId}/rental-decision",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contracts",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contracts/{contractId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/viewings/{viewingId}/contract-impact",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contracts/{contractId}/revisions",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/revision-requests",
+    "status": 200
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/contracts/{contractId}/revisions/{revisionId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/revisions/{revisionId}/submit",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/confirm",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/move-ins",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/cancel",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/members/{memberId}/cancel",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contract-imports",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/residents",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contracts/{contractId}/members",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/residents/export",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/occupant-join-requests",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/occupant-join-requests",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/occupant-join-requests/{requestId}/consents",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/occupant-join-requests/{requestId}/cancel",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/occupant-join-requests/{requestId}/approve",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/occupant-join-requests/{requestId}/reject",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/occupant-join-requests/{requestId}/cancel-hold",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/occupant-join-requests/{requestId}/complete",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/members/{memberId}/move-out",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contracts/{contractId}/representative-candidates",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contracts/{contractId}/representative-history",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/representative-handovers",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contracts/{contractId}/change-requests",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contracts/{contractId}/change-requests",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contract-change-requests/{requestId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contract-change-requests/{requestId}/decision",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contract-change-requests/{requestId}/confirm",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contract-change-requests/{requestId}/cancel",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/contract-change-requests/{requestId}/apply",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contracts/{contractId}/transfer-options",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/rental-services",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/rental-services",
+    "status": 201
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/admin/rental-services/{serviceId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/houses/{houseId}/services",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/houses/{houseId}/services",
+    "status": 201
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/houses/{houseId}/services/{houseServiceId}",
+    "status": 200
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/rooms/{roomId}/service-settings/{houseServiceId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/rooms/{roomId}/service-settings",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/invoices",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/invoices/{invoiceId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/invoices",
+    "status": 201
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/invoices/{invoiceId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/invoices/{invoiceId}/issue",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/invoices/{invoiceId}/payment-confirmation",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/invoices/{invoiceId}/cancel",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/invoices/{invoiceId}/replacements",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/rooms/{roomId}/reviews",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/reviews",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/reviews/{reviewId}/moderation",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/reports",
+    "status": 201
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/reports",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/reports",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/reports/{reportId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/reports/{reportId}/decision",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/users",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/users/{userId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/users/{userId}/lock",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/users/{userId}/unlock",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/contract-templates",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/contract-templates",
+    "status": 201
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/admin/contract-templates/{templateId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/moderation-actions",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/moderation-actions/{actionId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/files/upload-sessions",
+    "status": 201
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/files/{fileId}/complete",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/files/{fileId}",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/files/{fileId}/download-links",
+    "status": 200
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/files/{fileId}",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/landlord/dashboard",
+    "status": 200
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/dashboard",
+    "status": 200
+  }
+]

@@ -20,7 +20,7 @@ export default function ContractDetails({ id }) {
           </div>
           <div className="invoice-detail">
             <div><span>Bên cho thuê</span><strong>{person(contract.ownerId).name}</strong></div>
-            <div><span>Đại diện bên thuê</span><strong>{person(contract.tenantId).name}</strong></div>
+            <div><span>Đại diện bên thuê</span><strong>{contract.tenantId ? person(contract.tenantId).name : 'Chưa có thông tin đại diện'}</strong></div>
             <div><span>Phòng thuê</span><strong>{room(contract.roomId)?.code} · {house(room(contract.roomId)?.houseId)?.name}</strong></div>
             <div><span>Thời hạn</span><strong>{dateLabel(contract.start)} — {dateLabel(contract.end)}</strong></div>
             <div><span>Tiền phòng / tháng</span><strong>{money(contract.rent)}</strong></div>
@@ -33,7 +33,7 @@ export default function ContractDetails({ id }) {
           {contract.members.map(member => (
             <div className="list-row" key={member.id}>
               <div><strong>{member.name}</strong><small>{member.identity || 'Chưa cập nhật giấy tờ'}</small></div>
-              <Badge status={member.status} />
+              <Badge status={member.status} />{role === 'landlord' && member.status === 'PLANNED' && member.id !== String(contract.representativeRoomTenantId) && <Button onClick={() => openDialog('cancel-member', { id: member.id, contractId: contract.id })}>Hủy thành viên dự kiến</Button>}
             </div>
           ))}
         </div>
@@ -42,7 +42,8 @@ export default function ContractDetails({ id }) {
           <div className="subtle-panel">
             <h3>Thao tác hợp đồng</h3>
             <div className="stack">
-              {contract.status === 'PENDING_CONFIRMATION' && role === 'tenant' && (
+              {role === 'tenant' && contract.members.some(m => m.tenantId === me && ['ACTIVE', 'LEFT'].includes(m.status)) && <Button onClick={() => openDialog('review', { roomId: contract.roomId, contractId: contract.id, memberId: contract.members.find(m => m.tenantId === me && ['ACTIVE', 'LEFT'].includes(m.status)).id })}>Đánh giá phòng đã thuê</Button>}
+              {contract.status === 'PENDING_CONFIRMATION' && role === 'tenant' && contract.tenantId === me && (
                 <>
                   <Button variant="primary" icon="check" onClick={() => openDialog('decision', { collection: 'contracts', id: contract.id, status: 'CONFIRMED', title: 'Xác nhận hợp đồng' })}>Xác nhận hợp đồng</Button>
                   <Button onClick={() => openDialog('contract-feedback', { id: contract.id })}>Gửi góp ý chỉnh sửa</Button>
@@ -54,9 +55,9 @@ export default function ContractDetails({ id }) {
               {contract.status === 'PENDING_CONFIRMATION' && role === 'landlord' && (
                 <Button onClick={() => openDialog('contract', { id: contract.id })}>Chỉnh sửa và gửi lại</Button>
               )}
-              {contract.status === 'ACTIVE' && (
+              {contract.status === 'ACTIVE' && role === 'tenant' && contract.tenantId === me && (
                 <>
-                  <Button onClick={() => openDialog('contract-change', { id: contract.id, changeType: 'RENEWAL' })}>Đề nghị gia hạn</Button>
+                  <Button onClick={() => openDialog('join', { id: contract.id })}>Đề nghị thêm người</Button><Button onClick={() => openDialog('contract-change', { id: contract.id, changeType: 'RENEWAL' })}>Đề nghị gia hạn</Button>
                   <Button onClick={() => openDialog('contract-change', { id: contract.id, changeType: 'TRANSFER' })}>Đề nghị chuyển phòng</Button>
                   <Button onClick={() => openDialog('contract-change', { id: contract.id, changeType: 'TERMINATION' })}>Đề nghị kết thúc</Button>
                 </>

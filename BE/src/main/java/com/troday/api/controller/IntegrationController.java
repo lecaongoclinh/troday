@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 public class IntegrationController {
  private final IntegrationService service; public IntegrationController(IntegrationService s){service=s;}
  @PostMapping(value="/files/upload-sessions",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> uploadSession(HttpServletRequest r,@RequestBody JsonNode b){return service.createUploadSession(r,b);}
- @PostMapping(value="/files/{fileId}/complete",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> complete(HttpServletRequest r,@PathVariable Long fileId){return service.complete(r,fileId);}
+ @PostMapping(value="/files/{fileId}/complete",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> complete(HttpServletRequest r,@PathVariable Long fileId) throws java.io.IOException{return service.complete(r,fileId);}
+ @PutMapping("/files/{fileId}/content") public org.springframework.http.ResponseEntity<Void> upload(HttpServletRequest r,@PathVariable Long fileId) throws java.io.IOException{service.upload(r,fileId);return org.springframework.http.ResponseEntity.noContent().build();}
+ @GetMapping("/files/{fileId}/content") public org.springframework.http.ResponseEntity<org.springframework.core.io.FileSystemResource> content(HttpServletRequest r,@PathVariable Long fileId){return service.content(r,fileId);}
  @GetMapping(value="/files/{fileId}",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> metadata(HttpServletRequest r,@PathVariable Long fileId){return service.metadata(r,fileId);}
  @PostMapping(value="/files/{fileId}/download-links",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> downloadLink(HttpServletRequest r,@PathVariable Long fileId){return service.downloadLink(r,fileId);}
  @DeleteMapping(value="/files/{fileId}",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> delete(HttpServletRequest r,@PathVariable Long fileId){return service.delete(r,fileId);}

@@ -26,6 +26,7 @@ public class LandlordVerification {
     public void setReviewedById(Long value) { reviewedById = value; }
     public void setReviewedAt(LocalDateTime value) { reviewedAt = value; }
     public void setRejectionReason(String value) { rejectionReason = value; }
+    public String getRejectionReason(){return rejectionReason;}public Long getReviewedById(){return reviewedById;}public LocalDateTime getReviewedAt(){return reviewedAt;}
     public LocalDateTime getCreatedAt() { return createdAt; }
-    @PrePersist void onCreate() { if (createdAt == null) createdAt = LocalDateTime.now(); }
+    @PrePersist void onCreate() { if (createdAt == null) createdAt = LocalDateTime.now(java.time.ZoneOffset.UTC); }
 }

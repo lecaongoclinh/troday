@@ -1,7 +1,7 @@
 package com.troday.api.controller;
 import com.fasterxml.jackson.databind.JsonNode; import com.troday.api.dto.ApiResponseDto; import com.troday.api.service.AdminService; import jakarta.servlet.http.HttpServletRequest; import org.springframework.http.MediaType; import org.springframework.web.bind.annotation.*;
 @RestController @RequestMapping("/api/v1") public class AdminController { private final AdminService service; public AdminController(AdminService s){service=s;}
- @GetMapping(value="/rooms/{roomId}/reviews",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> reviews(@PathVariable Long roomId){return service.publicReviews(roomId);}
+ @GetMapping(value="/rooms/{roomId}/reviews",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> reviews(HttpServletRequest r,@PathVariable Long roomId){service.requireRoomReader(r,roomId);return service.publicReviews(roomId);}
  @PostMapping(value="/reviews",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> createReview(HttpServletRequest r,@RequestBody JsonNode b){return service.createReview(r,b);}
  @PostMapping(value="/admin/reviews/{reviewId}/moderation",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> moderate(HttpServletRequest r,@PathVariable Long reviewId,@RequestBody JsonNode b){return service.moderateReview(r,reviewId,b);}
  @PostMapping(value="/reports",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> report(HttpServletRequest r,@RequestBody JsonNode b){return service.createReport(r,b);}

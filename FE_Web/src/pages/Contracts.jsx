@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { send } from '../data/api';
 import { dateLabel, money, visibleContracts } from '../data/selectors';
 import { Badge, Button, Icon, PageHeader, Section, Table, Tabs } from '../components/ui';
 
 export default function Contracts() {
-  const { data, route, role, me, room, house, person, openDialog } = useApp();
+  const { data, route, role, me, room, house, person, openDialog, execute, run, setListQuery } = useApp();
   const [filter, setFilter] = useState('all');
   const contracts = visibleContracts(data, me, role);
   const rows = contracts.filter(contract => filter === 'all' || contract.status === filter);
@@ -21,7 +22,7 @@ export default function Contracts() {
   return (
     <>
       <PageHeader title="Hợp đồng thuê trọ" description="Mọi thỏa thuận đều rõ ràng, mọi hành trình đều an tâm.">
-        {role === 'landlord' && <Button icon="plus" variant="primary" onClick={() => openDialog('contract')}>Nhập hợp đồng</Button>}
+        {role === 'landlord' && <><Button icon="plus" variant="primary" onClick={() => openDialog('contract')}>Lập từ lịch đã xem</Button><Button onClick={() => openDialog('paper-import')}>Nhập hợp đồng giấy</Button></>}
       </PageHeader>
 
       {role === 'tenant' && current && (
@@ -39,7 +40,7 @@ export default function Contracts() {
       <div className="filter-bar">
         <Tabs
           value={filter}
-          onChange={setFilter}
+          onChange={value => { setFilter(value);setListQuery({ status: value === 'all' ? '' : value, page: 1 }); }}
           items={[
             ['all', 'Tất cả'],
             ['ACTIVE', 'Đang hiệu lực'],
@@ -70,13 +71,14 @@ export default function Contracts() {
         ]}
       />
 
+      {data.joinRequests.length > 0 && role === 'tenant' && <Section title="Yêu cầu thêm người"><Table rows={data.joinRequests} columns={[{ label: 'Người ở ghép', render: j => person(j.applicantId).name }, { label: 'Trạng thái', render: j => <Badge status={j.status} /> }, { actions: true, render: j => ['PENDING_CONSENT', 'PENDING_LANDLORD'].includes(j.status) && <div className="table-actions"><Button onClick={() => run(() => execute(() => send(`/occupant-join-requests/${j.id}/consents`, { consent: true })))}>Đồng ý</Button><Button onClick={() => run(() => execute(() => send(`/occupant-join-requests/${j.id}/cancel`, { reason: 'Rút yêu cầu' })))}>Rút yêu cầu</Button></div> }]} /></Section>}
       {changes.length > 0 && (
         <Section title="Yêu cầu thay đổi hợp đồng">
           <Table
             rows={changes}
             columns={[
               { label: 'Yêu cầu', render: change => ({ RENEWAL: 'Gia hạn hợp đồng', TRANSFER: 'Chuyển phòng', TERMINATION: 'Kết thúc hợp đồng' })[change.type] },
-              { label: 'Nội dung', key: 'note' },
+              { label: 'Nội dung', render: change => <>{change.note}{change.newEndDate && <small className="cell-sub">Kết thúc mới: {dateLabel(change.newEndDate)}</small>}</> },
               { label: 'Ngày hiệu lực', render: change => dateLabel(change.effective) },
               { label: 'Trạng thái', render: change => <Badge status={change.status} /> },
               {
@@ -86,7 +88,7 @@ export default function Contracts() {
                     <Button variant="small primary" onClick={() => openDialog('apply-change', { id: change.id })}>Xem & xử lý</Button>
                     <Button variant="small" onClick={() => openDialog('decision', { collection: 'changeRequests', id: change.id, status: 'REJECTED', title: 'Từ chối yêu cầu', reason: true })}>Từ chối</Button>
                   </div>
-                ) : null,
+                 ) : change.status === 'APPROVED_WAITING_CONFIRMATION' && role === 'tenant' ? <Button variant="small primary" onClick={() => run(() => execute(() => send(`/contract-change-requests/${change.id}/confirm`, { proposedRevisionId: change.proposedRevisionId, proposalHash: change.proposalHash })))}>Xác nhận phương án</Button> : change.status === 'READY_TO_APPLY' ? role === 'landlord' ? <Button variant="small primary" onClick={() => run(() => execute(() => send(`/contract-change-requests/${change.id}/apply`)))}>Áp dụng thay đổi</Button> : <span className="muted tiny">Đã xác nhận phương án</span> : null,
               },
             ]}
           />

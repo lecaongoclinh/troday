@@ -30,5 +30,5 @@ public class AuthSession {
     public void setRevocationReason(String value) { revocationReason = value; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime value) { createdAt = value; }
-    @PrePersist void onCreate() { if (createdAt == null) createdAt = LocalDateTime.now(); }
+    @PrePersist void onCreate() { if (createdAt == null) createdAt = LocalDateTime.now(java.time.ZoneOffset.UTC); }
 }

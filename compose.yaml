@@ -1,0 +1,94 @@
+name: troday
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: deploy/mysql.Dockerfile
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: troday
+      MYSQL_USER: troday
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run python3 deploy/configure.py first}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Missing MYSQL_ROOT_PASSWORD}
+      TZ: UTC
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --log-bin-trust-function-creators=1
+      - --innodb-buffer-pool-size=512M
+    volumes:
+      - mysql_data:/var/lib/mysql
+    mem_limit: 2g
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$${MYSQL_ROOT_PASSWORD}" mysqladmin ping -h 127.0.0.1 -u root --silent']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 90s
+    logging: *logging
+
+  be:
+    build:
+      context: .
+      dockerfile: deploy/be.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: "8081"
+      DB_URL: jdbc:mysql://db:3306/troday?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USERNAME: troday
+      DB_PASSWORD: ${MYSQL_PASSWORD:?Missing MYSQL_PASSWORD}
+      FILE_STORAGE_ROOT: /app/uploads
+      FILE_SIGNING_SECRET: ${FILE_SIGNING_SECRET:?Missing FILE_SIGNING_SECRET}
+      TRODAY_CORS_ORIGINS: https://${APP_DOMAIN:?Missing APP_DOMAIN}
+      PAPER_IMPORT_USER_IDS: ${PAPER_IMPORT_USER_IDS:-}
+      BACKGROUND_JOBS_ENABLED: "true"
+      VERIFICATION_DELIVERY_URL: ${VERIFICATION_DELIVERY_URL:-}
+      VERIFICATION_DELIVERY_TOKEN: ${VERIFICATION_DELIVERY_TOKEN:-}
+      VERIFICATION_LOCAL_INBOX: ""
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=65 -XX:+ExitOnOutOfMemoryError
+      TZ: UTC
+    volumes:
+      - uploads:/app/uploads
+    mem_limit: 1536m
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, --max-time, "5", "http://127.0.0.1:8081/api/v1/posts?pageSize=1"]
+      interval: 20s
+      timeout: 7s
+      retries: 12
+      start_period: 90s
+    logging: *logging
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      be:
+        condition: service_healthy
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Missing APP_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    mem_limit: 256m
+    logging: *logging
+
+volumes:
+  mysql_data:
+  uploads:
+  caddy_data:
+  caddy_config:

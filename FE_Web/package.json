@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Giao diện web Trọday với dữ liệu mẫu, chưa kết nối API",
+  "description": "Giao diện web Trọday kết nối API Spring Boot theo wireframe v5",
   "engines": { "node": ">=22.12.0" },
   "scripts": {
     "dev": "vite --host 127.0.0.1",

@@ -1,0 +1,17 @@
+{$APP_DOMAIN} {
+    encode zstd gzip
+
+    # Preserve /api/v1 in the upstream request, including file URLs and SSE.
+    handle /api/* {
+        reverse_proxy be:8081 {
+            flush_interval -1
+        }
+    }
+
+    handle {
+        root * /srv
+        try_files {path} /index.html
+        header Cache-Control "no-cache"
+        file_server
+    }
+}

@@ -32,5 +32,5 @@ public class VerificationToken {
     public void setExpiresAt(LocalDateTime value) { expiresAt = value; }
     public LocalDateTime getConsumedAt() { return consumedAt; }
     public void setConsumedAt(LocalDateTime value) { consumedAt = value; }
-    @PrePersist void onCreate() { if (createdAt == null) createdAt = LocalDateTime.now(); }
+    @PrePersist void onCreate() { if (createdAt == null) createdAt = LocalDateTime.now(java.time.ZoneOffset.UTC); }
 }

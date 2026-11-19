@@ -1,11 +1,18 @@
 spring:
   application:
     name: troday-api
+  config:
+    import:
+      - "optional:file:BE/.env[.properties]"
+      - "optional:file:.env[.properties]"
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/room_rental_v5_20261023?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Ho_Chi_Minh}
-    username: ${DB_USERNAME:ttchinh}
-    password: ${DB_PASSWORD:123456}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/troday?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Ho_Chi_Minh}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-init-sql: "SET time_zone = '+00:00'"
+      transaction-isolation: TRANSACTION_READ_COMMITTED
   jpa:
     hibernate:
       ddl-auto: none
@@ -13,5 +20,24 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          time_zone: UTC
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:api-support.sql
 server:
   port: ${PORT:8081}
+
+troday:
+  contracts:
+    paper-import-users: ${PAPER_IMPORT_USER_IDS:}
+  files:
+    root: ${FILE_STORAGE_ROOT:uploads}
+    signing-secret: ${FILE_SIGNING_SECRET:}
+  verification:
+    delivery-url: ${VERIFICATION_DELIVERY_URL:}
+    delivery-token: ${VERIFICATION_DELIVERY_TOKEN:}
+    local-inbox: ${VERIFICATION_LOCAL_INBOX:}
+  jobs:
+    enabled: ${BACKGROUND_JOBS_ENABLED:true}

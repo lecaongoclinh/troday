@@ -17,3 +17,16 @@ Môi trường: Windows, Node.js 24.14.0, npm 11.9.0. Ngày phiên làm việc: 
 Unit test dùng transport doubles trong tests, không tạo mock API server hay dữ liệu nghiệp vụ cho app. Browser test dùng static server phục vụ app thật, không thay network bằng fixture và xác nhận không có request API khi base URL để trống.
 
 Lệnh tái hiện có trong README. Ảnh browser và báo cáo JSON nằm tại `artifacts/` sau khi chạy test:browser.
+
+## Tương thích BE ngày 17/11/2026
+
+Adapter nhận `data.items`, giữ counts của roommate requests, đọc `meta.pagination`; login yêu cầu ID string được BE mới trả đúng. Test script chạy được trên Node 22.17 (bỏ cờ test-isolation chưa được bản Node này hỗ trợ).
+
+`npm.cmd run typecheck` và `npm.cmd test` kiểm tra cục bộ. Để chạy thêm smoke test login/phân trang/hợp đồng qua BE thật:
+
+```powershell
+$env:TRODAY_LIVE_API_URL = 'http://127.0.0.1:18081'
+npm.cmd test
+```
+
+Smoke test chỉ đăng nhập/đọc/đăng xuất các tài khoản seed. Việc qua adapter không chứng minh mọi form nghiệp vụ native đã hoàn tất; các chặn riêng cho refresh/SSE/form JSON vẫn được ghi trong workflows.

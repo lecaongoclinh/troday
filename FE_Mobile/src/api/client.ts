@@ -77,7 +77,7 @@ export function queryKeys(endpoint: Endpoint) {
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
-      ...(endpoint.pagination === "page" ? ["page", "pageSize"] : []),
+      "q", "page", "pageSize",
     ]),
   ];
 }
@@ -296,7 +296,7 @@ export class ApiClient {
           });
       }
       return {
-        data: json.data as T,
+        data: (isRecord(json.data) && Array.isArray(json.data.items) && endpoint.id !== "API-071" ? json.data.items : json.data) as T,
         meta: json.meta as unknown as ApiResult<T>["meta"],
         etag: response.headers.get("etag") ?? undefined,
       };

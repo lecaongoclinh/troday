@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode; import com.troday.api.dto.ApiRes
  private final ResidentService service; public ResidentController(ResidentService service){this.service=service;}
  @GetMapping("/residents") public ApiResponseDto<?> residents(HttpServletRequest r){return service.residents(r);}
  @GetMapping("/contracts/{contractId}/members") public ApiResponseDto<?> members(HttpServletRequest r,@PathVariable Long contractId){return service.contractMembers(r,contractId);}
- @GetMapping("/residents/export") public ApiResponseDto<?> export(HttpServletRequest r){return service.export(r);}
+ @GetMapping("/residents/export") public org.springframework.http.ResponseEntity<byte[]> export(HttpServletRequest r){return service.exportCsv(r);}
  @GetMapping("/occupant-join-requests") public ApiResponseDto<?> joins(HttpServletRequest r){return service.joinList(r);}
  @PostMapping("/occupant-join-requests") public ApiResponseDto<?> createJoin(HttpServletRequest r,@RequestBody JsonNode b){return service.createJoin(r,b);}
  @PostMapping("/occupant-join-requests/{requestId}/consents") public ApiResponseDto<?> consent(HttpServletRequest r,@PathVariable Long requestId,@RequestBody JsonNode b){return service.consent(r,requestId,b);}

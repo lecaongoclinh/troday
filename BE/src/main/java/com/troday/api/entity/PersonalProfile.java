@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 public class PersonalProfile {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @Column(name = "user_id", nullable = false, unique = true) private Long userId;
+    @Column(name="avatar_file_id") private Long avatarFileId;public Long getAvatarFileId(){return avatarFileId;}public void setAvatarFileId(Long value){avatarFileId=value;}
     private String address;
     private String gender;
     private String occupation;

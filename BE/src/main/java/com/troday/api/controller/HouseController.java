@@ -29,10 +29,10 @@ public class HouseController {
     @PostMapping("/houses/{houseId}/rooms") public ApiResponseDto<?> roomCreate(HttpServletRequest r,@PathVariable Long houseId,@RequestBody JsonNode b){return service.roomCreate(r,houseId,b);}
     @PatchMapping("/rooms/{roomId}") public ApiResponseDto<?> roomUpdate(HttpServletRequest r,@PathVariable Long roomId,@RequestBody JsonNode b){return service.roomUpdate(r,roomId,b);}
     @PutMapping("/rooms/{roomId}/capacity") public ApiResponseDto<?> capacity(HttpServletRequest r,@PathVariable Long roomId,@RequestBody JsonNode b){return service.capacity(r,roomId,b);}
-    @GetMapping("/rooms/{roomId}") public ApiResponseDto<?> roomDetail(@PathVariable Long roomId){return service.roomDetail(roomId);}
+    @GetMapping("/rooms/{roomId}") public ApiResponseDto<?> roomDetail(HttpServletRequest r,@PathVariable Long roomId){service.requireRoomReader(r,roomId);return service.roomDetail(roomId);}
     @GetMapping("/rooms/{roomId}/posts") public ApiResponseDto<?> roomPosts(@PathVariable Long roomId){return service.roomPosts(roomId);}
     @GetMapping("/rooms/{roomId}/residents") public ApiResponseDto<?> roomResidents(HttpServletRequest r,@PathVariable Long roomId){return service.roomResidents(r,roomId);}
-    @GetMapping("/rooms/{roomId}/services") public ApiResponseDto<?> roomServices(@PathVariable Long roomId){return service.roomServices(roomId);}
+    @GetMapping("/rooms/{roomId}/services") public ApiResponseDto<?> roomServices(HttpServletRequest r,@PathVariable Long roomId){service.requireRoomReader(r,roomId);return service.roomServices(roomId);}
     @GetMapping("/landlord/dashboard") public ApiResponseDto<?> dashboard(HttpServletRequest r){return service.dashboard(r);}
 }
 

@@ -23,7 +23,7 @@ export function Brand({ sidebar = false }) {
 }
 
 export default function Layout({ children }) {
-  const { data, route, role, me, person, navigate, switchRole, openDialog, mainRef } = useApp();
+  const { data, route, role, me, person, navigate, switchRole, availableRoles, session, openDialog, mainRef } = useApp();
   const roleLabel = `Không gian ${ROLES[role].toLowerCase()}`;
   const active = route.view === 'room-detail'
     ? role === 'tenant' ? 'discover' : role === 'admin' ? 'moderation' : 'properties'
@@ -91,11 +91,11 @@ export default function Layout({ children }) {
               trọ<span>day.</span>
             </a>
             <div className="topbar-actions">
-              <span className="preview-tag"><span />Bản xem trước</span>
+              <span className="preview-tag"><span />{session ? ROLES[role] : 'Khám phá'}</span>
               <label className="role-select-label">
-                <span className="sr-only">Chọn vai trò xem trước</span>
-                <select value={role} onChange={event => switchRole(event.target.value)} aria-label="Chọn vai trò xem trước">
-                  {Object.entries(ROLES).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                <span className="sr-only">Vai trò tài khoản</span>
+                <select value={role} disabled={availableRoles.length < 2} onChange={event => switchRole(event.target.value)} aria-label="Vai trò tài khoản">
+                  {(availableRoles.length ? availableRoles : ['tenant']).map(id => <option key={id} value={id}>{ROLES[id]}</option>)}
                 </select>
               </label>
               <span className="topbar-divider" />

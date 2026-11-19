@@ -45,6 +45,6 @@ public class User {
     public void setEmailEnabled(boolean value) { emailEnabled = value; }
     public boolean isPushEnabled() { return pushEnabled; }
     public void setPushEnabled(boolean value) { pushEnabled = value; }
-    @PrePersist void onCreate() { if (createdAt == null) createdAt = LocalDateTime.now(); if (updatedAt == null) updatedAt = createdAt; }
-    @PreUpdate void onUpdate() { updatedAt = LocalDateTime.now(); }
+    @PrePersist void onCreate() { if (createdAt == null) createdAt = LocalDateTime.now(java.time.ZoneOffset.UTC); if (updatedAt == null) updatedAt = createdAt; }
+    @PreUpdate void onUpdate() { updatedAt = LocalDateTime.now(java.time.ZoneOffset.UTC); }
 }

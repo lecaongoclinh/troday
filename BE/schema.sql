@@ -2,8 +2,8 @@
 -- CREATE A NEW DATABASE ONLY. This is not a Flyway migration or an upgrade script.
 -- MySQL 8.0.16+ / InnoDB; recommended MySQL 8.4. Do not use --force when importing.
 -- Never change the USE target to the old database; keep the existing migrations intact.
-CREATE DATABASE `room_rental_v5_20261023` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE `room_rental_v5_20261023`;
+CREATE DATABASE `troday` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `troday`;
 SET time_zone = '+00:00';
 
 -- Tài khoản chung; role là vai trò hiển thị, quyền thực tế lấy từ các bảng vai trò.
