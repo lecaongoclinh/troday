@@ -1,46 +1,74 @@
 # Trọday
 
-Ứng dụng tìm và quản lý phòng trọ. Backend Spring Boot nằm trong [BE](BE/README.md); frontend React/Vite nằm trong [FE_Web](FE_Web/README.md).
+Spring Boot/MySQL backend, web React/Vite và mobile Expo/React Native. Nhánh chính: `main`.
 
-FE_Web đã kết nối API hiện có theo wireframe v5. **[Báo cáo kết nối và bàn giao BE](FE_Web/README.md)** ghi trạng thái 47 luồng, danh mục 176 API, kết quả kiểm tra và các lỗi BE còn chặn nghiệp vụ. Việc có route không có nghĩa là toàn bộ luồng BE đã hoàn chỉnh.
+## Chạy local bằng Docker
 
-```text
-troday/
-├── BE/                 # Spring Boot, JPA, API và SQL
-├── FE_Web/             # React + Vite, gọi API BE
-├── FE_Mobile/          # Frontend mobile
-├── AI/
-└── database/           # Tài liệu/nguồn dữ liệu của dự án
+Mở Docker Desktop ở chế độ Linux containers. Từ thư mục gốc repository:
+
+```powershell
+Copy-Item .env.example .env
+docker compose config --quiet
+docker compose up --build -d --wait --wait-timeout 300
+docker compose ps
 ```
 
-## Cập nhật BE/FE
+Chỉ sao chép `.env.example` nếu chưa có `.env`; giữ nguyên cấu hình cá nhân hiện có. Web: `http://localhost:5173`; API: `http://localhost:8081/api/v1`. Stack local dùng `compose.yaml`, project mặc định `troday-dev`, DB `troday`, volume riêng cho DB và upload. SQL/demo account chỉ được tạo ở volume mới. Đây là môi trường demo local.
 
-[Danh sách sửa lỗi, phân trang/tìm kiếm và kết nối FE — 17/11/2026](docs/BE_FE_2026-11-17.md) là trạng thái mới nhất. Báo cáo rà soát 13/11 được giữ trong FE_Web để đối chiếu lịch sử.
+```powershell
+docker compose logs --tail 100 db api web
+docker compose down
+```
 
-## Chạy local
+`down` giữ dữ liệu; không xóa volume khi cập nhật. Xem [môi trường dùng chung](docs/ENVIRONMENT.md) để đổi port, LAN IP và cấu hình IDE.
 
-BE hiện yêu cầu Java 17 trở lên theo `BE/pom.xml`, Maven và MySQL. Thiết lập môi trường theo [BE/README.md](BE/README.md), sau đó chạy trong `BE`:
+## Chạy BE/web trực tiếp
+
+Cần JDK 17+, Maven và Node.js 22.13+. Node 24 được gợi ý trong `.nvmrc`. Tạo `BE/.env` từ `BE/.env.example`, nhập schema vào MySQL mới theo [BE/README.md](BE/README.md), rồi chạy trong `BE`:
 
 ```powershell
 mvn spring-boot:run
 ```
 
-Ở terminal khác:
+Trong terminal khác tại gốc repository:
 
 ```powershell
-cd FE_Web
-npm.cmd ci
-npm.cmd run dev
+npm.cmd --prefix FE_Web ci
+npm.cmd --prefix FE_Web run dev
 ```
 
-FE mặc định ở `http://127.0.0.1:5173`, proxy API tới BE cổng `8081`. Xem [FE_Web/README.md](FE_Web/README.md) để đổi địa chỉ API và chạy kiểm tra.
+Web giữ các màn hình nghiệp vụ theo wireframe, đăng nhập/vai trò, tìm kiếm/phân trang, upload và SSE. API proxy mặc định tới `127.0.0.1:8081`. Xem [FE_Web/README.md](FE_Web/README.md).
 
-## Deploy BE, web và mobile
+## Mobile
 
-Xem [hướng dẫn deploy chi tiết](deploy/README.md): Oracle Always Free + MySQL 8.4 + Caddy HTTPS, tạo admin, build APK Android bằng Expo, cập nhật và sao lưu. Cấu hình Docker nằm ở `compose.yaml` và `deploy/`; cấu hình build mobile ở `FE_Mobile/eas.json`.
+```powershell
+npm.cmd run setup
+npm.cmd run mobile:web
+```
 
-## Git
+`npm run mobile` dùng địa chỉ LAN cho điện thoại; `mobile:android` dùng Android Emulator. Launcher hỗ trợ cấu hình URL qua biến môi trường, `FE_Mobile/.env` và `.env` gốc. API URL gồm `/api/v1`. Mobile tái sử dụng adapter trong `shared/api`; adapter hỗ trợ phân trang BE hiện tại và dữ liệu từ server cũ.
 
-Nhánh chính: `main`. Remote dự án: `https://github.com/lecaongoclinh/troday.git`.
+## Kiểm tra
 
-Không commit `.env`, access token, dữ liệu cá nhân hoặc output/cache kiểm thử. Các file này đã được khai báo trong `.gitignore`.
+```powershell
+npm.cmd run test:env
+npm.cmd --prefix FE_Web run build
+npm.cmd --prefix FE_Web run test:shared
+npm.cmd --prefix FE_Web test
+npm.cmd --prefix FE_Mobile run typecheck
+npm.cmd --prefix FE_Mobile test
+```
+
+Kiểm tra browser cần Chrome. Xem [các thay đổi BE/FE](docs/BE_FE_2026-11-17.md) và [ghi chú gộp hai nhánh](docs/MERGE_2026-11-19.md).
+
+## Deploy BE, web và APK Android
+
+Xem [hướng dẫn deploy chi tiết](deploy/README.md): Oracle Always Free, MySQL 8.4, Caddy HTTPS, tạo admin và build APK Android bằng Expo. Stack HTTPS nằm trong `compose.production.yaml`, đọc `deploy/.env`, được chạy qua `deploy/dc.sh`. File `compose.yaml` dành cho local.
+
+```bash
+python3 deploy/configure.py --domain YOUR-NAME.duckdns.org
+sudo bash deploy/dc.sh build
+sudo bash deploy/dc.sh up -d --wait --wait-timeout 360
+```
+
+Hai stack có cấu hình và volume riêng. Không nạp tài khoản demo lên môi trường công khai. Không commit `.env`, access token, private key, dữ liệu cá nhân hoặc output kiểm tra.

@@ -11,8 +11,7 @@ import java.util.UUID;
 
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
-    @org.springframework.beans.factory.annotation.Value("${troday.cors.origins:http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:8082,http://localhost:8082}") private String origins;
-    @Override public void addCorsMappings(CorsRegistry registry){registry.addMapping("/api/v1/**").allowedOrigins(origins.split(",")).allowedMethods("GET","POST","PUT","PATCH","DELETE","OPTIONS").allowedHeaders("Authorization","Content-Type","Idempotency-Key","If-Match","If-None-Match","Refresh-Token","X-File-SHA256","Last-Event-ID").exposedHeaders("ETag","X-Request-Id","Idempotency-Replayed","Content-Disposition").allowCredentials(false).maxAge(3600);}
+    // CORS is registered once in config.WebConfig; keep request metadata and UTC serialization here.
     @Override public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new HandlerInterceptor() {
             public boolean preHandle(HttpServletRequest r,HttpServletResponse s,Object handler) {

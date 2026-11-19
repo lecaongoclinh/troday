@@ -2,6 +2,7 @@ FROM node:22-alpine AS build
 WORKDIR /build
 COPY FE_Web/package.json FE_Web/package-lock.json ./
 RUN npm ci
+COPY shared /shared
 COPY FE_Web/ ./
 ENV VITE_API_BASE_URL=/api/v1
 RUN npm run build

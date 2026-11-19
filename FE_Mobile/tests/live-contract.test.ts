@@ -5,7 +5,7 @@ import { URL } from "node:url";
 import { ApiClient } from "../src/api/client.ts";
 import type { Endpoint } from "../src/api/types.ts";
 
-const catalog = JSON.parse(readFileSync(new URL("../src/api/contract.json", import.meta.url), "utf8"));
+const catalog = JSON.parse(readFileSync(new URL("../../shared/api/contract.json", import.meta.url), "utf8"));
 const endpoint = (id: number) => catalog.endpoints[id - 1] as Endpoint;
 test("native adapter accepts live login, string IDs and pagination", { skip: !process.env.TRODAY_LIVE_API_URL }, async () => {
   const client = new ApiClient(process.env.TRODAY_LIVE_API_URL!.replace(/\/$/, "") + "/api/v1");

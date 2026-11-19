@@ -83,7 +83,7 @@ const contract = {
   ),
 };
 fs.writeFileSync(
-  path.join(root, "src/api/contract.json"),
+  path.join(root, "docs/reference-contract.json"),
   JSON.stringify(contract, null, 2),
 );
 fs.writeFileSync(

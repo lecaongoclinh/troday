@@ -7,11 +7,11 @@ def main():
     root = Path(__file__).resolve().parent.parent
     destination = root / ".cache" / "deploy" / "troday-deploy.zip"
     destination.parent.mkdir(parents=True, exist_ok=True)
-    files = [root / "compose.yaml", root / ".dockerignore"]
-    for relative in ("BE/pom.xml", "BE/schema.sql", "FE_Web/package.json",
+    files = [root / "compose.yaml", root / "compose.production.yaml", root / ".dockerignore", root / ".env.example"]
+    for relative in ("BE/pom.xml", "BE/schema.sql", "BE/Dockerfile", "FE_Web/Dockerfile", "FE_Web/package.json",
                      "FE_Web/package-lock.json", "FE_Web/index.html", "FE_Web/vite.config.js"):
         files.append(root / relative)
-    for relative in ("BE/src", "FE_Web/src", "FE_Web/public", "FE_Web/assets"):
+    for relative in ("BE/src", "FE_Web/src", "FE_Web/public", "FE_Web/assets", "shared/api", "docker"):
         directory = root / relative
         if directory.exists():
             files.extend(p for p in directory.rglob("*") if p.is_file())

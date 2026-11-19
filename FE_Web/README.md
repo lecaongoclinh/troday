@@ -1,5 +1,7 @@
 # Trọday Web — kết nối API và bàn giao BE
 
+**Merge 19/11/2026:** giữ giao diện nghiệp vụ và adapter BE hiện tại; thêm launcher mobile/shared, cấu hình local và Docker từ nhánh môi trường. `npm test`/`test:browser` kiểm tra giao diện này; `npm run test:shared` kiểm tra adapter chung. Xem [ghi chú merge](../docs/MERGE_2026-11-19.md).
+
 **Cập nhật 17/11/2026:** BE và FE đã được chỉnh sửa theo báo cáo. Xem **[danh sách thay đổi, API phân trang, cấu hình và kết quả kiểm tra hiện tại](../docs/BE_FE_2026-11-17.md)**. Web có phân trang/tìm kiếm, upload minh chứng, chọn người vào ở, áp dụng điều chỉnh, CSV và SSE; mobile có adapter tương thích mới.
 
 ## Báo cáo gốc ngày 13/11/2026

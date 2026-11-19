@@ -2,6 +2,8 @@
 
 Cập nhật ngày 17/11/2026. Các lệnh Windows chạy trong **PowerShell trên máy của bạn**; các lệnh Bash chạy trong **terminal SSH của VM Ubuntu**. Thay `YOUR-NAME.duckdns.org`, `PUBLIC_IP` và đường dẫn khóa SSH bằng thông tin thật của bạn.
 
+**Sau merge 19/11/2026:** stack HTTPS được giữ trong `compose.production.yaml`. Các lệnh `deploy/dc.sh` bên dưới đã trỏ tới file này. `compose.yaml` dành cho demo local, dùng `.env` gốc; production tiếp tục dùng `deploy/.env`. Gói ZIP nay kèm cả `shared/api` và cấu hình Docker local.
+
 Kết quả sau khi hoàn thành:
 
 | Thành phần | Địa chỉ / nơi lưu |
@@ -340,4 +342,4 @@ Khi cần phục hồi: dựng VM/volume mới với đúng phiên bản ứng d
 
 Bộ file tạo được cấu hình, đóng gói mã nguồn hiện tại và mô tả quy trình deploy. Việc tạo tài khoản Oracle/DuckDNS/Expo, chọn domain, mở mạng và chạy cloud build cần thực hiện bằng tài khoản của bạn. Chưa có URL cloud hoặc APK đã phát hành từ bộ hướng dẫn này.
 
-Đã kiểm tra Compose offline, cú pháp hai script Bash và ba script Python, profile APK, việc tạo cấu hình/từ chối ghi đè, và ZIP 184 file không chứa `.env`, cache hay `node_modules`. Máy soạn hướng dẫn có Docker CLI nhưng Docker Engine chưa chạy: chưa xác minh build/chạy các image thực tế hay cấp HTTPS trên VM. Cần hoàn tất kiểm tra bước 7–9 trước khi coi triển khai thành công.
+Đã kiểm tra Compose offline, cú pháp hai script Bash và ba script Python, profile APK, việc tạo cấu hình/từ chối ghi đè, và ZIP không chứa `.env`, cache hay `node_modules`. Máy soạn hướng dẫn có Docker CLI nhưng Docker Engine chưa chạy: chưa xác minh build/chạy các image thực tế hay cấp HTTPS trên VM. Cần hoàn tất kiểm tra bước 7–9 trước khi coi triển khai thành công.

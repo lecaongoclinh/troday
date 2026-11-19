@@ -1,8 +1,9 @@
-# Only files required by the three container builds enter their contexts.
+# Shared build context for local Docker and the HTTPS deployment.
 **
 !BE/
 !BE/pom.xml
 !BE/schema.sql
+!BE/Dockerfile
 !BE/src/
 !BE/src/**
 !FE_Web/
@@ -10,19 +11,28 @@
 !FE_Web/package-lock.json
 !FE_Web/index.html
 !FE_Web/vite.config.js
+!FE_Web/Dockerfile
 !FE_Web/src/
 !FE_Web/src/**
 !FE_Web/public/
 !FE_Web/public/**
 !FE_Web/assets/
 !FE_Web/assets/**
+!shared/
+!shared/api/
+!shared/api/**
+!docker/
+!docker/**
 !deploy/
 !deploy/*.Dockerfile
 !deploy/Caddyfile
 **/.env
 **/.env.*
-**/*.private.yml
+**/application-*.private.yml
 **/*.pem
 **/*.key
 **/*.p12
 **/*.jks
+**/node_modules/
+**/target/
+**/.cache/
