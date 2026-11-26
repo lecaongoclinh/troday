@@ -5,6 +5,7 @@ import { request, send, id, list, allPages, uploadFile, openFile } from '../data
 import { dateLabel, day, money, ownHouses, ownRooms, publicPosts, totalInvoice } from '../data/selectors';
 import { Badge, Button, Empty, Field, Icon, Table } from './ui';
 import ContractDetails from './ContractDetails';
+import { invoiceServiceTotal, parseInvoicePreview, roomRentLine, serviceInvoiceLine } from '../../../shared/api/invoice-preview.ts';
 
 export default function Dialogs() {
   const { dialog, closeDialog } = useApp(), ref = useRef();
@@ -17,11 +18,11 @@ const text = (name, label, extra = {}) => ({ name, label, required: true, ...ext
 const number = (name, label, extra = {}) => text(name, label, { type: 'number', min: 0, ...extra });
 const select = (name, label, options, extra = {}) => text(name, label, { type: 'select', options, ...extra });
 const options = (rows, label) => rows.map(r => [r.id, label(r)]);
-function Editor({ title, fields = [], initial = {}, onSubmit, beforeFields, children, submitLabel = 'Lưu thay đổi' }) {
+function Editor({ title, fields = [], initial = {}, onSubmit, beforeFields, children, submitLabel = 'Lưu thay đổi', submitDisabled = false }) {
   const { closeDialog, notify } = useApp();
   const [error, setError] = useState(''), [busy, setBusy] = useState(false), submitting = useRef(false);
   const submit = async e => {
-    e.preventDefault(); if (submitting.current) return;
+    e.preventDefault(); if (submitting.current || submitDisabled) return;
     const form = e.currentTarget, values = Object.fromEntries(new FormData(form));
     for (const f of fields) if (f.type === 'number') values[f.name] = Number(values[f.name]);
     submitting.current = true; setBusy(true); setError('');
@@ -29,7 +30,7 @@ function Editor({ title, fields = [], initial = {}, onSubmit, beforeFields, chil
     catch (e) { setError(e.message || 'Vui lòng kiểm tra thông tin và thử lại.'); }
     finally { submitting.current = false; setBusy(false); }
   };
-  return <Frame title={title}><form onSubmit={submit}><fieldset disabled={busy} className="form-fieldset">{beforeFields}<div className="form-grid">{fields.map(f => <Field key={f.name} label={f.label} full={f.full}>{f.type === 'select' ? <select name={f.name} required={f.required} defaultValue={initial?.[f.name] ?? f.options[0]?.[0]}>{f.options.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select> : f.type === 'textarea' ? <textarea name={f.name} {...(f.onChange ? { value: f.value, onChange: f.onChange } : { defaultValue: initial?.[f.name] || '' })} required={f.required} maxLength={10000} /> : <input type={f.type || 'text'} name={f.name} defaultValue={initial?.[f.name] ?? f.defaultValue ?? ''} required={f.required} min={f.min} max={f.max} step={f.type === 'number' ? f.step || 'any' : undefined} maxLength={f.maxLength || 500} />}</Field>)}</div>{children}{error && <p className="form-error" role="alert">{error}</p>}<div className="form-actions"><Button onClick={closeDialog}>Hủy</Button><Button type="submit" variant="primary" disabled={busy}>{busy ? 'Đang lưu…' : submitLabel}</Button></div></fieldset></form></Frame>;
+  return <Frame title={title}><form onSubmit={submit}><fieldset disabled={busy} className="form-fieldset">{beforeFields}<div className="form-grid">{fields.map(f => <Field key={f.name} label={f.label} full={f.full}>{f.type === 'select' ? <select name={f.name} required={f.required} defaultValue={initial?.[f.name] ?? f.options[0]?.[0]}>{f.options.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select> : f.type === 'textarea' ? <textarea name={f.name} {...(f.onChange ? { value: f.value, onChange: f.onChange } : { defaultValue: initial?.[f.name] || '' })} required={f.required} maxLength={10000} /> : <input type={f.type || 'text'} name={f.name} defaultValue={initial?.[f.name] ?? f.defaultValue ?? ''} required={f.required} min={f.min} max={f.max} step={f.type === 'number' ? f.step || 'any' : undefined} maxLength={f.maxLength || 500} />}</Field>)}</div>{children}{error && <p className="form-error" role="alert">{error}</p>}<div className="form-actions"><Button onClick={closeDialog}>Hủy</Button><Button type="submit" variant="primary" disabled={busy || submitDisabled}>{busy ? 'Đang lưu…' : submitLabel}</Button></div></fieldset></form></Frame>;
 }
 function Unavailable({ title, children }) { return <Frame title={title}><Empty title="Chưa thể hoàn tất thao tác">{children}</Empty></Frame>; }
 
@@ -323,23 +324,170 @@ function ChangeReview() {
   </Editor>;
 }
 function InvoiceEditor() {
-  const { data, dialog: d, me, room, upsert, execute } = useApp();
-  const invoice = data.invoices.find(i => i.id === d.id), contracts = data.contracts.filter(c => c.ownerId === me && c.status === 'ACTIVE');
-  const [contractId, setContractId] = useState(invoice?.contractId || contracts[0]?.id || '');
-  const c = contracts.find(c => c.id === contractId);
-  const [items, setItems] = useState(invoice?.items || [{ type: 'RENT', name: 'Tiền phòng', quantity: 1, unit: 'tháng', price: c?.rent || 0 }]);
-  if (!c) return <Unavailable title="Tạo hóa đơn">Cần có hợp đồng đang hiệu lực.</Unavailable>;
-
-  const changeItem = (i, key, value) => setItems(rows => rows.map((row, index) => i === index ? { ...row, [key]: ['price', 'quantity'].includes(key) ? Number(value) : value } : row));
-  return <Editor title={d.replacement ? 'Tạo hóa đơn thay thế' : invoice ? 'Sửa hóa đơn nháp' : 'Tạo hóa đơn'} initial={invoice || { period: `${day().slice(0, 7)}-01`, due: day(5) }} fields={[text('period', 'Kỳ thu (ngày đầu tháng)', { type: 'date' }), text('due', 'Hạn thanh toán', { type: 'date' })]} onSubmit={v => {
-    if (v.period.slice(8) !== '01') throw new Error('Kỳ thu cần là ngày đầu tháng.');
-    if (!items.length || items.some(i => !i.name.trim() || i.quantity <= 0 || i.price < 0)) throw new Error('Kiểm tra tên, số lượng và đơn giá các khoản thu.');
-    const payer = c.members.find(m => m.id === v.payerMemberId && m.status === 'ACTIVE');
-    if (!payer) throw new Error('Chưa xác định được người thanh toán của hợp đồng.');
-    if (d.replacement) return execute(() => send(`/invoices/${invoice.id}/replacements`, { dueDate: v.due, items: items.map(i => ({ type: i.type || 'OTHER', name: i.name, unit: i.unit || 'lần', quantity: i.quantity, unitPrice: i.price, ...(i.roomServiceId ? { roomServiceId: i.roomServiceId, previousReading: i.previousReading, currentReading: i.currentReading } : {}) })) }));
-    return upsert('invoices', { ...invoice, ...v, contractId, payerMemberId: payer.id, items });
-  }} submitLabel="Lưu hóa đơn nháp"><Field label="Hợp đồng"><select value={contractId} disabled={!!invoice} onChange={e => { setContractId(e.target.value); const x = contracts.find(c => c.id === e.target.value); setItems([{ type: 'RENT', name: 'Tiền phòng', quantity: 1, price: x.rent }]); }}>{contracts.map(c => <option key={c.id} value={c.id}>{c.number} · {room(c.roomId)?.code}</option>)}</select></Field><Field label="Người thanh toán"><select name="payerMemberId" key={contractId} defaultValue={invoice?.payerMemberId || c.members.find(m => m.tenantId === c.tenantId)?.id}>{c.members.filter(m => m.status === 'ACTIVE').map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></Field><h3 className="small-title">Các khoản thu</h3><div className="invoice-editor-items">{items.map((item, index) => <div className="invoice-editor-row" key={index}><Field label="Khoản thu"><input disabled={item.type === 'SERVICE'} required value={item.name} onChange={e => changeItem(index, 'name', e.target.value)} /></Field><Field label="Số lượng"><input disabled={item.type === 'SERVICE'} required type="number" min="0.01" step="any" value={item.quantity} onChange={e => changeItem(index, 'quantity', e.target.value)} /></Field><Field label="Đơn giá (đ)"><input disabled={item.type === 'SERVICE'} required type="number" min="0" value={item.price} onChange={e => changeItem(index, 'price', e.target.value)} /></Field>{item.type === 'SERVICE' && item.calculationMethod === 'METERED' && <><Field label="Chỉ số đầu"><input type="number" min="0" required value={item.previousReading ?? ''} onChange={e => changeItem(index, 'previousReading', Number(e.target.value))} /></Field><Field label="Chỉ số cuối"><input type="number" min="0" required value={item.currentReading ?? ''} onChange={e => changeItem(index, 'currentReading', Number(e.target.value))} /></Field></>}<Button icon="x" aria-label={`Xóa khoản ${index + 1}`} onClick={() => setItems(items.filter((_, i) => i !== index))} /></div>)}</div><Button onClick={() => setItems([...items, { type: 'OTHER', name: '', quantity: 1, unit: 'lần', price: 0 }])}>Thêm khoản thu</Button><div className="total-line"><span>Tổng cộng</span><strong>{money(totalInvoice({ items }))}</strong></div></Editor>;
+  const { data, dialog } = useApp();
+  const invoice = data.invoices.find(i => i.id === dialog.id);
+  return invoice ? <SavedInvoiceEditor invoice={invoice} /> : <NewInvoiceEditor />;
 }
+
+function NewInvoiceEditor() {
+  const { data, me, room, execute } = useApp();
+  const contracts = data.contracts.filter(c => c.ownerId === me && c.status === 'ACTIVE');
+  const [contractId, setContractId] = useState(contracts[0]?.id || '');
+  const [month, setMonth] = useState(day().slice(0, 7));
+  const [readings, setReadings] = useState({});
+  const [extras, setExtras] = useState([]);
+  const [payerId, setPayerId] = useState('');
+  const [reload, setReload] = useState(0);
+  const [result, setResult] = useState(null);
+  const period = month ? `${month}-01` : '';
+  const key = `${contractId}:${period}:${reload}`;
+
+  useEffect(() => {
+    if (!contractId || !period) return;
+    const controller = new AbortController();
+    request(`/contracts/${contractId}/invoice-preview?billingPeriod=${encodeURIComponent(period)}`, { signal: controller.signal })
+      .then(data => {
+        if (controller.signal.aborted) return;
+        const preview = parseInvoicePreview(data);
+        setResult({ key, preview, error: preview ? null : 'Máy chủ chưa trả được các khoản thu.' });
+      })
+      .catch(error => {
+        if (!controller.signal.aborted) setResult({ key, error: error.message });
+      });
+    return () => controller.abort();
+  }, [contractId, period, key]);
+
+  if (!contracts.length) return <Unavailable title="Tạo hóa đơn">Cần có hợp đồng đang hiệu lực.</Unavailable>;
+
+  const current = result?.key === key ? result : null;
+  const preview = current?.preview;
+  const payer = preview?.payers.find(p => p.id === payerId)
+    || preview?.payers.find(p => p.id === preview.defaultPayerId) || preview?.payers[0];
+  const serviceLines = preview?.services.map(s => serviceInvoiceLine(s, preview.occupantCountAtBilling, readings[s.roomServiceId])) || [];
+  const complete = serviceLines.every(Boolean);
+  const automaticLines = preview ? [roomRentLine(preview), ...serviceLines.filter(Boolean)] : [];
+  const total = Number(invoiceServiceTotal(automaticLines)) + totalInvoice({ items: extras });
+  const changeReading = (serviceId, field, value) => setReadings(rows => ({ ...rows, [serviceId]: { ...rows[serviceId], [field]: value } }));
+  const changeContext = (setValue, value) => {
+    setValue(value);
+    setReadings({});
+  };
+  const save = values => {
+    if (!preview || !payer || !complete) throw new Error('Hãy chọn người thanh toán và nhập các chỉ số hợp lệ.');
+    if (extras.some(i => !i.name.trim() || i.quantity <= 0 || i.price < 0)) throw new Error('Kiểm tra các khoản thu khác.');
+    const manual = extras.map(i => ({ type: 'OTHER', name: i.name, unit: 'lần', quantity: i.quantity, unitPrice: i.price }));
+    return execute(() => send('/invoices', {
+      contractId, billingPeriod: period, dueDate: values.due, payerRoomTenantId: payer.id,
+      previewVersion: preview.previewVersion, items: [...automaticLines, ...manual],
+    }));
+  };
+
+  return <Editor title="Tạo hóa đơn" initial={{ due: day(5) }} fields={[text('due', 'Hạn thanh toán', { type: 'date' })]}
+    onSubmit={save} submitLabel="Lưu hóa đơn nháp" submitDisabled={!preview || !payer || !complete}
+    beforeFields={<div className="form-grid">
+      <Field label="Hợp đồng"><select value={contractId} onChange={e => { changeContext(setContractId, e.target.value); setPayerId(''); setExtras([]); }}>
+        {contracts.map(c => <option key={c.id} value={c.id}>{c.number} · {room(c.roomId)?.code}</option>)}
+      </select></Field>
+      <Field label="Kỳ thu"><input type="month" value={month} required onChange={e => changeContext(setMonth, e.target.value)} /></Field>
+      {preview && <Field label="Người thanh toán"><select value={payer?.id || ''} required onChange={e => setPayerId(e.target.value)}>
+        {preview.payers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+      </select></Field>}
+    </div>}>
+    {period && !current && <p role="status">Đang tải các khoản thu…</p>}
+    {current?.error && <p className="form-error" role="alert">{current.error}</p>}
+    {period && current && <Button onClick={() => setReload(v => v + 1)}>Tải lại các khoản thu</Button>}
+    {preview && <>
+      <h3 className="small-title">Các khoản thu</h3>
+      <div className="list-row"><strong>Tiền phòng</strong><span>{money(preview.rentAmount)}</span></div>
+      {preview.services.map((service, index) => {
+        const meter = service.calculationMethod === 'METERED';
+        const values = readings[service.roomServiceId] || {};
+        const line = serviceLines[index];
+        return <div className="flat-surface padded invoice-service" key={service.roomServiceId}>
+          <div className="list-row"><strong>{service.name}</strong><span>{line ? money(invoiceServiceTotal([line])) : 'Chờ chỉ số'}</span></div>
+          <p className="muted">{money(service.unitPrice)} / {service.unit}{line ? ` · Số lượng ${line.quantity}` : ''}</p>
+          {meter && <div className="form-grid">
+            <Field label={`Chỉ số đầu · ${service.name}`}>
+              {service.previousReading === null ? <input type="number" min="0" step="0.001" required value={values.previousReading ?? ''}
+                onChange={e => changeReading(service.roomServiceId, 'previousReading', e.target.value)} />
+                : <input readOnly value={service.previousReading} />}
+            </Field>
+            <Field label={`Chỉ số cuối · ${service.name}`}><input type="number" min="0" step="0.001" required value={values.currentReading ?? ''}
+              onChange={e => changeReading(service.roomServiceId, 'currentReading', e.target.value)} /></Field>
+          </div>}
+          {meter && service.previousBillingPeriod && <small className="muted">Chỉ số đầu lấy từ kỳ {dateLabel(service.previousBillingPeriod).slice(3)}</small>}
+          {meter && values.currentReading && !line && <small className="form-error" role="alert">Kiểm tra chỉ số đầu và cuối. Chỉ số cuối phải từ chỉ số đầu trở lên.</small>}
+        </div>;
+      })}
+      <InvoiceManualItems items={extras} setItems={setExtras} />
+      <div className="total-line"><span>{complete ? 'Tổng cộng' : 'Tạm tính'}</span><strong>{money(total)}</strong></div>
+    </>}
+  </Editor>;
+}
+
+function SavedInvoiceEditor({ invoice }) {
+  const { data, dialog, me, room, execute, upsert } = useApp();
+  const contract = data.contracts.find(c => c.id === invoice.contractId && c.ownerId === me && c.status === 'ACTIVE');
+  const [items, setItems] = useState(invoice.items);
+  if (!contract) return <Unavailable title="Sửa hóa đơn">Cần có hợp đồng đang hiệu lực.</Unavailable>;
+
+  const save = values => {
+    if (!items.length || items.some(i => !i.name.trim() || i.quantity < 0 || i.price < 0)) {
+      throw new Error('Kiểm tra các khoản thu của hóa đơn.');
+    }
+    if (dialog.replacement) {
+      return execute(() => send(`/invoices/${invoice.id}/replacements`, {
+        dueDate: values.due,
+        items: items.map(item => ({ ...item, unitPrice: item.price })),
+      }));
+    }
+    return upsert('invoices', { ...invoice, ...values, items });
+  };
+
+  return <Editor title={dialog.replacement ? 'Tạo hóa đơn thay thế' : 'Sửa hóa đơn nháp'} initial={invoice}
+    fields={[text('due', 'Hạn thanh toán', { type: 'date' })]} onSubmit={save} submitLabel="Lưu hóa đơn nháp"
+    beforeFields={<p>{contract.number} · Phòng {room(contract.roomId)?.code} · Kỳ {dateLabel(invoice.period).slice(3)}</p>}>
+    <h3 className="small-title">Các khoản thu</h3>
+    <InvoiceManualItems items={items} setItems={setItems} />
+    <div className="total-line"><span>Tổng cộng</span><strong>{money(totalInvoice({ items }))}</strong></div>
+  </Editor>;
+}
+
+function InvoiceManualItems({ items, setItems }) {
+  const changeItem = (index, field, value) => setItems(rows => rows.map((row, i) => {
+    if (i !== index) return row;
+    const changed = { ...row, [field]: value };
+    if (field === 'previousReading' || field === 'currentReading') {
+      const previous = changed.previousReading;
+      const current = changed.currentReading;
+      if (previous !== '' && current !== '' && previous != null && current != null) {
+        changed.quantity = Number((Number(current) - Number(previous)).toFixed(3));
+      }
+    }
+    return changed;
+  }));
+  return <>
+    <div className="invoice-editor-items">{items.map((item, index) => {
+      const service = item.type === 'SERVICE';
+      return <div className="invoice-editor-row" key={index}>
+        <Field label="Khoản thu"><input disabled={service} required value={item.name} onChange={e => changeItem(index, 'name', e.target.value)} /></Field>
+        <Field label="Số lượng"><input disabled={service} required type="number" min="0.01" step="any" value={item.quantity}
+          onChange={e => changeItem(index, 'quantity', Number(e.target.value))} /></Field>
+        <Field label="Đơn giá (đ)"><input disabled={service} required type="number" min="0" step="0.01" value={item.price}
+          onChange={e => changeItem(index, 'price', Number(e.target.value))} /></Field>
+        {service && item.calculationMethod === 'METERED' && <>
+          <Field label="Chỉ số đầu"><input type="number" min="0" step="0.001" required value={item.previousReading ?? ''}
+            onChange={e => changeItem(index, 'previousReading', e.target.value)} /></Field>
+          <Field label="Chỉ số cuối"><input type="number" min={item.previousReading || 0} step="0.001" required value={item.currentReading ?? ''}
+            onChange={e => changeItem(index, 'currentReading', e.target.value)} /></Field>
+        </>}
+        <Button icon="x" aria-label={`Xóa khoản ${index + 1}`} onClick={() => setItems(items.filter((_, i) => i !== index))} />
+      </div>;
+    })}</div>
+    <Button onClick={() => setItems([...items, { type: 'OTHER', name: '', quantity: 1, unit: 'lần', price: 0 }])}>Thêm khoản thu</Button>
+  </>;
+}
+
 function LifestylesEditor() {
   const { data, execute } = useApp();
   const initial = {}, fields = [];
@@ -371,7 +519,7 @@ function LifestylesEditor() {
 function InvoiceDetail() {
   const { data, dialog: d, role, contract, room, person, openDialog } = useApp(), i = data.invoices.find(i => i.id === d.id), c = contract(i?.contractId);
   if (!i) return <Unavailable title="Hóa đơn">Không tìm thấy hóa đơn.</Unavailable>;
-  return <Frame title={`Hóa đơn ${i.code}`}><div className="invoice-detail"><div><span>Phòng</span><strong>{room(i.roomId)?.code}</strong></div><div><span>Người thanh toán</span><strong>{i.payerId ? person(i.payerId).name : `Thành viên #${i.payerMemberId}`}</strong></div><div><span>Kỳ thu</span><strong>{dateLabel(i.period)}</strong></div><div><span>Hạn thanh toán</span><strong>{dateLabel(i.due)}</strong></div></div><Badge status={i.status} /><Table rows={i.items} columns={[{ label: 'Khoản thu', key: 'name' }, { label: 'Số lượng', key: 'quantity' }, { label: 'Đơn giá', render: x => money(x.price) }, { label: 'Thành tiền', render: x => money(x.amount) }]} /><div className="total-line"><span>Tổng thanh toán</span><strong>{money(i.total)}</strong></div>{role === 'landlord' && <div className="form-actions">{i.status === 'DRAFT' && <><Button onClick={() => openDialog('invoice', { id: i.id })}>Sửa hóa đơn</Button><Button onClick={() => openDialog('decision', { collection: 'invoices', id: i.id, status: 'UNPAID', title: 'Phát hành hóa đơn' })}>Phát hành</Button></>}{['UNPAID', 'OVERDUE'].includes(i.status) && <><Button onClick={() => openDialog('decision', { collection: 'invoices', id: i.id, status: 'CANCELLED', reason: true, title: 'Hủy hóa đơn' })}>Hủy hóa đơn</Button><Button onClick={() => openDialog('decision', { collection: 'invoices', id: i.id, status: 'PAID', title: 'Xác nhận đã thu tiền' })}>Xác nhận thu tiền</Button></>}{i.status === 'CANCELLED' && <Button onClick={() => openDialog('invoice', { id: i.id, replacement: true })}>Tạo hóa đơn thay thế</Button>}</div>}</Frame>;
+  return <Frame title={`Hóa đơn ${i.code}`}><div className="invoice-detail"><div><span>Phòng</span><strong>{room(i.roomId)?.code}</strong></div><div><span>Người thanh toán</span><strong>{i.payerId ? person(i.payerId).name : `Thành viên #${i.payerMemberId}`}</strong></div><div><span>Kỳ thu</span><strong>{dateLabel(i.period)}</strong></div><div><span>Hạn thanh toán</span><strong>{dateLabel(i.due)}</strong></div></div><Badge status={i.status} /><Table rows={i.items} columns={[{ label: 'Khoản thu', render: x => <>{x.name}{x.calculationMethod === 'METERED' && <small className="cell-sub">{x.previousReading} → {x.currentReading} {x.unit}</small>}</> }, { label: 'Số lượng', key: 'quantity' }, { label: 'Đơn giá', render: x => money(x.price) }, { label: 'Thành tiền', render: x => money(x.amount) }]} /><div className="total-line"><span>Tổng thanh toán</span><strong>{money(i.total)}</strong></div>{role === 'landlord' && <div className="form-actions">{i.status === 'DRAFT' && <><Button onClick={() => openDialog('invoice', { id: i.id })}>Sửa hóa đơn</Button><Button onClick={() => openDialog('decision', { collection: 'invoices', id: i.id, status: 'UNPAID', title: 'Phát hành hóa đơn' })}>Phát hành</Button></>}{['UNPAID', 'OVERDUE'].includes(i.status) && <><Button onClick={() => openDialog('decision', { collection: 'invoices', id: i.id, status: 'CANCELLED', reason: true, title: 'Hủy hóa đơn' })}>Hủy hóa đơn</Button><Button onClick={() => openDialog('decision', { collection: 'invoices', id: i.id, status: 'PAID', title: 'Xác nhận đã thu tiền' })}>Xác nhận thu tiền</Button></>}{i.status === 'CANCELLED' && <Button onClick={() => openDialog('invoice', { id: i.id, replacement: true })}>Tạo hóa đơn thay thế</Button>}</div>}</Frame>;
 }
 function VerificationDetail() {
   const { data, dialog: d, openDialog, run, decide, closeDialog } = useApp();

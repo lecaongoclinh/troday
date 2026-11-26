@@ -8115,6 +8115,12 @@
           "type": "id",
           "required": true,
           "rule": "Mã người thanh toán trong danh sách thành viên hợp đồng."
+        },
+        {
+          "name": "previewVersion",
+          "type": "string",
+          "required": false,
+          "rule": "Mã dữ liệu đã xem trước, dùng để xác nhận đơn giá và chỉ số kỳ trước."
         }
       ],
       "output": "Invoice {id,status:DRAFT,items,total,payerId}",
@@ -9398,6 +9404,25 @@
       "dependencies": [
         "Middleware auth/session/role + object scope"
       ]
+    },
+    {
+      "id": "API-177",
+      "method": "GET",
+      "path": "/contracts/{contractId}/invoice-preview",
+      "title": "Xem trước các khoản thu theo kỳ",
+      "access": "LANDLORD: sở hữu nhà/phòng/hợp đồng",
+      "input": null,
+      "inputFields": [],
+      "output": "{contractId,roomId,billingPeriod,rentAmount,occupantCountAtBilling,defaultPayerId,payers,services,previewVersion}",
+      "headers": ["Authorization: Bearer <accessToken>"],
+      "query": "billingPeriod",
+      "pagination": null,
+      "logic": "Dịch vụ đang bật của phòng, giá hiệu lực và chỉ số cuối của hóa đơn đã phát hành kỳ liền trước cùng hợp đồng.",
+      "flowIds": ["bill"],
+      "group": "billing",
+      "errorCodes": ["401 UNAUTHENTICATED", "403 FORBIDDEN", "404 RESOURCE_NOT_FOUND", "409 STATE_CONFLICT", "422 VALIDATION_ERROR"],
+      "status": 200,
+      "dependencies": ["Middleware auth/session/role + object scope"]
     }
   ],
   "source": "BE controllers/services; ApiResponseDto(success,api,method,data,timestamp)"

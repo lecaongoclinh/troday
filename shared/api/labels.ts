@@ -146,6 +146,7 @@ export const labels: Record<string, string> = {
     billingPeriod: "Kỳ hóa đơn",
     dueDate: "Hạn thanh toán",
     items: "Chi tiết hóa đơn",
+    extraItems: "Khoản thu khác",
     quantity: "Số lượng",
     previousReading: "Chỉ số cũ",
     currentReading: "Chỉ số mới",

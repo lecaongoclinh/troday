@@ -220,6 +220,19 @@ async function mockBackend() {
       else join.status = 'COMPLETED';
       return reply(join);
     }
+    if (/^\/contracts\/\d+\/invoice-preview$/.test(route)) {
+      const contract = contracts.find(c => c.id === suffixId);
+      const billingPeriod = url.searchParams.get('billingPeriod');
+      const payers = contract.members.filter(m => m.status === 'ACTIVE').map(m => ({ id: m.id, name: m.fullName }));
+      return reply({
+        contractId: contract.id, roomId: contract.roomId, billingPeriod, rentAmount: contract.rentAmount,
+        occupantCountAtBilling: payers.length, defaultPayerId: payers[0].id, payers, previewVersion: 'reviewed-invoice',
+        services: [
+          { roomServiceId: 81, name: 'Điện', unit: 'kWh', calculationMethod: 'METERED', unitPrice: 3500, previousReading: 120 },
+          { roomServiceId: 82, name: 'Internet', unit: 'phòng', calculationMethod: 'PER_ROOM', unitPrice: 150000, previousReading: null },
+        ],
+      });
+    }
     if (route === '/invoices') { if (method === 'GET') return reply(invoices); const i = { ...body, id: ++sequence, contractId: Number(body.contractId), roomId: contracts.find(c => c.id === Number(body.contractId)).roomId, payerId: body.payerRoomTenantId, period: body.billingPeriod, status: 'DRAFT', total: body.items.reduce((a, i) => a + i.quantity * i.unitPrice, 0) }; invoices.push(i); return reply(i); }
     if (/^\/invoices\/\d+\/(?:issue|payment-confirmation|cancel)$/.test(route)) { const i = invoices.find(i => i.id === suffixId); i.status = route.endsWith('/issue') ? 'UNPAID' : route.endsWith('/cancel') ? 'CANCELLED' : 'PAID'; return reply(i); }
     if (route === '/residents' || route === '/residents/export') return reply(contracts.flatMap(c => c.members.map(m => ({ ...m, contractId: c.id, roomId: c.roomId }))));
@@ -358,7 +371,16 @@ async function exercise({ page, evaluate, waitFor, setInput, clickText, shot, er
   const createdContract = String(fixture.contracts.at(-1).id);
   await login('tenant'); await navigate('contracts', createdContract); await waitFor('Boolean(document.querySelector("dialog #contract-details"))'); await clickText('Xác nhận hợp đồng'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().contracts.find(c => c.id === '+JSON.stringify(createdContract)+').status === "CONFIRMED"');
   await login('landlord'); await navigate('contracts', createdContract); await waitFor('Boolean(document.querySelector("dialog #contract-details"))'); await clickText('Xác nhận vào ở'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().contracts.find(c => c.id === '+JSON.stringify(createdContract)+').status === "ACTIVE"');
-  await navigate('invoices'); await click('Tạo hóa đơn'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices.length === 1');
+  await navigate('invoices'); await click('Tạo hóa đơn');
+  await waitFor('document.querySelector("dialog .invoice-service input[readonly]")?.value === "120"');
+  assert.ok(await evaluate('document.querySelector("dialog button[type=submit]").disabled'));
+  await setInput('dialog .invoice-service input[type=number]', '150');
+  await waitFor('document.querySelector("dialog").textContent.includes("105.000")');
+  await submit(); await waitFor('__troday.getState().invoices.length === 1');
+  const submittedInvoice = fixture.calls.find(c => c.route === '/invoices' && c.method === 'POST').body;
+  assert.equal(submittedInvoice.previewVersion, 'reviewed-invoice');
+  assert.deepEqual(submittedInvoice.items.filter(item => item.type === 'SERVICE').map(item => [item.roomServiceId, item.quantity, item.unitPrice]),
+    [['81', '30', '3500'], ['82', '1', '150000']]);
   await click('Chi tiết'); await waitFor('Boolean(document.querySelector("dialog[open]"))'); await clickText('Phát hành'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices[0].status === "UNPAID"');
   await click('Xác nhận thu'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices[0].status === "PAID"');
   await login('tenant'); await navigate('contracts'); await click('Mời người ở ghép vào phòng');

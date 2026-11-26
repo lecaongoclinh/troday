@@ -33,6 +33,11 @@ export function enumOptions(schema: string, field: FieldSpec): string[] {
     );
 }
 export const nestedFields: Record<string, FieldSpec[]> = {
+    InvoiceExtra: [
+        { name: "name", type: "string", required: true, rule: "Tên khoản thu." },
+        { name: "quantity", type: "decimal", required: true, rule: "Số lượng." },
+        { name: "unitPrice", type: "money", required: true, rule: "Đơn giá." },
+    ],
     ContractChangeAmendment: [
         { name: "effectiveDate", type: "date", required: false, rule: "Ngày hiệu lực của phương án." },
         { name: "newEndDate", type: "date", required: false, rule: "Ngày kết thúc mới khi gia hạn." },

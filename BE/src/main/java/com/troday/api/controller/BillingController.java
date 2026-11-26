@@ -20,6 +20,10 @@ public class BillingController {
  @GetMapping(value="/rooms/{roomId}/service-settings",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> roomList(HttpServletRequest r,@PathVariable Long roomId){return service.roomList(r,roomId);}
  @GetMapping(value="/invoices",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> invoiceList(HttpServletRequest r,@RequestParam(required=false) Long contractId,@RequestParam(required=false) String billingPeriod,@RequestParam(required=false) String status){return service.invoiceList(r,contractId,billingPeriod,status);}
  @GetMapping(value="/invoices/{invoiceId}",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> invoiceDetail(HttpServletRequest r,@PathVariable Long invoiceId){return service.invoiceDetail(r,invoiceId);}
+ @GetMapping(value="/contracts/{contractId}/invoice-preview",produces=MediaType.APPLICATION_JSON_VALUE)
+ public ApiResponseDto<?> invoicePreview(HttpServletRequest r, @PathVariable Long contractId, @RequestParam String billingPeriod) {
+     return service.invoicePreview(r, contractId, billingPeriod);
+ }
  @PostMapping(value="/invoices",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> createInvoice(HttpServletRequest r,@RequestBody JsonNode b){return service.createInvoice(r,b);}
  @PatchMapping(value="/invoices/{invoiceId}",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> updateInvoice(HttpServletRequest r,@PathVariable Long invoiceId,@RequestBody JsonNode b){return service.updateInvoice(r,invoiceId,b);}
  @PostMapping(value="/invoices/{invoiceId}/issue",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> issue(HttpServletRequest r,@PathVariable Long invoiceId){return service.issue(r,invoiceId);}

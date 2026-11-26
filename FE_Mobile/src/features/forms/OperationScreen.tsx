@@ -9,18 +9,27 @@ import type { RecordValue, FieldSpec } from "../../api/types";
 import { isRecord } from "../../api/types";
 import { useApp } from "../../contexts/AppContext";
 import { Fields } from "./Fields";
-import { validate } from "./validation";
+import { validDate, validate } from "./validation";
 import { MutationAttempt } from "./attempt";
 import { colors, ui } from "../../theme";
 import { Button, EmptyState, Heading } from "../../components/common";
 import { label } from "./labels";
 import { blockedOperations } from "../../services/workflows";
 import { downloadResidents } from "../files/transfers";
+import { useApi } from "../../hooks/useApi";
+import { dateVN, money } from "../../utils/format";
+import { InvoiceServiceFields } from "./InvoiceServiceFields";
+import { invoiceServiceTotal, parseInvoicePreview, roomRentLine, serviceInvoiceLine } from "../../../../shared/api/invoice-preview.ts";
+import type { InvoiceLine, MeterInput } from "../../../../shared/api/invoice-preview.ts";
 
 const contractBlocks: Record<string, string> = {
     "API-170":
         "Vui lòng dùng chức năng tải tệp để gửi nội dung tệp và kiểm tra dung lượng.",
 };
+const invoiceExtraField: FieldSpec = {
+    name: "extraItems", type: "InvoiceExtra[]", required: false, rule: "Các khoản thu nhập riêng.",
+};
+
 export function OperationScreen({
     route,
     navigation,
@@ -28,6 +37,7 @@ export function OperationScreen({
     const e = endpoint(route.params.endpointId),
         { client, user, role, login, invalidate, notify, refreshUser } =
             useApp();
+    const newInvoice = e.id === "API-147";
     const attempt = useRef(new MutationAttempt(randomUUID));
     const [values, setValues] = useState<RecordValue>(() => {
         const initial: RecordValue = {};
@@ -39,6 +49,11 @@ export function OperationScreen({
         for (const name of ["clientMessageKey", "clientRequestKey"])
             if (e.inputFields.some((f) => f.name === name))
                 initial[name] = randomUUID();
+        if (newInvoice) {
+            initial.billingPeriod ??= `${dateVN().slice(0, 7)}-01`;
+            initial.dueDate ??= dateVN(new Date(Date.now() + 5 * 86400000));
+            initial.extraItems = [];
+        }
         return initial;
     });
     const [params, setParams] = useState<RecordValue>(
@@ -48,6 +63,36 @@ export function OperationScreen({
         [error, setError] = useState<ApiError>(),
         [busy, setBusy] = useState(false),
         [confirm, setConfirm] = useState<RecordValue>();
+    const [readings, setReadings] = useState<Record<string, MeterInput>>({});
+    const contractId = String(values.contractId ?? "");
+    const billingPeriod = String(values.billingPeriod ?? "");
+    const previewQuery = useApi(newInvoice && /^[1-9]\d*$/.test(contractId)
+        && billingPeriod.endsWith("-01") && validDate(billingPeriod) ? 177 : null, {
+        params: { contractId }, query: { billingPeriod },
+    });
+    const quote = parseInvoicePreview(previewQuery.result?.data);
+    const preview = quote?.contractId === contractId && quote.billingPeriod === billingPeriod ? quote : undefined;
+    const payer = preview?.payers.find(p => p.id === String(values.payerRoomTenantId ?? ""))
+        ?? preview?.payers.find(p => p.id === preview.defaultPayerId) ?? preview?.payers[0];
+    const services = preview?.services.map(service =>
+        serviceInvoiceLine(service, preview.occupantCountAtBilling, readings[service.roomServiceId])) ?? [];
+    const completedLines = services.filter((item): item is InvoiceLine => item !== undefined);
+    const invoiceReady = !!preview && !!payer && completedLines.length === services.length;
+    const automaticLines = preview ? [roomRentLine(preview), ...completedLines] : [];
+    const extras = Array.isArray(values.extraItems) ? values.extraItems.filter(isRecord) : [];
+    const validExtras = extras.map(item => ({
+        quantity: String(item.quantity ?? "").replace(",", "."),
+        unitPrice: String(item.unitPrice ?? "").replace(",", "."),
+    })).filter(item => /^\d+(\.\d{1,3})?$/.test(item.quantity) && /^\d+(\.\d{1,2})?$/.test(item.unitPrice));
+    const setForm = (next: RecordValue) => {
+        if (newInvoice && (next.contractId !== values.contractId || next.billingPeriod !== values.billingPeriod)) {
+            setReadings({});
+            if (next.contractId !== values.contractId) {
+                next = { ...next, payerRoomTenantId: undefined, extraItems: [] };
+            }
+        }
+        setValues(next);
+    };
     const canUse = allowed(e, user?.roles ?? [], role);
     const blocked =
         e.blockedReason ?? contractBlocks[e.id] ?? blockedOperations[e.id];
@@ -77,10 +122,24 @@ export function OperationScreen({
             );
             return;
         }
+        let form = values;
+        if (newInvoice) {
+            const extra = validate("", [invoiceExtraField], values, schemas);
+            if (Object.keys(extra.errors).length || !invoiceReady) {
+                setErrors({ ...extra.errors, ...(!invoiceReady ? { _form: "Chọn hợp đồng, kỳ thu và nhập đủ các chỉ số hợp lệ." } : {}) });
+                return;
+            }
+            form = {
+                ...values,
+                payerRoomTenantId: payer.id,
+                previewVersion: preview.previewVersion,
+                items: [...automaticLines, ...extras.map(item => ({ ...item, type: "OTHER", unit: "lần" }))],
+            };
+        }
         const checked = validate(
             schema,
             e.inputFields,
-            values,
+            form,
             schemas,
             e.method === "PATCH",
         );
@@ -274,6 +333,7 @@ export function OperationScreen({
                                     "clientMessageKey",
                                     "clientRequestKey",
                                 ].includes(f.name) &&
+                                !(newInvoice && ["payerRoomTenantId", "previewVersion", "items"].includes(f.name)) &&
                                 !(
                                     ["API-132", "API-133"].includes(e.id) &&
                                     ["proposalHash", "proposedRevisionId"].includes(f.name) &&
@@ -281,7 +341,7 @@ export function OperationScreen({
                                 ),
                         )}
                         values={values}
-                        onChange={setValues}
+                        onChange={setForm}
                         errors={errors}
                         disabled={busy || attempt.current.uncertain}
                     />
@@ -292,6 +352,24 @@ export function OperationScreen({
                     </Text>
                 )}
             </View>
+            {newInvoice && <>
+                {previewQuery.loading && <Text style={ui.muted}>Đang tải các khoản thu…</Text>}
+                {previewQuery.error && <Text accessibilityRole="alert" style={ui.error}>{previewQuery.error.message}</Text>}
+                {(preview || previewQuery.error) && <Button secondary title="Tải lại các khoản thu"
+                    disabled={busy} onPress={previewQuery.refresh} />}
+                {preview && <View style={[ui.card, { gap: 15 }]}>
+                    <InvoiceServiceFields preview={preview} payerId={payer?.id} readings={readings}
+                        disabled={busy || attempt.current.uncertain} lines={services}
+                        onPayer={id => setForm({ ...values, payerRoomTenantId: id })}
+                        onReading={(id, field, value) => setReadings(rows => ({ ...rows, [id]: { ...rows[id], [field]: value } }))} />
+                    <Fields schema="" fields={[invoiceExtraField]} values={values} onChange={setForm}
+                        errors={errors} disabled={busy || attempt.current.uncertain} />
+                    <View style={ui.between}>
+                        <Text style={ui.text}>{invoiceReady ? "Tổng cộng" : "Tạm tính"}</Text>
+                        <Text style={ui.text}>{money(invoiceServiceTotal([...automaticLines, ...validExtras]))}</Text>
+                    </View>
+                </View>}
+            </>}
             {e.id === "API-030" && (
                 <Text style={ui.muted}>
                     Nhà được tạo ở trạng thái nháp. Bạn có thể thêm phòng và nộp
@@ -346,8 +424,8 @@ export function OperationScreen({
                 }
                 loading={busy}
                 disabled={
-                    attempt.current.uncertain &&
-                    !["API-080", "API-092"].includes(e.id)
+                    (attempt.current.uncertain && !["API-080", "API-092"].includes(e.id)) ||
+                    (newInvoice && !invoiceReady)
                 }
                 onPress={prepare}
             />

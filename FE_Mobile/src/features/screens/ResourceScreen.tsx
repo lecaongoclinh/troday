@@ -268,16 +268,17 @@ export function ResourceScreen({ route, navigation }: Props) {
                             {
                                 id: 150,
                                 title: "Ghi nhận đã thu đủ tiền",
-                                when: status === "UNPAID",
+                                when: ["UNPAID", "OVERDUE"].includes(status),
                             },
                             {
                                 id: 151,
                                 title: "Hủy hóa đơn",
-                                when: status === "UNPAID",
+                                when: ["UNPAID", "OVERDUE"].includes(status),
                             },
                             {
                                 id: 152,
                                 title: "Tạo hóa đơn thay thế",
+                                initial: data,
                                 when: status === "CANCELLED",
                             },
                         ]

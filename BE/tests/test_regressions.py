@@ -6,6 +6,7 @@ TRODAY_ALLOW_TEST_WRITES=1 python -X utf8 -m unittest discover -s tests -v
 """
 import base64
 import datetime as dt
+from decimal import Decimal
 import hashlib
 import json
 import os
@@ -392,5 +393,76 @@ class Regressions(unittest.TestCase):
         self.assertEqual('APPROVED', data(f'{url}/approve', self.owner['accessToken'], {}, 'POST')['status'])
         result = data(f'{url}/complete', self.owner['accessToken'], {}, 'POST')
         self.assertEqual(applicant['user']['id'], result['member']['tenantId'])
+
+    def test_24_service_invoice_preview_inherits_only_published_previous_readings(self):
+        tenant = self.new_user()
+        contract = self.paper_contract(tenant)
+        owner = self.owner['accessToken']
+        house, room = contract['houseId'], contract['roomId']
+        service_ids = {}
+        for name, unit, method, price in (
+            ('Điện kiểm thử', 'kWh', 'METERED', 4000),
+            ('Internet kiểm thử', 'phòng', 'PER_ROOM', 150000),
+            ('Vệ sinh kiểm thử', 'người', 'PER_PERSON', 10000),
+        ):
+            service = data(f'/houses/{house}/services', owner, {
+                'name': name, 'unit': unit, 'calculationMethod': method, 'unitPrice': price,
+            }, 'POST')
+            applied = data(f"/rooms/{room}/service-settings/{service['id']}", owner, {
+                'active': True, **({'unitPriceOverride': 3500} if method == 'METERED' else {}),
+            }, 'PUT')
+            service_ids[method] = applied['id']
+        period = TODAY.replace(day=1)
+        next_period = (period + dt.timedelta(days=32)).replace(day=1)
+        url = f"/contracts/{contract['id']}/invoice-preview"
+        self.assertEqual(403, call(f'{url}?billingPeriod={period}', tenant['accessToken'])[0])
+
+        def quote(month):
+            return data(f'{url}?billingPeriod={month}', owner)
+
+        def meter(preview):
+            return next(row for row in preview['services'] if row['calculationMethod'] == 'METERED')
+
+        def body(month, preview, current, previous=None):
+            lines = [{'type': 'RENT'}]
+            for method, service_id in service_ids.items():
+                line = {'type': 'SERVICE', 'roomServiceId': service_id}
+                if method == 'METERED':
+                    line['currentReading'] = current
+                    if previous is not None:
+                        line['previousReading'] = previous
+                lines.append(line)
+            return {'contractId': contract['id'], 'billingPeriod': str(month), 'dueDate': str(month + dt.timedelta(days=7)),
+                    'payerRoomTenantId': preview['defaultPayerId'], 'previewVersion': preview['previewVersion'], 'items': lines}
+
+        first = quote(period)
+        self.assertIsNone(meter(first)['previousReading'])
+        self.assertEqual(422, call('/invoices', owner, body(period, first, 120), 'POST')[0])
+        draft = data('/invoices', owner, body(period, first, 120, 100), 'POST')
+        self.assertIsNone(meter(quote(next_period))['previousReading'])
+        data(f"/invoices/{draft['id']}/issue", owner, {}, 'POST')
+
+        preview = quote(next_period)
+        self.assertEqual(120, Decimal(str(meter(preview)['previousReading'])))
+        self.assertEqual(str(period), meter(preview)['previousBillingPeriod'])
+        self.assertEqual(3500, Decimal(str(meter(preview)['unitPrice'])))
+        self.assertEqual(422, call('/invoices', owner, body(next_period, preview, 119), 'POST')[0])
+        incomplete = body(next_period, preview, 150)
+        incomplete['items'].pop()
+        self.assertEqual(422, call('/invoices', owner, incomplete, 'POST')[0])
+
+        data(f"/invoices/{draft['id']}/cancel", owner, {'reason': 'Chỉ số cần duyệt lại'}, 'POST')
+        self.assertIsNone(meter(quote(next_period))['previousReading'])
+        self.assertEqual(409, call('/invoices', owner, body(next_period, preview, 150), 'POST')[0])
+        replacement = data(f"/invoices/{draft['id']}/replacements", owner, body(period, first, 120, 100), 'POST')
+        data(f"/invoices/{replacement['id']}/issue", owner, {}, 'POST')
+
+        current = data('/invoices', owner, body(next_period, quote(next_period), 150), 'POST')
+        charges = {row['calculationMethod']: row for row in current['items'] if row['type'] == 'SERVICE'}
+        self.assertEqual((120, 150, 30, 105000), tuple(Decimal(str(charges['METERED'][key])) for key in (
+            'previousReading', 'currentReading', 'quantity', 'amount')))
+        self.assertEqual(150000, Decimal(str(charges['PER_ROOM']['amount'])))
+        self.assertEqual(10000, Decimal(str(charges['PER_PERSON']['amount'])))
+        self.assertEqual(1265000, Decimal(str(current['total'])))
 
 if __name__=='__main__':unittest.main(verbosity=2)
