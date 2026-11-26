@@ -218,6 +218,7 @@ export const values: Record<string, string> = {
     COMPLETED: "Hoàn thành",
     TERMINATED: "Đã kết thúc",
     UNPAID: "Chưa thanh toán",
+    OVERDUE: "Quá hạn",
     PAID: "Đã thanh toán",
     SCHEDULED: "Đã lên lịch",
     NO_SHOW: "Không đến",

@@ -91,7 +91,8 @@ async function mockBackend() {
     const url = new URL(req.url, 'http://local'), route = url.pathname.replace(/^\/api\/v1/, ''), method = req.method;
     let raw = ''; for await (const chunk of req) raw += chunk;
     const body = raw ? JSON.parse(raw) : undefined;
-    calls.push({ method, route, query: Object.fromEntries(url.searchParams), body, authorization: req.headers.authorization });
+    calls.push({ method, route, query: Object.fromEntries(url.searchParams), body, authorization: req.headers.authorization,
+      idempotencyKey: req.headers['idempotency-key'] });
     const reply = (data, status = 200) => {
       let pagination;
       if (method === 'GET' && status < 400 && (Array.isArray(data) || Array.isArray(data?.items))) {
@@ -232,6 +233,43 @@ async function mockBackend() {
           { roomServiceId: 82, name: 'Internet', unit: 'phòng', calculationMethod: 'PER_ROOM', unitPrice: 150000, previousReading: null },
         ],
       });
+    }
+    if (/^\/houses\/\d+\/invoice-batch-preview$/.test(route)) {
+      const billingPeriod = url.searchParams.get('billingPeriod');
+      return reply({
+        houseId: suffixId, billingPeriod,
+        rooms: [
+          { contractId: 601, roomCode: 'P102', contractNumber: 'HD-API-601', blockedReason: 'Đã có hóa đơn trong kỳ' },
+          { contractId: 610, roomCode: 'P101', contractNumber: 'HD-API-610', baseTotal: 1150000, previewVersion: 'first-room',
+            services: [{ roomServiceId: 81, name: 'Điện', unit: 'kWh', calculationMethod: 'METERED', unitPrice: 3500, previousReading: 120 }] },
+          { contractId: 611, roomCode: 'P103', contractNumber: 'HD-API-611', baseTotal: 1000000, previewVersion: 'second-room',
+            services: [{ roomServiceId: 83, name: 'Nước', unit: 'm³', calculationMethod: 'METERED', unitPrice: 15000, previousReading: null }] },
+        ].map(room => {
+          const invoice = invoices.find(i => i.contractId === room.contractId && i.period === billingPeriod && i.status !== 'CANCELLED');
+          return invoice ? { ...room, services: [], invoiceId: invoice.id, invoiceStatus: invoice.status,
+            blockedReason: 'Đã có hóa đơn trong kỳ' } : room;
+        }),
+      });
+    }
+    if (/^\/houses\/\d+\/invoice-batches$/.test(route)) {
+      const created = body.rooms.map(({ contractId, readings }) => {
+        const electricity = Number(contractId) === 610;
+        const reading = readings[0];
+        const previous = Number(reading.previousReading ?? 120);
+        const current = Number(reading.currentReading);
+        const price = electricity ? 3500 : 15000;
+        const items = [
+          { id: ++sequence, type: 'RENT', name: 'Tiền phòng', quantity: 1, unitPrice: 1000000, amount: 1000000 },
+          { id: ++sequence, type: 'SERVICE', name: electricity ? 'Điện' : 'Nước', calculationMethod: 'METERED',
+            quantity: current - previous, unitPrice: price, amount: (current - previous) * price, previousReading: previous, currentReading: current },
+          ...(electricity ? [{ id: ++sequence, type: 'SERVICE', name: 'Internet', quantity: 1, unitPrice: 150000, amount: 150000 }] : []),
+        ];
+        const invoice = { id: ++sequence, contractId: Number(contractId), roomId: electricity ? 101 : 103, payerId: 801,
+          period: body.billingPeriod, dueDate: body.dueDate, status: 'DRAFT', items, total: items.reduce((sum, item) => sum + item.amount, 0) };
+        invoices.push(invoice);
+        return { contractId, roomCode: electricity ? 'P101' : 'P103', invoice };
+      });
+      return reply({ created, skipped: [] });
     }
     if (route === '/invoices') { if (method === 'GET') return reply(invoices); const i = { ...body, id: ++sequence, contractId: Number(body.contractId), roomId: contracts.find(c => c.id === Number(body.contractId)).roomId, payerId: body.payerRoomTenantId, period: body.billingPeriod, status: 'DRAFT', total: body.items.reduce((a, i) => a + i.quantity * i.unitPrice, 0) }; invoices.push(i); return reply(i); }
     if (/^\/invoices\/\d+\/(?:issue|payment-confirmation|cancel)$/.test(route)) { const i = invoices.find(i => i.id === suffixId); i.status = route.endsWith('/issue') ? 'UNPAID' : route.endsWith('/cancel') ? 'CANCELLED' : 'PAID'; return reply(i); }
@@ -383,6 +421,56 @@ async function exercise({ page, evaluate, waitFor, setInput, clickText, shot, er
     [['81', '30', '3500'], ['82', '1', '150000']]);
   await click('Chi tiết'); await waitFor('Boolean(document.querySelector("dialog[open]"))'); await clickText('Phát hành'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices[0].status === "UNPAID"');
   await click('Xác nhận thu'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices[0].status === "PAID"');
+  const existingInvoiceId = fixture.invoices[0].id;
+  await click('Nhập chỉ số theo nhà');
+  await waitFor('document.querySelector("dialog output")?.textContent === "120"');
+  assert.ok(await evaluate('!document.querySelector("dialog").textContent.includes("Internet")'));
+  assert.ok(await evaluate('document.querySelector("dialog.invoice-batch-dialog").getBoundingClientRect().width > 620'));
+  await page('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  assert.ok(await evaluate('Array.from(document.querySelectorAll("dialog, .invoice-batch-rooms")).every(element => element.scrollWidth <= element.clientWidth + 1)'));
+  await page('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+  await setInput('dialog input[name=batch-610-81-current]', '150');
+  await setInput('dialog input[name=batch-611-83-previous]', '21');
+  await evaluate('document.querySelector("dialog .dialog-header button").click()');
+  await click('Nhập chỉ số theo nhà');
+  await waitFor('document.querySelector("dialog input[name=batch-610-81-current]")?.value === "150"');
+  assert.equal(await evaluate('document.querySelector("dialog input[name=batch-611-83-previous]").value'), '21');
+  const billingMonth = await evaluate('document.querySelector("dialog input[type=month]").value');
+  const otherMonth = billingMonth === '2026-12' ? '2027-01' : '2026-12';
+  await setInput('dialog input[type=month]', otherMonth);
+  await waitFor('document.querySelector("dialog input[name=batch-610-81-current]")?.value === ""');
+  await setInput('dialog input[type=month]', billingMonth);
+  await waitFor('document.querySelector("dialog input[name=batch-610-81-current]")?.value === "150"');
+  const batchPath = fixture.calls.find(c => c.route.endsWith('/invoice-batch-preview')).route.replace('invoice-batch-preview', 'invoice-batches');
+  fixture.fail('POST', batchPath, 503);
+  await click('Tạo bản nháp hóa đơn (1)', 'dialog');
+  await waitFor('document.querySelector("dialog button[type=submit]")?.textContent === "Thử lại tạo bản nháp"');
+  await click('Thử lại tạo bản nháp', 'dialog');
+  await waitFor('document.querySelector("dialog [aria-live=polite]")?.querySelectorAll("details").length === 1');
+  const batchCalls = fixture.calls.filter(c => c.method === 'POST' && c.route === batchPath);
+  assert.equal(batchCalls.length, 2);
+  assert.ok(batchCalls[0].idempotencyKey);
+  assert.equal(batchCalls[0].idempotencyKey, batchCalls[1].idempotencyKey);
+  assert.deepEqual(batchCalls[0].body, batchCalls[1].body);
+  assert.deepEqual(batchCalls[0].body.rooms.map(({ readings }) => readings), [
+    [{ roomServiceId: '81', currentReading: '150' }],
+  ]);
+  assert.ok(await evaluate(`!document.querySelector('dialog [aria-live=polite]').textContent.includes('HĐ-${existingInvoiceId}')`));
+  assert.ok(await evaluate('document.querySelector("dialog [aria-live=polite]").textContent.includes("Internet")'));
+  await evaluate('document.querySelector("dialog .dialog-header button").click()');
+  await click('Nhập chỉ số theo nhà');
+  await waitFor('Array.from(document.querySelectorAll("dialog .invoice-batch-rooms section")).some(room => room.textContent.includes("Phòng P101") && room.querySelector(".pill.green")?.textContent.trim() === "Đã tạo bản nháp")');
+  assert.ok(await evaluate('!document.querySelector("dialog input[name=batch-610-81-current]")'));
+  assert.equal(await evaluate('document.querySelector("dialog input[name=batch-611-83-previous]").value'), '21');
+  await setInput('dialog input[name=batch-611-83-current]', '24');
+  await click('Tạo bản nháp hóa đơn (1)', 'dialog');
+  await waitFor('document.querySelector("dialog [aria-live=polite] summary")?.textContent.includes("P103")');
+  const lastBatch = fixture.calls.filter(c => c.method === 'POST' && c.route === batchPath).at(-1);
+  assert.deepEqual(lastBatch.body.rooms.map(({ readings }) => readings), [
+    [{ roomServiceId: '83', previousReading: '21', currentReading: '24' }],
+  ]);
+  await waitFor('Array.from(document.querySelectorAll("dialog .invoice-batch-rooms .pill.green")).filter(tag => tag.textContent.trim() === "Đã tạo bản nháp").length === 2');
+  await evaluate('document.querySelector("dialog .dialog-header button").click()');
   await login('tenant'); await navigate('contracts'); await click('Mời người ở ghép vào phòng');
   await waitFor('Boolean(document.querySelector("dialog input[name=applicantContact]"))');
   await setInput('dialog input[name=applicantContact]', 'invitee@test.example');

@@ -735,6 +735,16 @@
     "status": 200
   },
   {
+    "method": "GET",
+    "path": "/api/v1/houses/{houseId}/invoice-batch-preview",
+    "status": 200
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/houses/{houseId}/invoice-batches",
+    "status": 200
+  },
+  {
     "method": "POST",
     "path": "/api/v1/invoices",
     "status": 201

@@ -632,6 +632,10 @@ export function FeatureScreen({ feature }: { feature: FeatureKey }) {
                     }
                 />
             )}
+            {feature === "invoices" && app.role === "landlord" && app.user && (
+                <Button secondary title="Nhập chỉ số theo nhà"
+                    onPress={() => navigation.navigate("InvoiceBatch")} />
+            )}
             {config.alternate && (
                 <View
                     style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}

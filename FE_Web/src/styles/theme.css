@@ -232,6 +232,16 @@ tr:hover td { background: #fafcf9; }
 .total-line { padding: 18px 22px; background: #eff5ec; }
 .total-line strong { color: var(--teal); font-size: 20px; }
 .app-dialog { border-color: var(--line); border-radius: 22px; width: min(620px, calc(100vw - 32px)); box-shadow: 0 24px 100px #142f3230; }
+.app-dialog.invoice-batch-dialog { width: min(1120px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); }
+.invoice-batch-list-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.invoice-batch-rooms { display: grid; align-items: start; gap: 16px; }
+.invoice-batch-rooms > section { min-width: 0; }
+.invoice-batch-rooms .list-row { flex-wrap: wrap; }
+.invoice-batch-rooms .pill svg { width: 15px; height: 15px; }
+@media (min-width: 820px) {
+  .invoice-batch-dialog .invoice-batch-controls { grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); }
+  .invoice-batch-rooms { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .app-dialog::backdrop { background: #102b2775; backdrop-filter: blur(5px); }
 .dialog-header { padding: 21px 24px 18px; background: #fcfdfb; }
 .dialog-header h2 { font-size: 17px; font-weight: 600; letter-spacing: -.3px; }

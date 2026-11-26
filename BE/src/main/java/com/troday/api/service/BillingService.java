@@ -1,19 +1,24 @@
 package com.troday.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.troday.api.dto.ApiResponseDto;
 import com.troday.api.entity.*;
 import com.troday.api.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import java.math.*; import java.time.*; import java.util.*;
 
 @Service
 public class BillingService {
  @org.springframework.beans.factory.annotation.Autowired private DomainSupport domain;
+ @org.springframework.beans.factory.annotation.Autowired private PlatformTransactionManager transactions;
  private final AccountService accounts; private final RentalServiceCatalogRepository catalogs; private final HouseServiceConfigRepository houseServices; private final RoomServiceSettingRepository roomServices; private final InvoiceRepository invoices; private final InvoiceItemRepository items; private final RentalHouseRepository houses; private final RoomRepository rooms; private final ContractRepository contracts; private final RoomTenantRepository roomTenants;
  public BillingService(AccountService a,RentalServiceCatalogRepository c,HouseServiceConfigRepository h,RoomServiceSettingRepository r,InvoiceRepository i,InvoiceItemRepository it,RentalHouseRepository houses,RoomRepository rooms,ContractRepository contracts,RoomTenantRepository roomTenants){accounts=a;catalogs=c;houseServices=h;roomServices=r;invoices=i;items=it;this.houses=houses;this.rooms=rooms;this.contracts=contracts;this.roomTenants=roomTenants;}
  public ApiResponseDto<?> catalog(HttpServletRequest r){accounts.authenticatedUserId(r);return ok("GET",catalogs.findAll().stream().map(this::catalogData).toList());}
@@ -34,7 +39,7 @@ Long me=accounts.authenticatedUserId(r);return ok("GET",domain.page(r,"FROM invo
      return ok("GET", Map.of(
          "contractId", preview.contractId(), "roomId", preview.roomId(), "billingPeriod", preview.billingPeriod(),
          "rentAmount", preview.rentAmount(), "occupantCountAtBilling", preview.payers().size(),
-         "defaultPayerId", contract.getRepresentativeRoomTenantId(), "payers", preview.payers(),
+         "defaultPayerId", preview.defaultPayerId(), "payers", preview.payers(),
          "services", preview.services(), "previewVersion", previewVersion(preview)));
  }
 
@@ -43,7 +48,9 @@ Long me=accounts.authenticatedUserId(r);return ok("GET",domain.page(r,"FROM invo
                                BigDecimal unitPrice, BigDecimal previousReading, LocalDate previousBillingPeriod,
                                Long previousItemId) {}
  private record InvoicePreview(Long contractId, Long roomId, Long revisionId, LocalDate billingPeriod,
-                               BigDecimal rentAmount, List<InvoicePayer> payers, List<InvoiceService> services) {}
+                               BigDecimal rentAmount, Long defaultPayerId, List<InvoicePayer> payers, List<InvoiceService> services) {}
+ private record BillableRoom(Long contractId, Long roomId, String roomCode, String contractNumber,
+                             Long invoiceId, String invoiceStatus) {}
 
  private InvoicePreview preview(Contract contract, LocalDate period) {
      if (!"ACTIVE".equals(contract.getStatus())) throw conflict("Cần có hợp đồng đang hiệu lực");
@@ -73,7 +80,7 @@ Long me=accounts.authenticatedUserId(r);return ok("GET",domain.page(r,"FROM invo
              previous == null ? null : period.minusMonths(1), row.getObject("previous_item_id", Long.class));
      }, contract.getId(), period.minusMonths(1), contract.getRoomId());
      return new InvoicePreview(contract.getId(), contract.getRoomId(), contract.getCurrentRevisionId(), period,
-         revisionRent(contract.getCurrentRevisionId()), payers, services);
+         revisionRent(contract.getCurrentRevisionId()), contract.getRepresentativeRoomTenantId(), payers, services);
  }
 
  private LocalDate billingPeriod(String value) {
@@ -99,19 +106,156 @@ Long me=accounts.authenticatedUserId(r);return ok("GET",domain.page(r,"FROM invo
      Long contractId = requiredLong(body, "contractId");
      Contract contract = ownedContract(owner, contractId);
      LocalDate period = billingPeriod(text(body, "billingPeriod"));
-     if (invoices.findByContractIdAndBillingPeriodAndStatusNot(contractId, period, "CANCELLED").isPresent()) {
-         throw conflict("Đã tồn tại hóa đơn trong kỳ");
-     }
+     requireAvailablePeriod(contractId, period);
      InvoicePreview preview = null;
      if (body.has("previewVersion")) {
-         preview = preview(contract, period);
-         if (!previewVersion(preview).equals(text(body, "previewVersion"))) {
-             throw conflict("Đơn giá, số người hoặc chỉ số kỳ trước đã thay đổi. Hãy tải lại các khoản thu và kiểm tra trước khi lưu.");
-         }
+         preview = reviewedPreview(contract, period, text(body, "previewVersion"));
          checkPreviewItems(body.path("items"), preview);
      }
      Long payer = body.hasNonNull("payerRoomTenantId")
          ? requiredLong(body, "payerRoomTenantId") : contract.getRepresentativeRoomTenantId();
+     return ok("POST", createDraft(owner, contract, period, date(body, "dueDate"), payer, body, preview));
+ }
+
+ public ApiResponseDto<?> invoiceBatchPreview(HttpServletRequest r, Long houseId, String billingPeriod) {
+     Long owner = accounts.authenticatedUserId(r);
+     ownedHouse(r, houseId);
+     LocalDate period = billingPeriod(billingPeriod);
+     List<BillableRoom> candidates = domain.jdbc.query("""
+         SELECT c.id AS contract_id, r.id AS room_id, r.room_number, c.contract_number,
+                i.id AS invoice_id,
+                CASE WHEN i.status='UNPAID' AND i.due_date<DATE(UTC_TIMESTAMP()+INTERVAL 7 HOUR)
+                     THEN 'OVERDUE' ELSE i.status END AS invoice_status
+         FROM contracts c JOIN rooms r ON r.id=c.room_id
+         LEFT JOIN invoices i ON i.contract_id=c.id AND i.billing_period=? AND i.status<>'CANCELLED'
+         WHERE c.house_id=? AND c.landlord_id=? AND c.status='ACTIVE'
+           AND EXISTS (
+             SELECT 1 FROM room_services rs JOIN house_services hs ON hs.id=rs.house_service_id
+             WHERE rs.room_id=r.id AND rs.is_active=TRUE AND hs.is_active=TRUE
+               AND COALESCE(rs.calculation_method_override, hs.default_calculation_method)='METERED'
+           )
+         ORDER BY r.room_number, c.id
+         """, (row, ignored) -> new BillableRoom(row.getLong("contract_id"), row.getLong("room_id"),
+             row.getString("room_number"), row.getString("contract_number"), row.getObject("invoice_id", Long.class),
+             row.getString("invoice_status")),
+         period, houseId, owner);
+     List<Map<String, Object>> result = new ArrayList<>();
+     for (BillableRoom room : candidates) {
+         Map<String, Object> entry = new LinkedHashMap<>();
+         entry.put("contractId", room.contractId());
+         entry.put("roomId", room.roomId());
+         entry.put("roomCode", room.roomCode());
+         entry.put("contractNumber", room.contractNumber());
+         if (room.invoiceId() != null) {
+             entry.put("invoiceId", room.invoiceId());
+             entry.put("invoiceStatus", room.invoiceStatus());
+             entry.put("blockedReason", "Đã có hóa đơn trong kỳ");
+         } else {
+             try {
+                 InvoicePreview quote = preview(houseContract(owner, houseId, room.contractId()), period);
+                 List<InvoiceService> meters = quote.services().stream().filter(this::metered).toList();
+                 if (meters.isEmpty()) continue;
+                 entry.put("services", meters);
+                 entry.put("baseTotal", quote.services().stream().filter(service -> !metered(service))
+                     .map(service -> service.unitPrice().multiply(
+                         BigDecimal.valueOf("PER_PERSON".equals(service.calculationMethod()) ? quote.payers().size() : 1)))
+                     .reduce(quote.rentAmount(), BigDecimal::add));
+                 entry.put("previewVersion", previewVersion(quote));
+             } catch (ResponseStatusException e) {
+                 entry.put("blockedReason", e.getReason());
+             }
+         }
+         result.add(entry);
+     }
+     return ok("GET", Map.of("houseId", houseId, "billingPeriod", period, "rooms", result));
+ }
+
+ public ApiResponseDto<?> createInvoiceBatch(HttpServletRequest r, Long houseId, JsonNode body) {
+     require(body);
+     Long owner = accounts.authenticatedUserId(r);
+     ownedHouse(r, houseId);
+     LocalDate period = billingPeriod(text(body, "billingPeriod"));
+     LocalDate dueDate = date(body, "dueDate");
+     JsonNode submissions = body.path("rooms");
+     if (!submissions.isArray() || submissions.isEmpty()) throw bad("Cần chọn phòng đã nhập đủ chỉ số");
+     Map<Long, JsonNode> byContract = new LinkedHashMap<>();
+     for (JsonNode submission : submissions) {
+         Long contractId = requiredLong(submission, "contractId");
+         if (byContract.putIfAbsent(contractId, submission) != null) throw bad("Hợp đồng bị lặp trong đợt lập hóa đơn");
+     }
+     TransactionTemplate perRoom = new TransactionTemplate(transactions);
+     List<Map<String, Object>> created = new ArrayList<>();
+     List<Map<String, Object>> skipped = new ArrayList<>();
+     for (var entry : byContract.entrySet()) {
+         Long contractId = entry.getKey();
+         try {
+             created.add(perRoom.execute(status -> createBatchDraft(owner, houseId, contractId, period, dueDate, entry.getValue())));
+         } catch (ResponseStatusException e) {
+             skipped.add(Map.of("contractId", contractId, "reason", e.getReason()));
+         } catch (DataIntegrityViolationException e) {
+             skipped.add(Map.of("contractId", contractId, "reason", "Dữ liệu phòng đã thay đổi hoặc đã có hóa đơn trong kỳ. Hãy tải lại danh sách."));
+         }
+     }
+     return ok("POST", Map.of("created", created, "skipped", skipped));
+ }
+
+ private Map<String, Object> createBatchDraft(Long owner, Long houseId, Long contractId, LocalDate period,
+                                               LocalDate dueDate, JsonNode submission) {
+     Contract contract = houseContract(owner, houseId, contractId);
+     requireAvailablePeriod(contractId, period);
+     InvoicePreview quote = reviewedPreview(contract, period, text(submission, "previewVersion"));
+     var draft = JsonNodeFactory.instance.objectNode();
+     var lines = draft.putArray("items");
+     lines.addObject().put("type", "RENT");
+     JsonNode readings = submission.path("readings");
+     if (!readings.isArray() || readings.isEmpty()) throw bad("Cần nhập chỉ số cho phòng");
+     Map<Long, JsonNode> byService = new HashMap<>();
+     for (JsonNode reading : readings) {
+         Long serviceId = requiredLong(reading, "roomServiceId");
+         if (byService.putIfAbsent(serviceId, reading) != null) throw bad("Dịch vụ bị lặp trong phòng");
+     }
+     for (InvoiceService service : quote.services()) {
+         var line = lines.addObject().put("type", "SERVICE").put("roomServiceId", service.roomServiceId());
+         if (metered(service)) {
+             JsonNode reading = byService.remove(service.roomServiceId());
+             if (reading == null) throw bad("Chưa nhập chỉ số cho " + service.name());
+             line.set("currentReading", reading.path("currentReading"));
+             if (reading.has("previousReading")) line.set("previousReading", reading.get("previousReading"));
+         }
+     }
+     if (!byService.isEmpty()) throw bad("Chỉ số phải thuộc dịch vụ theo đồng hồ của phòng");
+     Room room = rooms.findById(contract.getRoomId()).orElseThrow(() -> notFound("Không tìm thấy phòng"));
+     Map<String, Object> invoice = createDraft(owner, contract, period, dueDate, quote.defaultPayerId(), draft, quote);
+     return Map.of("contractId", contractId, "roomCode", room.getRoomNumber(), "invoice", invoice);
+ }
+
+ private Contract houseContract(Long owner, Long houseId, Long contractId) {
+     Contract contract = ownedContract(owner, contractId);
+     if (!houseId.equals(contract.getHouseId())) throw forbidden("Phòng không thuộc nhà trọ đã chọn");
+     return contract;
+ }
+
+ private boolean metered(InvoiceService service) {
+     return "METERED".equals(service.calculationMethod());
+ }
+
+ private void requireAvailablePeriod(Long contractId, LocalDate period) {
+     if (invoices.findByContractIdAndBillingPeriodAndStatusNot(contractId, period, "CANCELLED").isPresent()) {
+         throw conflict("Đã tồn tại hóa đơn trong kỳ");
+     }
+ }
+
+ private InvoicePreview reviewedPreview(Contract contract, LocalDate period, String version) {
+     InvoicePreview quote = preview(contract, period);
+     if (!previewVersion(quote).equals(version)) {
+         throw conflict("Đơn giá, số người hoặc chỉ số kỳ trước đã thay đổi. Hãy tải lại các khoản thu và kiểm tra trước khi lưu.");
+     }
+     return quote;
+ }
+
+ private Map<String, Object> createDraft(Long owner, Contract contract, LocalDate period, LocalDate dueDate,
+                                          Long payer, JsonNode body, InvoicePreview preview) {
+     Long contractId = contract.getId();
      boolean fromPreview = preview != null;
      RoomTenant member = roomTenants.findById(payer == null ? -1L : payer)
          .filter(m -> contractId.equals(m.getContractId()) && Set.of("ACTIVE", "PLANNED").contains(m.getStatus()))
@@ -125,12 +269,12 @@ Long me=accounts.authenticatedUserId(r);return ok("GET",domain.page(r,"FROM invo
      invoice.setPayerSnapshot(domain.json(Map.of("roomTenantId", member.getId(), "fullName", member.getFullName(),
          "tenantId", Objects.toString(member.getTenantId(), ""))));
      invoice.setBillingPeriod(period);
-     invoice.setDueDate(date(body, "dueDate"));
+     invoice.setDueDate(dueDate);
      invoice.setCreatedById(owner);
      invoice.setOccupantCountAtBilling(preview == null ? occupantCount(contractId) : preview.payers().size());
      invoice = invoices.save(invoice);
      replaceItems(invoice, body, preview);
-     return ok("POST", invoiceData(invoice));
+     return invoiceData(invoice);
  }
 
  private void checkPreviewItems(JsonNode lines, InvoicePreview preview) {

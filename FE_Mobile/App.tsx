@@ -21,6 +21,7 @@ import { AppShell } from "./src/components/AppShell";
 import { FeatureScreen } from "./src/features/screens/FeatureScreen";
 import { ResourceScreen } from "./src/features/screens/ResourceScreen";
 import { OperationScreen } from "./src/features/forms/OperationScreen";
+import { InvoiceBatchScreen } from "./src/features/forms/InvoiceBatchScreen";
 import {
   AuthScreen,
   ConnectionScreen,
@@ -109,6 +110,11 @@ function Navigation() {
             name="Operation"
             component={OperationScreen}
             options={{ title: "Thông tin & xác nhận" }}
+          />
+          <Stack.Screen
+            name="InvoiceBatch"
+            component={InvoiceBatchScreen}
+            options={{ title: "Nhập chỉ số theo nhà" }}
           />
           <Stack.Screen
             name="Auth"

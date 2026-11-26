@@ -40,6 +40,18 @@ export interface InvoiceLine {
     currentReading?: string;
 }
 
+export function parseInvoiceService(service: Record<string, unknown>): InvoiceService {
+    return {
+        roomServiceId: String(service.roomServiceId),
+        name: String(service.name),
+        unit: String(service.unit),
+        calculationMethod: service.calculationMethod as CalculationMethod,
+        unitPrice: String(service.unitPrice),
+        previousReading: service.previousReading == null ? null : String(service.previousReading),
+        previousBillingPeriod: service.previousBillingPeriod == null ? null : String(service.previousBillingPeriod),
+    };
+}
+
 export function parseInvoicePreview(data: unknown): InvoicePreview | undefined {
     if (!isRecord(data) || typeof data.previewVersion !== "string"
         || !Array.isArray(data.payers) || !Array.isArray(data.services)) return undefined;
@@ -51,15 +63,7 @@ export function parseInvoicePreview(data: unknown): InvoicePreview | undefined {
         occupantCountAtBilling: Number(data.occupantCountAtBilling),
         defaultPayerId: String(data.defaultPayerId),
         payers: data.payers.filter(isRecord).map(payer => ({ id: String(payer.id), name: String(payer.name) })),
-        services: data.services.filter(isRecord).map(service => ({
-            roomServiceId: String(service.roomServiceId),
-            name: String(service.name),
-            unit: String(service.unit),
-            calculationMethod: service.calculationMethod as CalculationMethod,
-            unitPrice: String(service.unitPrice),
-            previousReading: service.previousReading == null ? null : String(service.previousReading),
-            previousBillingPeriod: service.previousBillingPeriod == null ? null : String(service.previousBillingPeriod),
-        })),
+        services: data.services.filter(isRecord).map(parseInvoiceService),
     };
 }
 

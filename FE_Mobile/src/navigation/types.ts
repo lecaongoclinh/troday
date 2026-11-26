@@ -26,6 +26,7 @@ export type FeatureKey =
 export type RootStackParamList = {
   Main: undefined;
   Feature: { feature: FeatureKey };
+  InvoiceBatch: undefined;
   Resource: {
     endpointId: number;
     params: Record<string, string>;

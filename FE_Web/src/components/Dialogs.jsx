@@ -5,13 +5,15 @@ import { request, send, id, list, allPages, uploadFile, openFile } from '../data
 import { dateLabel, day, money, ownHouses, ownRooms, publicPosts, totalInvoice } from '../data/selectors';
 import { Badge, Button, Empty, Field, Icon, Table } from './ui';
 import ContractDetails from './ContractDetails';
+import InvoiceBatch from './InvoiceBatch';
 import { invoiceServiceTotal, parseInvoicePreview, roomRentLine, serviceInvoiceLine } from '../../../shared/api/invoice-preview.ts';
 
 export default function Dialogs() {
   const { dialog, closeDialog } = useApp(), ref = useRef();
   useEffect(() => { if (dialog && ref.current && !ref.current.open) ref.current.showModal(); }, [dialog]);
   if (!dialog) return null;
-  return <dialog className={`app-dialog ${dialog.type === 'contract-detail' ? 'contract-detail-dialog' : ''}`} aria-labelledby="app-dialog-title" ref={ref} onCancel={closeDialog} onClick={e => { if (e.target === ref.current) { const r = ref.current.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) closeDialog(); } }}><DialogContent key={`${dialog.type}:${dialog.id || dialog.roomId || ''}`} /></dialog>;
+  const dialogClass = { 'contract-detail': 'contract-detail-dialog', 'invoice-batch': 'invoice-batch-dialog' }[dialog.type] || '';
+  return <dialog className={`app-dialog ${dialogClass}`} aria-labelledby="app-dialog-title" ref={ref} onCancel={closeDialog} onClick={e => { if (e.target === ref.current) { const r = ref.current.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) closeDialog(); } }}><DialogContent key={`${dialog.type}:${dialog.id || dialog.roomId || ''}`} /></dialog>;
 }
 function Frame({ title, children }) { const { closeDialog } = useApp(); return <><div className="dialog-header"><h2 id="app-dialog-title">{title}</h2><button className="icon-button" type="button" aria-label="Đóng hộp thoại" onClick={closeDialog}><Icon name="x" /></button></div><div className="dialog-content">{children}</div></>; }
 const text = (name, label, extra = {}) => ({ name, label, required: true, ...extra });
@@ -78,6 +80,7 @@ function DialogContent() {
     </Frame>;
     case 'paper-import': return <PaperImportEditor />;
     case 'invoice': return <InvoiceEditor />;
+    case 'invoice-batch': return <Frame title="Nhập chỉ số theo nhà"><InvoiceBatch /></Frame>;
     case 'invoice-detail': return <InvoiceDetail />;
     case 'move-in': {
       const c = contract(d.id);

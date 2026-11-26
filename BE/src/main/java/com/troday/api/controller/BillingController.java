@@ -24,6 +24,14 @@ public class BillingController {
  public ApiResponseDto<?> invoicePreview(HttpServletRequest r, @PathVariable Long contractId, @RequestParam String billingPeriod) {
      return service.invoicePreview(r, contractId, billingPeriod);
  }
+ @GetMapping(value="/houses/{houseId}/invoice-batch-preview",produces=MediaType.APPLICATION_JSON_VALUE)
+ public ApiResponseDto<?> invoiceBatchPreview(HttpServletRequest r, @PathVariable Long houseId, @RequestParam String billingPeriod) {
+     return service.invoiceBatchPreview(r, houseId, billingPeriod);
+ }
+ @PostMapping(value="/houses/{houseId}/invoice-batches",produces=MediaType.APPLICATION_JSON_VALUE)
+ public ApiResponseDto<?> createInvoiceBatch(HttpServletRequest r, @PathVariable Long houseId, @RequestBody JsonNode body) {
+     return service.createInvoiceBatch(r, houseId, body);
+ }
  @PostMapping(value="/invoices",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> createInvoice(HttpServletRequest r,@RequestBody JsonNode b){return service.createInvoice(r,b);}
  @PatchMapping(value="/invoices/{invoiceId}",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> updateInvoice(HttpServletRequest r,@PathVariable Long invoiceId,@RequestBody JsonNode b){return service.updateInvoice(r,invoiceId,b);}
  @PostMapping(value="/invoices/{invoiceId}/issue",produces=MediaType.APPLICATION_JSON_VALUE) public ApiResponseDto<?> issue(HttpServletRequest r,@PathVariable Long invoiceId){return service.issue(r,invoiceId);}

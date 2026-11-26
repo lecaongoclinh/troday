@@ -465,4 +465,74 @@ class Regressions(unittest.TestCase):
         self.assertEqual(10000, Decimal(str(charges['PER_PERSON']['amount'])))
         self.assertEqual(1265000, Decimal(str(current['total'])))
 
+    def test_25_batch_invoices_only_accept_active_meters_and_return_created_drafts(self):
+        owner = self.owner['accessToken']
+        tenant = self.new_user()
+        first = self.paper_contract(tenant)
+        second = self.paper_contract(self.new_user())
+        fixed_only = self.paper_contract(self.new_user())
+        house = first['houseId']
+        self.assertEqual([house, house], [second['houseId'], fixed_only['houseId']])
+
+        def apply_service(contract, name, unit, method, price):
+            config = data(f'/houses/{house}/services', owner, {
+                'name': name, 'unit': unit, 'calculationMethod': method, 'unitPrice': price,
+            }, 'POST')
+            return data(f"/rooms/{contract['roomId']}/service-settings/{config['id']}", owner, {'active': True}, 'PUT')['id']
+
+        electricity = apply_service(first, 'Điện hàng loạt', 'kWh', 'METERED', 3500)
+        internet = apply_service(first, 'Internet hàng loạt', 'phòng', 'PER_ROOM', 150000)
+        water = apply_service(second, 'Nước hàng loạt', 'm³', 'METERED', 15000)
+        apply_service(fixed_only, 'Internet phòng khác', 'phòng', 'PER_ROOM', 200000)
+        previous = TODAY.replace(day=1)
+        period = (previous + dt.timedelta(days=32)).replace(day=1)
+        old = data('/invoices', owner, {
+            'contractId': first['id'], 'billingPeriod': str(previous), 'dueDate': str(previous),
+            'items': [{'type': 'RENT'}, {'type': 'SERVICE', 'roomServiceId': electricity,
+                'previousReading': 100, 'currentReading': 120}],
+        }, 'POST')
+        data(f"/invoices/{old['id']}/issue", owner, {}, 'POST')
+        url = f'/houses/{house}/invoice-batch-preview?billingPeriod={period}'
+        self.assertEqual(403, call(url, tenant['accessToken'])[0])
+        rows = {room['contractId']: room for room in data(url, owner)['rooms']}
+        self.assertNotIn(fixed_only['id'], rows)
+        first_quote, second_quote = rows[first['id']], rows[second['id']]
+        self.assertEqual([electricity], [item['roomServiceId'] for item in first_quote['services']])
+        self.assertEqual([water], [item['roomServiceId'] for item in second_quote['services']])
+        self.assertEqual(120, Decimal(str(first_quote['services'][0]['previousReading'])))
+        self.assertIsNone(second_quote['services'][0]['previousReading'])
+        self.assertEqual(1150000, Decimal(str(first_quote['baseTotal'])))
+
+        def submission(row, **reading):
+            return {'contractId': row['contractId'], 'previewVersion': row['previewVersion'], 'readings': [reading]}
+
+        body = {'billingPeriod': str(period), 'dueDate': str(period + dt.timedelta(days=7)), 'rooms': [
+            submission(first_quote, roomServiceId=electricity, currentReading=150),
+            submission(second_quote, roomServiceId=water, previousReading=21, currentReading=20),
+        ]}
+        post = f'/houses/{house}/invoice-batches'
+        key = {'Idempotency-Key': str(uuid.uuid4())}
+        batch = data(post, owner, body, 'POST', key)
+        self.assertEqual([first['id']], [row['contractId'] for row in batch['created']])
+        self.assertEqual([second['id']], [row['contractId'] for row in batch['skipped']])
+        invoice = batch['created'][0]['invoice']
+        self.assertEqual('DRAFT', invoice['status'])
+        self.assertNotEqual(old['id'], invoice['id'])
+        self.assertEqual(1255000, Decimal(str(invoice['total'])))
+        self.assertEqual({electricity, internet}, {item['roomServiceId'] for item in invoice['items'] if item['type'] == 'SERVICE'})
+        self.assertEqual(batch, data(post, owner, body, 'POST', key))
+        after_first = {room['contractId']: room for room in data(url, owner)['rooms']}
+        self.assertEqual((invoice['id'], 'DRAFT'), (after_first[first['id']]['invoiceId'], after_first[first['id']]['invoiceStatus']))
+        self.assertNotIn('invoiceId', after_first[second['id']])
+
+        body['rooms'][1]['readings'][0]['currentReading'] = 24
+        retried = data(post, owner, body, 'POST')
+        self.assertEqual([second['id']], [row['contractId'] for row in retried['created']])
+        self.assertEqual([first['id']], [row['contractId'] for row in retried['skipped']])
+        self.assertEqual(1045000, Decimal(str(retried['created'][0]['invoice']['total'])))
+        issued = data(f"/invoices/{invoice['id']}/issue", owner, {}, 'POST')
+        after_issue = {room['contractId']: room for room in data(url, owner)['rooms']}
+        self.assertEqual(issued['status'], after_issue[first['id']]['invoiceStatus'])
+        self.assertEqual('DRAFT', after_issue[second['id']]['invoiceStatus'])
+
 if __name__=='__main__':unittest.main(verbosity=2)

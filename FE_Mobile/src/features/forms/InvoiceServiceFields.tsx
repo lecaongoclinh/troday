@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
-import type { InvoiceLine, InvoicePreview, MeterInput } from "../../../../shared/api/invoice-preview.ts";
+import type { InvoiceLine, InvoicePreview, InvoiceService, MeterInput } from "../../../../shared/api/invoice-preview.ts";
 import { invoiceServiceTotal } from "../../../../shared/api/invoice-preview.ts";
 import { colors, ui } from "../../theme";
 import { money } from "../../utils/format";
@@ -33,25 +33,38 @@ export function InvoiceServiceFields({
             const line = lines[index];
             const value = readings[service.roomServiceId] ?? {};
             const meter = service.calculationMethod === "METERED";
-            const entry = (field: keyof MeterInput, title: string) => <View style={{ gap: 5 }}>
-                <Text style={ui.muted}>{title}</Text>
-                <TextInput accessibilityLabel={`${title} · ${service.name}`} keyboardType="decimal-pad"
-                    editable={!disabled} value={value[field] ?? ""} style={ui.input}
-                    onChangeText={text => onReading(service.roomServiceId, field, text)} />
-            </View>;
             return <View key={service.roomServiceId} style={[ui.card, { gap: 8 }]}>
                 <View style={ui.between}>
                     <Text style={ui.text}>{service.name}</Text>
                     <Text style={ui.text}>{line ? money(invoiceServiceTotal([line])) : "Chờ chỉ số"}</Text>
                 </View>
                 <Text style={ui.muted}>{money(service.unitPrice)} / {service.unit}{line ? ` · Số lượng ${line.quantity}` : ""}</Text>
-                {meter && (service.previousReading == null ? entry("previousReading", "Chỉ số đầu")
-                    : <Text style={ui.muted}>Chỉ số đầu từ kỳ trước {service.previousReading}</Text>)}
-                {meter && entry("currentReading", "Chỉ số cuối")}
+                {meter && <InvoiceMeterFields service={service} value={value} disabled={disabled}
+                    onChange={(field, text) => onReading(service.roomServiceId, field, text)} />}
                 {meter && value.currentReading && !line && <Text accessibilityRole="alert" style={ui.error}>
                     Kiểm tra chỉ số đầu và cuối. Chỉ số cuối phải từ chỉ số đầu trở lên.
                 </Text>}
             </View>;
         })}
     </View>;
+}
+
+export function InvoiceMeterFields({ service, value, disabled, roomCode, onChange }: {
+    service: InvoiceService;
+    value: MeterInput;
+    disabled: boolean;
+    roomCode?: string;
+    onChange: (field: keyof MeterInput, value: string) => void;
+}) {
+    const input = (field: keyof MeterInput, label: string) => <View style={{ gap: 5 }}>
+        <Text style={ui.muted}>{label}</Text>
+        <TextInput accessibilityLabel={[label, service.name, roomCode].filter(Boolean).join(" · ")}
+            keyboardType="decimal-pad" editable={!disabled} value={value[field] ?? ""} style={ui.input}
+            onChangeText={text => onChange(field, text)} />
+    </View>;
+    return <>
+        {service.previousReading == null ? input("previousReading", "Chỉ số đầu")
+            : <Text style={ui.muted}>Chỉ số đầu từ kỳ trước {service.previousReading}</Text>}
+        {input("currentReading", "Chỉ số cuối")}
+    </>;
 }
