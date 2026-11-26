@@ -323,4 +323,39 @@ class Regressions(unittest.TestCase):
         data('/me/notification-settings',token,{'inAppEnabled':False},'PATCH')
         me=data('/me',token);self.assertEqual('Updated profile',me['fullName']);self.assertFalse(me['settings']['inAppEnabled']);self.assertNotIn('ADMIN',me['roles'])
 
+    def test_22_renewal_requires_confirmation_of_the_amended_proposal(self):
+        tenant = self.new_user()
+        tenant_token = tenant['accessToken']
+        contract = self.paper_contract(tenant)
+        contract_url = f"/contracts/{contract['id']}"
+        change = data(f"{contract_url}/change-requests", tenant_token, {
+            'type': 'RENEWAL', 'baseRevisionId': contract['currentRevisionId'], 'effectiveDate': str(TODAY),
+            'newEndDate': str(TODAY + dt.timedelta(days=730)), 'reason': 'Renew', 'acceptUnchangedProposal': True,
+        }, 'POST')
+        owner = self.owner['accessToken']
+        url = f"/contract-change-requests/{change['id']}"
+        new_end = str(TODAY + dt.timedelta(days=750))
+        self.assertIsNone(change['tenantConfirmedAt'])
+        self.assertEqual(409, call(f'{url}/decision', owner, {'decision': 'APPROVE', 'proposalHash': 'old'}, 'POST')[0])
+        approved = data(f'{url}/decision', owner, {
+            'decision': 'APPROVE', 'proposalHash': change['proposalHash'], 'amendment': {'newEndDate': new_end},
+        }, 'POST')
+        self.assertEqual('APPROVED_WAITING_CONFIRMATION', approved['status'])
+        self.assertIsNone(approved['tenantConfirmedAt'])
+        self.assertEqual(new_end, json.loads(approved['proposalSnapshot'])['newEndDate'])
+        self.assertEqual(str(TODAY + dt.timedelta(days=730)),
+                         json.loads(approved['proposalSnapshot'])['originalRequest']['newEndDate'])
+        self.assertEqual(approved['proposalHash'], data(url, tenant_token)['proposalHash'])
+        self.assertEqual(409, call(f'{url}/apply', owner, {}, 'POST')[0])
+        self.assertEqual(409, call(f'{url}/confirm', tenant_token, {
+            'proposalHash': change['proposalHash'], 'proposedRevisionId': approved['proposedRevisionId'],
+        }, 'POST')[0])
+        confirmed = data(f'{url}/confirm', tenant_token, {
+            'proposalHash': approved['proposalHash'], 'proposedRevisionId': approved['proposedRevisionId'],
+        }, 'POST')
+        self.assertEqual('READY_TO_APPLY', confirmed['status'])
+        self.assertEqual(contract['currentRevisionId'], data(contract_url, owner)['currentRevisionId'])
+        self.assertEqual('COMPLETED', data(f'{url}/apply', owner, {}, 'POST')['status'])
+        self.assertEqual(new_end, data(contract_url, owner)['endDate'])
+
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -273,7 +273,12 @@ export function OperationScreen({
                                 ![
                                     "clientMessageKey",
                                     "clientRequestKey",
-                                ].includes(f.name),
+                                ].includes(f.name) &&
+                                !(
+                                    ["API-132", "API-133"].includes(e.id) &&
+                                    ["proposalHash", "proposedRevisionId"].includes(f.name) &&
+                                    route.params.initial?.[f.name] != null
+                                ),
                         )}
                         values={values}
                         onChange={setValues}

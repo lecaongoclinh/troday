@@ -7241,24 +7241,36 @@
           "name": "effectiveDate",
           "type": "date",
           "required": true,
-          "rule": "Không trước ngày bắt đầu/ngày vào của người ACTIVE.",
+          "rule": "Không trước ngày bắt đầu hợp đồng.",
           "example": "2026-11-02"
         },
         {
           "name": "reason",
           "type": "string",
           "required": true,
-          "rule": "Lý do không trống; tối đa 1.000 ký tự.",
+          "rule": "Lý do không trống; tối đa 2.000 ký tự.",
           "example": "Gia hạn theo thỏa thuận"
         },
         {
           "name": "targetRoomId",
           "type": "id",
-          "required": false,
+          "required": true,
           "rule": "TRANSFER bắt buộc; phòng khác, cùng chủ và đủ quyền."
+        },
+        {
+          "name": "newEndDate",
+          "type": "date",
+          "required": true,
+          "rule": "Bắt buộc khi RENEWAL; sau ngày kết thúc cũ và từ ngày hiệu lực trở đi."
+        },
+        {
+          "name": "proposal",
+          "type": "object",
+          "required": true,
+          "rule": "Bắt buộc khi TRANSFER; chứa ngày kết thúc tại phòng mới và điều khoản."
         }
       ],
-      "output": "ContractChangeRequest; effectiveDate được BE dùng làm ngày kết thúc mới cho RENEWAL",
+      "output": "ContractChangeRequest {id,status:PENDING}",
       "headers": [
         "Authorization: Bearer <accessToken>",
         "Content-Type: application/json",
@@ -7327,9 +7339,9 @@
       "id": "API-132",
       "method": "POST",
       "path": "/contract-change-requests/{requestId}/decision",
-      "title": "Chủ trọ duyệt/từ chối phương án",
+      "title": "Chủ trọ gửi phương án hoặc từ chối đề nghị",
       "access": "LANDLORD: sở hữu nhà/phòng/hợp đồng",
-      "input": "Decision",
+      "input": "ContractChangeDecision",
       "inputFields": [
         {
           "name": "decision",
@@ -7343,6 +7355,18 @@
           "type": "string",
           "required": false,
           "rule": "Bắt buộc khi REJECT; tối đa 1.000 ký tự."
+        },
+        {
+          "name": "proposalHash",
+          "type": "string",
+          "required": false,
+          "rule": "Mã của đề nghị đang xem. Bắt buộc khi gửi phương án đã chỉnh."
+        },
+        {
+          "name": "amendment",
+          "type": "object",
+          "required": false,
+          "rule": "Các điều khoản chủ trọ chỉnh trước khi gửi lại."
         }
       ],
       "output": "ContractChangeRequest và proposedRevisionId",
@@ -7353,7 +7377,7 @@
       ],
       "query": "",
       "pagination": null,
-      "logic": "Chỉ PENDING; APPROVE tạo proposed_revision đã snapshot theo type và chuyển APPROVED_WAITING_CONFIRMATION; REJECT reason. Không tự áp dụng contract.",
+      "logic": "Chỉ PENDING. APPROVE có thể sửa ngày hiệu lực và các trường theo loại, lưu phương án cuối và chuyển APPROVED_WAITING_CONFIRMATION trong hai ngày. REJECT cần lý do.",
       "flowIds": [
         "change-request"
       ],
@@ -7383,8 +7407,21 @@
       "path": "/contract-change-requests/{requestId}/confirm",
       "title": "Đại diện xác nhận đúng phương án",
       "access": "TENANT: chỉ chính người thuê và tài nguyên được phép",
-      "input": null,
-      "inputFields": [],
+      "input": "ContractChangeConfirmation",
+      "inputFields": [
+        {
+          "name": "proposalHash",
+          "type": "string",
+          "required": true,
+          "rule": "Mã phương án chủ trọ đã gửi."
+        },
+        {
+          "name": "proposedRevisionId",
+          "type": "id",
+          "required": false,
+          "rule": "Phiên bản hợp đồng được đề xuất; bắt buộc khi RENEWAL."
+        }
+      ],
       "output": "ContractChangeRequest {id,status:READY_TO_APPLY}",
       "headers": [
         "Authorization: Bearer <accessToken>",

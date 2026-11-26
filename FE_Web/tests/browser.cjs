@@ -161,8 +161,39 @@ async function mockBackend() {
     if (/^\/(?:admin\/)?posts\/\d+\/(?:decision|hide|restore)$/.test(route)) { const p = posts.find(p => p.id === suffixId); p.status = route.endsWith('/hide') ? 'HIDDEN' : body.decision === 'REJECT' ? 'REJECTED' : 'APPROVED'; return reply(post(p)); }
     if (route === '/contracts') { if (method === 'GET') return reply(contracts); const v = viewings.find(v => v.id === Number(body.viewingId)); const c = { id: ++sequence, contractNumber: body.contractNumber, roomId: v.roomId, houseId: 11, landlordId: user.id, viewingTenantId: v.tenantId, viewingId: v.id, status: 'PENDING_CONFIRMATION', source: 'NEW_RENTAL', ...body, currentRevisionId: ++sequence, members: [{ id: ++sequence, tenantId: v.tenantId, fullName: 'Người thuê API', status: 'PLANNED' }] }; contracts.push(c); revisions.push({ id: c.currentRevisionId, contractId: c.id, revisionNumber: 1, status: 'PENDING_CONFIRMATION', content: body.content }); return reply(c); }
     if (/^\/contracts\/\d+\/revisions$/.test(route)) return reply(revisions.filter(r => r.contractId === suffixId));
-    if (/^\/contracts\/\d+\/change-requests$/.test(route)) { if (method === 'GET') return reply(changes.filter(c => c.contractId === suffixId)); const x = { id: ++sequence, contractId: suffixId, type: body.type, status: 'PENDING', requestedEffectiveDate: body.effectiveDate, baseRevisionId: body.baseRevisionId, proposalSnapshot: JSON.stringify(body) }; changes.push(x); return reply(x); }
-    if (/^\/contract-change-requests\/\d+\/(?:decision|confirm|cancel)$/.test(route)) { const x = changes.find(x => x.id === suffixId); x.status = route.endsWith('/confirm') ? 'READY_TO_APPLY' : route.endsWith('/cancel') ? 'CANCELLED' : body.decision === 'REJECT' ? 'REJECTED' : 'APPROVED_WAITING_CONFIRMATION'; return reply(x); }
+    if (/^\/contracts\/\d+\/change-requests$/.test(route)) {
+      if (method === 'GET') return reply(changes.filter(c => c.contractId === suffixId));
+      const change = { id: ++sequence, contractId: suffixId, requestedById: user.id, type: body.type,
+        status: 'PENDING', requestedEffectiveDate: body.effectiveDate, baseRevisionId: body.baseRevisionId,
+        proposalHash: `proposal-${sequence}`, proposalSnapshot: JSON.stringify(body) };
+      changes.push(change);
+      return reply(change);
+    }
+    if (/^\/contract-change-requests\/\d+\/(decision|confirm|cancel|apply)$/.test(route)) {
+      const change = changes.find(row => row.id === suffixId);
+      if (route.endsWith('/apply')) {
+        if (change.status !== 'READY_TO_APPLY') return reply('Yêu cầu chưa đủ xác nhận', 409);
+        change.status = 'COMPLETED';
+        const contract = contracts.find(row => row.id === change.contractId);
+        contract.endDate = JSON.parse(change.proposalSnapshot).newEndDate;
+        contract.currentRevisionId = change.proposedRevisionId;
+      }
+      else if (route.endsWith('/cancel')) change.status = 'CANCELLED';
+      else if (route.endsWith('/confirm')) {
+        if (change.status !== 'APPROVED_WAITING_CONFIRMATION' || body.proposalHash !== change.proposalHash ||
+            body.proposedRevisionId !== change.proposedRevisionId) return reply('Phương án đã thay đổi', 409);
+        change.status = 'READY_TO_APPLY';
+      }
+      else if (body.decision === 'REJECT') change.status = 'REJECTED';
+      else {
+        if (body.proposalHash !== change.proposalHash) return reply('Đề nghị đã thay đổi', 409);
+        change.status = 'APPROVED_WAITING_CONFIRMATION';
+        change.proposalHash = `reviewed-${change.id}`;
+        change.proposedRevisionId = ++sequence;
+        change.proposalSnapshot = JSON.stringify({ ...JSON.parse(change.proposalSnapshot), ...body.amendment });
+      }
+      return reply(change);
+    }
     if (/^\/contracts\/\d+\/transfer-options$/.test(route)) return reply([{ roomId: 103, code: 'P103' }]);
     if (/^\/contracts\/\d+\/(?:confirm|move-ins|cancel)$/.test(route)) { const c = contracts.find(c => c.id === suffixId); c.status = route.endsWith('/confirm') ? 'CONFIRMED' : route.endsWith('/cancel') ? 'CANCELLED' : 'ACTIVE'; if (c.status === 'ACTIVE') c.members.forEach(m => m.status = 'ACTIVE'); return reply(c); }
     if (route === '/occupant-join-requests') return reply(joins);
@@ -269,6 +300,32 @@ async function exercise({ page, evaluate, waitFor, setInput, clickText, shot, er
   await navigate('invoices'); await click('Tạo hóa đơn'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices.length === 1');
   await click('Chi tiết'); await waitFor('Boolean(document.querySelector("dialog[open]"))'); await clickText('Phát hành'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices[0].status === "UNPAID"');
   await click('Xác nhận thu'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices[0].status === "PAID"');
+  await login('tenant'); await navigate('contracts', '601');
+  await waitFor('Boolean(document.querySelector("dialog #contract-details"))');
+  await evaluate('document.querySelector("dialog .contract-version summary").click()');
+  assert.ok(await evaluate('document.querySelector("dialog .contract-version[open]").textContent.includes("Điều khoản API")'));
+  await clickText('Đề nghị điều chỉnh');
+  await waitFor('Boolean(document.querySelector("dialog input[name=newEnd]"))');
+  await setInput('dialog input[name=newEnd]', '2028-09-30');
+  await setInput('dialog textarea[name=reason]', 'Tiếp tục thuê phòng');
+  await submit(); await waitFor('__troday.getState().changeRequests[0]?.status === "PENDING"');
+  assert.equal(fixture.calls.find(c => c.route === '/contracts/601/change-requests' && c.method === 'POST').body.acceptUnchangedProposal, undefined);
+  await login('landlord'); await navigate('contracts'); await click('Xem phương án');
+  await setInput('dialog input[name=newEndDate]', '2028-10-31');
+  await submit();
+  await waitFor('__troday.getState().changeRequests[0]?.status === "APPROVED_WAITING_CONFIRMATION"');
+  assert.equal(fixture.calls.find(c => c.route.endsWith('/decision') && c.route.startsWith('/contract-change-requests/')).body.amendment.newEndDate, '2028-10-31');
+  await click('Xem phương án');
+  assert.ok(await evaluate('!document.querySelector("dialog form")'));
+  await evaluate('document.querySelector("dialog .dialog-header button").click()');
+  await login('tenant'); await navigate('contracts'); await click('Xem phương án');
+  assert.ok(await evaluate('document.querySelector("dialog").textContent.includes("31/10/2028")'));
+  await submit();
+  await waitFor('__troday.getState().changeRequests[0]?.status === "READY_TO_APPLY"');
+  await login('landlord'); await navigate('contracts');
+  await click('Xem phương án'); await submit();
+  await waitFor('__troday.getState().changeRequests[0]?.status === "COMPLETED"');
+  await waitFor('__troday.getState().contracts.find(c => c.id === "601")?.end === "2028-10-31"');
   await login('admin'); await navigate('users'); assert.ok(await evaluate('document.querySelector("main").textContent.includes("Bạn ghép API")')); await click('Khóa tài khoản'); await waitFor('Boolean(document.querySelector("dialog form"))'); await setInput('dialog textarea[name=reason]', 'Lý do kiểm thử'); await submit(); await waitFor('__troday.getState().lockedUsers.length === 1');
   await navigate('moderation'); await click('Duyệt'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().posts.some(p => p.id === "203" && p.status === "APPROVED")');
   await navigate('reports'); await click('Xử lý'); await waitFor('Boolean(document.querySelector("dialog form"))'); await setInput('dialog textarea[name=resolution]', 'Đang kiểm tra'); await submit(); await waitFor('__troday.getState().reports[0].status === "INVESTIGATING"');

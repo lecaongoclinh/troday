@@ -17,7 +17,7 @@ const text = (name, label, extra = {}) => ({ name, label, required: true, ...ext
 const number = (name, label, extra = {}) => text(name, label, { type: 'number', min: 0, ...extra });
 const select = (name, label, options, extra = {}) => text(name, label, { type: 'select', options, ...extra });
 const options = (rows, label) => rows.map(r => [r.id, label(r)]);
-function Editor({ title, fields = [], initial = {}, onSubmit, children, submitLabel = 'Lưu thay đổi' }) {
+function Editor({ title, fields = [], initial = {}, onSubmit, beforeFields, children, submitLabel = 'Lưu thay đổi' }) {
   const { closeDialog, notify } = useApp();
   const [error, setError] = useState(''), [busy, setBusy] = useState(false), submitting = useRef(false);
   const submit = async e => {
@@ -29,7 +29,7 @@ function Editor({ title, fields = [], initial = {}, onSubmit, children, submitLa
     catch (e) { setError(e.message || 'Vui lòng kiểm tra thông tin và thử lại.'); }
     finally { submitting.current = false; setBusy(false); }
   };
-  return <Frame title={title}><form onSubmit={submit}><fieldset disabled={busy} className="form-fieldset"><div className="form-grid">{fields.map(f => <Field key={f.name} label={f.label} full={f.full}>{f.type === 'select' ? <select name={f.name} required={f.required} defaultValue={initial?.[f.name] ?? f.options[0]?.[0]}>{f.options.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select> : f.type === 'textarea' ? <textarea name={f.name} defaultValue={initial?.[f.name] || ''} required={f.required} maxLength={10000} /> : <input type={f.type || 'text'} name={f.name} defaultValue={initial?.[f.name] ?? f.defaultValue ?? ''} required={f.required} min={f.min} max={f.max} step={f.type === 'number' ? f.step || 'any' : undefined} maxLength={f.maxLength || 500} />}</Field>)}</div>{children}{error && <p className="form-error" role="alert">{error}</p>}<div className="form-actions"><Button onClick={closeDialog}>Hủy</Button><Button type="submit" variant="primary" disabled={busy}>{busy ? 'Đang lưu…' : submitLabel}</Button></div></fieldset></form></Frame>;
+  return <Frame title={title}><form onSubmit={submit}><fieldset disabled={busy} className="form-fieldset">{beforeFields}<div className="form-grid">{fields.map(f => <Field key={f.name} label={f.label} full={f.full}>{f.type === 'select' ? <select name={f.name} required={f.required} defaultValue={initial?.[f.name] ?? f.options[0]?.[0]}>{f.options.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select> : f.type === 'textarea' ? <textarea name={f.name} defaultValue={initial?.[f.name] || ''} required={f.required} maxLength={10000} /> : <input type={f.type || 'text'} name={f.name} defaultValue={initial?.[f.name] ?? f.defaultValue ?? ''} required={f.required} min={f.min} max={f.max} step={f.type === 'number' ? f.step || 'any' : undefined} maxLength={f.maxLength || 500} />}</Field>)}</div>{children}{error && <p className="form-error" role="alert">{error}</p>}<div className="form-actions"><Button onClick={closeDialog}>Hủy</Button><Button type="submit" variant="primary" disabled={busy}>{busy ? 'Đang lưu…' : submitLabel}</Button></div></fieldset></form></Frame>;
 }
 function Unavailable({ title, children }) { return <Frame title={title}><Empty title="Chưa thể hoàn tất thao tác">{children}</Empty></Frame>; }
 
@@ -84,10 +84,8 @@ function DialogContent() {
     case 'cancel-member': return <Editor title="Hủy thành viên dự kiến" fields={[text('reason', 'Lý do hủy', { type: 'textarea', full: true })]} onSubmit={values => execute(() => send(`/contracts/${d.contractId}/members/${d.id}/cancel`, values))} />;
     case 'contract-feedback': return <Editor title="Góp ý hợp đồng" fields={[text('reason', 'Nội dung cần chỉnh sửa', { type: 'textarea', full: true })]} onSubmit={v => execute(() => send(`/contracts/${d.id}/revision-requests`, v))} submitLabel="Gửi góp ý" />;
     case 'contract-change': return <ChangeEditor />;
-    case 'apply-change': {
-      const x = data.changeRequests.find(x => x.id === d.id);
-      return <Editor title="Duyệt phương án thay đổi" onSubmit={() => decide('changeRequests', d.id, { status: 'APPROVED' })} submitLabel="Chấp nhận phương án"><p>{x.note}</p><p>Ngày hiệu lực: {dateLabel(x.effective)}{x.newEndDate && ` · Kết thúc mới: ${dateLabel(x.newEndDate)}`}</p><p>Người thuê cần xác nhận lại phương án trước bước áp dụng.</p></Editor>;
-    }
+    case 'review-change': return <ChangeReview />;
+    case 'cancel-change': return <Editor title="Rút đề nghị điều chỉnh" fields={[text('reason', 'Lý do', { type: 'textarea', full: true, required: false })]} onSubmit={v => execute(() => send(`/contract-change-requests/${d.id}/cancel`, v))} submitLabel="Rút đề nghị" />;
     case 'approve-join': return <Editor title="Duyệt yêu cầu thêm người" onSubmit={() => decide('joinRequests', d.id, { status: 'APPROVED' })} submitLabel="Duyệt yêu cầu"><p>Chỉ duyệt khi các bên đã đồng ý và phòng còn đủ sức chứa.</p></Editor>;
     case 'join': {
       const peers = data.roommateInvites.filter(i => i.status === 'ACCEPTED').map(i => i.senderId === me ? i.receiverId : i.senderId);
@@ -166,14 +164,121 @@ function ContractEditor() {
     return execute(async () => { if (!c) return send('/contracts', { ...body, contractNumber: v.number, viewingId }); await send(`/contracts/${c.id}/revisions/${draft.id}`, body, 'PATCH'); return send(`/contracts/${c.id}/revisions/${draft.id}/submit`); });
   }} submitLabel="Gửi hợp đồng xác nhận">{!c && <Field label="Lịch đủ điều kiện"><select value={viewingId} onChange={e => setViewingId(e.target.value)}>{eligible.map(v => <option key={v.id} value={v.id}>Lịch #{v.id} · Phòng #{v.roomId} · Người thuê #{v.tenantId}</option>)}</select></Field>}{impact && <p>Số lịch sắp tới trên phòng: {impact.futureViewingsCount}. Số đề nghị đang chờ theo máy chủ: {impact.pendingProposalsCount}.</p>}</Editor>;
 }
+function useTransferOptions(contractId) {
+  const [targets, setTargets] = useState([]), [error, setError] = useState('');
+  useEffect(() => {
+    if (!contractId) return;
+    let active = true;
+    setTargets([]);
+    setError('');
+    allPages(`/contracts/${contractId}/transfer-options`)
+      .then(rows => { if (active) setTargets(list(rows)); })
+      .catch(e => { if (active) setError(e.message); });
+    return () => { active = false; };
+  }, [contractId]);
+  return { targets, error };
+}
+
 function ChangeEditor() {
   const { data, dialog: d, execute } = useApp(), c = data.contracts.find(c => c.id === d.id);
-  const [type, setType] = useState(d.changeType || 'RENEWAL'), [targets, setTargets] = useState([]), [error, setError] = useState('');
-  useEffect(() => { if (type !== 'TRANSFER') return; let active = true; allPages(`/contracts/${c.id}/transfer-options`).then(rows => { if (active) setTargets(list(rows)); }).catch(e => { if (active) setError(e.message); }); return () => { active = false; }; }, [type, c.id]);
-  return <Editor title="Đề nghị thay đổi hợp đồng" initial={{ effective: day(), newEnd: c.end }} fields={[text('effective', 'Ngày hiệu lực', { type: 'date' }), ...(type === 'RENEWAL' ? [text('newEnd', 'Ngày kết thúc mới', { type: 'date', min: c.end })] : []), ...(type === 'TRANSFER' ? [select('targetRoomId', 'Phòng đích cùng chủ', targets.map(r => [r.roomId, r.code])), text('transferEnd', 'Ngày kết thúc tại phòng mới', { type: 'date' }), text('transferContent', 'Điều khoản tại phòng mới', { type: 'textarea', full: true })] : []), text('reason', 'Nội dung đề nghị', { type: 'textarea', full: true })]} onSubmit={v => {
+  const [type, setType] = useState(d.changeType || 'RENEWAL');
+  const { targets, error } = useTransferOptions(type === 'TRANSFER' ? c?.id : null);
+  if (!c) return <Unavailable title="Điều chỉnh hợp đồng">Hợp đồng không còn khả dụng.</Unavailable>;
+  return <Editor title="Đề nghị điều chỉnh hợp đồng" initial={{ effective: day(), newEnd: c.end }} beforeFields={<Field label="Loại đề nghị"><select name="type" value={type} onChange={e => setType(e.target.value)}>{[['RENEWAL', 'Gia hạn'], ['TRANSFER', 'Chuyển phòng'], ['TERMINATION', 'Kết thúc']].map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select></Field>} fields={[text('effective', 'Ngày hiệu lực', { type: 'date', min: c.start }), ...(type === 'RENEWAL' ? [text('newEnd', 'Ngày kết thúc mới', { type: 'date', min: c.end })] : []), ...(type === 'TRANSFER' ? [select('targetRoomId', 'Phòng đích cùng chủ', [['', 'Chọn phòng trống'], ...targets.map(r => [r.roomId, r.code])]), text('transferEnd', 'Ngày kết thúc tại phòng mới', { type: 'date' }), text('transferContent', 'Điều khoản tại phòng mới', { type: 'textarea', full: true })] : []), text('reason', 'Lý do điều chỉnh', { type: 'textarea', full: true })]} onSubmit={v => {
     if (type === 'RENEWAL' && v.newEnd <= c.end) throw new Error('Ngày kết thúc mới phải sau thời hạn hiện tại.');
+    if (type === 'TRANSFER' && (!v.targetRoomId || v.transferEnd < v.effective)) throw new Error('Chọn phòng đích và ngày kết thúc từ ngày hiệu lực trở đi.');
     return execute(() => send(`/contracts/${c.id}/change-requests`, { type, baseRevisionId: c.currentRevisionId, effectiveDate: v.effective, ...(type === 'RENEWAL' ? { newEndDate: v.newEnd } : {}), ...(type === 'TRANSFER' ? { targetRoomId: v.targetRoomId, proposal: { content: v.transferContent, endDate: v.transferEnd } } : {}), reason: v.reason }));
-  }} submitLabel="Gửi đề nghị"><Field label="Loại đề nghị"><select name="type" value={type} onChange={e => setType(e.target.value)}>{[['RENEWAL', 'Gia hạn'], ['TRANSFER', 'Chuyển phòng'], ['TERMINATION', 'Kết thúc']].map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select></Field>{error && <p role="alert">{error}</p>}</Editor>;
+  }} submitLabel="Gửi đề nghị">
+    <p>Bạn sẽ xác nhận phương án sau khi chủ trọ gửi lại.</p>
+    {type === 'TRANSFER' && error && <p role="alert">{error}</p>}
+  </Editor>;
+}
+
+function ChangeProposalEditor({ change, currentContract, details }) {
+  const { execute, room } = useApp();
+  const transfer = change.type === 'TRANSFER', renewal = change.type === 'RENEWAL';
+  const { targets, error } = useTransferOptions(transfer ? change.contractId : null);
+  const originalTarget = String(change.targetRoomId || '');
+  const [targetRoomId, setTargetRoomId] = useState(originalTarget);
+  const target = targets.find(item => String(item.roomId) === targetRoomId);
+  const proposal = change.proposal || {};
+  const rent = targetRoomId === originalTarget ? proposal.rent_amount : target?.rentAmount;
+  const deposit = targetRoomId === originalTarget ? proposal.deposit_amount : target?.depositAmount;
+  const initial = {
+    effectiveDate: change.effective, newEndDate: change.newEndDate,
+    endDate: proposal.end_date, content: proposal.content,
+  };
+  const fields = [
+    text('effectiveDate', 'Ngày hiệu lực', { type: 'date', min: currentContract?.start }),
+    ...(renewal ? [text('newEndDate', 'Ngày kết thúc mới', { type: 'date', min: currentContract?.end })] : []),
+    ...(transfer ? [
+      text('endDate', 'Ngày kết thúc tại phòng mới', { type: 'date' }),
+      text('content', 'Điều khoản tại phòng mới', { type: 'textarea', full: true }),
+    ] : []),
+  ];
+  const submit = values => {
+    const amendment = {};
+    if (values.effectiveDate !== initial.effectiveDate) amendment.effectiveDate = values.effectiveDate;
+    if (renewal && values.newEndDate !== initial.newEndDate) amendment.newEndDate = values.newEndDate;
+    if (transfer) {
+      if (targetRoomId !== originalTarget) amendment.targetRoomId = targetRoomId;
+      const terms = {};
+      if (values.endDate !== initial.endDate) terms.endDate = values.endDate;
+      if (values.content !== initial.content) terms.content = values.content;
+      if (Number(values.rentAmount) !== Number(proposal.rent_amount) || targetRoomId !== originalTarget) terms.rentAmount = values.rentAmount;
+      if (Number(values.depositAmount) !== Number(proposal.deposit_amount) || targetRoomId !== originalTarget) terms.depositAmount = values.depositAmount;
+      if (Object.keys(terms).length) amendment.proposal = terms;
+    }
+    return execute(() => send(`/contract-change-requests/${change.id}/decision`, {
+      decision: 'APPROVE', proposalHash: change.proposalHash,
+      ...(Object.keys(amendment).length ? { amendment } : {}),
+    }));
+  };
+  return <Editor title="Xem và gửi phương án" submitLabel="Gửi phương án cho người thuê" initial={initial} fields={fields} onSubmit={submit}
+    beforeFields={<>
+      <h3>Đề nghị của người thuê</h3>
+      {details}
+      <h3>Phương án gửi lại</h3>
+      {transfer && <Field label="Phòng đích cùng chủ"><select value={targetRoomId} onChange={e => setTargetRoomId(e.target.value)} required>
+        {!targets.some(item => String(item.roomId) === originalTarget) &&
+          <option value={originalTarget}>{room(originalTarget)?.code || `#${originalTarget}`}</option>}
+        {targets.map(item => <option key={item.roomId} value={item.roomId}>{item.code}</option>)}
+      </select></Field>}
+    </>}>
+    {transfer && <div className="form-grid" key={targetRoomId}>
+      <Field label="Tiền thuê (đ)"><input name="rentAmount" type="number" min="0" step="0.01" defaultValue={rent} required /></Field>
+      <Field label="Tiền cọc (đ)"><input name="depositAmount" type="number" min="0" step="0.01" defaultValue={deposit} required /></Field>
+    </div>}
+    {error && <p role="alert">{error}</p>}
+  </Editor>;
+}
+
+function ChangeReview() {
+  const { data, dialog, room, role, me, contract, execute } = useApp();
+  const change = data.changeRequests.find(row => row.id === dialog.id);
+  if (!change) return <Unavailable title="Điều chỉnh hợp đồng">Yêu cầu không còn khả dụng.</Unavailable>;
+  const { id, status, proposalHash, proposedRevisionId, proposal } = change;
+  const action = status === 'PENDING' && role === 'landlord' ? 'decision'
+    : status === 'APPROVED_WAITING_CONFIRMATION' && role === 'tenant' && contract(change.contractId)?.tenantId === me ? 'confirm'
+    : status === 'READY_TO_APPLY' && role === 'landlord' ? 'apply' : null;
+  const label = { confirm: 'Xác nhận phương án', apply: 'Áp dụng thay đổi' }[action];
+  const details = <div className="stack">
+    <p>Ngày hiệu lực {dateLabel(change.effective)}</p>
+    {change.newEndDate && <p>Ngày kết thúc mới {dateLabel(change.newEndDate)}. Tiền thuê và tiền cọc theo hợp đồng hiện tại.</p>}
+    {change.targetRoomId && <p>Phòng đích {room(String(change.targetRoomId))?.code || `#${change.targetRoomId}`} · Kết thúc {dateLabel(proposal?.end_date)}</p>}
+    {proposal?.rent_amount != null && <p>Tiền thuê {money(proposal.rent_amount)} · Tiền cọc {money(proposal.deposit_amount)}</p>}
+    {proposal?.content && <p className="contract-terms">{proposal.content}</p>}
+    <p>Lý do: {change.note}</p>
+    {change.rejectionReason && <p>Lý do từ chối: {change.rejectionReason}</p>}
+  </div>;
+  if (action === 'decision') return <ChangeProposalEditor key={proposalHash} change={change} currentContract={contract(change.contractId)} details={details} />;
+  if (!action || (action === 'apply' && change.effective > day())) return <Frame title="Phương án điều chỉnh">
+    {details}{action === 'apply' && <p>Có thể áp dụng từ {dateLabel(change.effective)}.</p>}
+  </Frame>;
+  const body = action === 'confirm' ? { proposedRevisionId, proposalHash } : {};
+  return <Editor title={label} submitLabel={label} onSubmit={() => execute(() => send(`/contract-change-requests/${id}/${action}`, body))}>
+    {details}
+  </Editor>;
 }
 function InvoiceEditor() {
   const { data, dialog: d, me, room, upsert, execute } = useApp();

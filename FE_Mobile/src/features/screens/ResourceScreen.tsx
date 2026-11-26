@@ -28,7 +28,7 @@ import {
     Loading,
 } from "../../components/common";
 import { colors, fonts, ui } from "../../theme";
-import { dateTime } from "../../utils/format";
+import { dateTime, dateVN } from "../../utils/format";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Resource">;
 interface Related {
@@ -39,11 +39,23 @@ interface Related {
     param?: string;
     query?: RecordValue;
 }
+
+function changeProposal(data: RecordValue): RecordValue {
+    try {
+        const snapshot = typeof data.proposalSnapshot === "string"
+            ? JSON.parse(data.proposalSnapshot)
+            : data.proposalSnapshot;
+        return isRecord(snapshot) ? snapshot : {};
+    } catch {
+        return {};
+    }
+}
 export function ResourceScreen({ route, navigation }: Props) {
     const { endpointId, params, title, kind } = route.params;
     const { role, user } = useApp(),
         state = useApi(endpointId, { params });
     const data = isRecord(state.result?.data) ? state.result.data : {};
+    const proposal = kind === "change" ? changeProposal(data) : {};
     const status = String(data.status ?? "");
     const [tab, setTab] = useState(0);
     const related: Related[] =
@@ -228,6 +240,11 @@ export function ResourceScreen({ route, navigation }: Props) {
                               id: 130,
                               title: "Yêu cầu thay đổi thuê",
                               when: status === "ACTIVE",
+                              initial: {
+                                  type: "RENEWAL",
+                                  baseRevisionId: data.currentRevisionId,
+                                  effectiveDate: dateVN(),
+                              },
                           },
                           {
                               id: 128,
@@ -320,8 +337,28 @@ export function ResourceScreen({ route, navigation }: Props) {
                                     ? [
                                           {
                                               id: 132,
-                                              title: "Xử lý yêu cầu",
+                                              title: "Gửi phương án hoặc từ chối",
                                               when: status === "PENDING",
+                                              initial: {
+                                                  decision: "APPROVE",
+                                                  proposalHash: data.proposalHash,
+                                                  amendment: {
+                                                      type: data.type,
+                                                      effectiveDate: data.requestedEffectiveDate,
+                                                      ...(data.type === "RENEWAL" ? {
+                                                          newEndDate: proposal.newEndDate,
+                                                      } : {}),
+                                                      ...(data.type === "TRANSFER" ? {
+                                                          targetRoomId: data.targetRoomId,
+                                                          proposal: {
+                                                              endDate: proposal.end_date,
+                                                              content: proposal.content,
+                                                              rentAmount: proposal.rent_amount,
+                                                              depositAmount: proposal.deposit_amount,
+                                                          },
+                                                      } : {}),
+                                                  },
+                                              },
                                           },
                                           {
                                               id: 133,
@@ -329,20 +366,20 @@ export function ResourceScreen({ route, navigation }: Props) {
                                               when:
                                                   status ===
                                                   "APPROVED_WAITING_CONFIRMATION",
+                                              initial: {
+                                                  proposalHash: data.proposalHash,
+                                                  ...(data.proposedRevisionId == null ? {} : { proposedRevisionId: data.proposedRevisionId }),
+                                              },
                                           },
                                           {
                                               id: 134,
                                               title: "Hủy yêu cầu",
-                                              when: ![
-                                                  "COMPLETED",
-                                                  "CANCELLED",
-                                                  "REJECTED",
-                                              ].includes(status),
+                                              when: ["PENDING", "APPROVED_WAITING_CONFIRMATION", "READY_TO_APPLY"].includes(status),
                                           },
                                           {
                                               id: 135,
                                               title: "Áp dụng thay đổi",
-                                              when: status === "READY_TO_APPLY",
+                                              when: status === "READY_TO_APPLY" && String(data.requestedEffectiveDate ?? "") <= dateVN(),
                                           },
                                       ]
                                     : kind === "file"
@@ -441,7 +478,23 @@ export function ResourceScreen({ route, navigation }: Props) {
                                 <Chat conversationId={params.conversationId} />
                             ) : (
                                 <View style={ui.card}>
-                                    <RecordDetails data={state.result?.data} />
+                                    <RecordDetails data={kind === "change" ? {
+                                        status: data.status === "COMPLETED" ? "Đã áp dụng" : data.status,
+                                        type: data.type,
+                                        requestedEffectiveDate: data.requestedEffectiveDate,
+                                        ...(data.type === "RENEWAL" ? { newEndDate: proposal.newEndDate } : {}),
+                                        ...(data.type === "TRANSFER" ? {
+                                            targetRoomId: data.targetRoomId,
+                                            endDate: proposal.end_date,
+                                            rentAmount: proposal.rent_amount,
+                                            depositAmount: proposal.deposit_amount,
+                                            content: proposal.content,
+                                        } : {}),
+                                        reason: proposal.reason,
+                                        ...(data.rejectionReason ? { rejectionReason: data.rejectionReason } : {}),
+                                        ...(status === "APPROVED_WAITING_CONFIRMATION" && data.expiresAt ? { expiresAt: data.expiresAt } : {}),
+                                        ...(data.resultContractId ? { resultContractId: data.resultContractId } : {}),
+                                    } : state.result?.data} />
                                 </View>
                             )}
                             {actions
@@ -622,7 +675,6 @@ function RelatedList({
         revision: [107, 108],
         member: [27, 112, 125],
         join: [119, 120, 121, 122, 123, 124],
-        change: [132, 133, 134, 135],
         "house-service": [142],
         "room-service": [143],
     };

@@ -57,9 +57,8 @@ export default function ContractDetails({ id }) {
               )}
               {contract.status === 'ACTIVE' && role === 'tenant' && contract.tenantId === me && (
                 <>
-                  <Button onClick={() => openDialog('join', { id: contract.id })}>Đề nghị thêm người</Button><Button onClick={() => openDialog('contract-change', { id: contract.id, changeType: 'RENEWAL' })}>Đề nghị gia hạn</Button>
-                  <Button onClick={() => openDialog('contract-change', { id: contract.id, changeType: 'TRANSFER' })}>Đề nghị chuyển phòng</Button>
-                  <Button onClick={() => openDialog('contract-change', { id: contract.id, changeType: 'TERMINATION' })}>Đề nghị kết thúc</Button>
+                  <Button onClick={() => openDialog('join', { id: contract.id })}>Đề nghị thêm người</Button>
+                  {!data.changeRequests.some(change => change.contractId === contract.id && ['PENDING', 'APPROVED_WAITING_CONFIRMATION', 'READY_TO_APPLY'].includes(change.status)) && <Button onClick={() => openDialog('contract-change', { id: contract.id })}>Đề nghị điều chỉnh</Button>}
                 </>
               )}
               {['PENDING_CONFIRMATION', 'CONFIRMED'].includes(contract.status) && role === 'landlord' && (
@@ -70,11 +69,15 @@ export default function ContractDetails({ id }) {
           </div>
           <div className="flat-surface padded">
             <h3 className="small-title">Lịch sử phiên bản</h3>
-            {(contract.revisions || []).map((revision, index) => (
-              <div key={index} className="list-row">
-                <div><strong>Phiên bản {revision.version}</strong><small>{revision.status === 'IMPORTED' ? 'Nhập từ hồ sơ giấy' : 'Thỏa thuận trong hệ thống'}</small></div>
-                <Icon name="file-text" />
-              </div>
+            {(contract.revisions || []).map(revision => (
+              <details key={revision.id} className="contract-version">
+                <summary>Phiên bản {revision.version}{revision.id === String(contract.currentRevisionId) && ' · Hiện hành'}</summary>
+                <Badge status={revision.status} />
+                <p>{dateLabel(revision.startDate)} – {dateLabel(revision.endDate)}</p>
+                {revision.rentAmount != null && <p>Tiền thuê {money(revision.rentAmount)} · Tiền cọc {money(revision.depositAmount)}</p>}
+                {revision.templateName && <p>Mẫu {revision.templateName} · Phiên bản mẫu {revision.templateVersion}</p>}
+                <p className="contract-terms">{revision.content}</p>
+              </details>
             ))}
           </div>
         </aside>

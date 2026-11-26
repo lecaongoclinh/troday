@@ -151,7 +151,7 @@ export async function loadData(user, route, signal) {
       c.revisions = revisions.map(r => ({ ...r, id: id(r.id), version: r.revisionNumber }));
       const current = c.revisions.find(r => id(r.id) === id(c.currentRevisionId));
       c.terms = current?.content || ''; c.revisionNo = current?.revisionNumber; c.feedback = c.revisions.find(r => r.tenantFeedback)?.tenantFeedback;
-      data.changeRequests.push(...list(await get(`/contracts/${c.id}/change-requests`)).map(x => { let proposal = {}; try { proposal = JSON.parse(x.proposalSnapshot || '{}'); } catch { /* Backend snapshot may be absent. */ } return { ...x, id: id(x.id), contractId: id(x.contractId), effective: x.requestedEffectiveDate, note: proposal.reason || '', newEndDate: proposal.newEndDate }; }));
+      data.changeRequests.push(...list(await get(`/contracts/${c.id}/change-requests`)).map(x => { let proposal = {}; try { proposal = typeof x.proposalSnapshot === 'string' ? JSON.parse(x.proposalSnapshot) : x.proposalSnapshot || {}; } catch { /* Backend snapshot may be absent. */ } return { ...x, id: id(x.id), contractId: id(x.contractId), requestedById: id(x.requestedById), effective: x.requestedEffectiveDate, note: proposal.reason || '', newEndDate: proposal.newEndDate, proposal }; }));
     }));
     if (role === 'landlord') await Promise.all(data.houses.filter(h => h.ownerId === me).map(async h => {
       data.houseVerifications.push(...list(await get(`/houses/${h.id}/verifications`)).map(v => ({ ...v, id: id(v.id), houseId: id(v.houseId), scope: v.scopeDescription, applicantId: me })));

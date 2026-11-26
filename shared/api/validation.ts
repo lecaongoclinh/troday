@@ -33,6 +33,12 @@ export function enumOptions(schema: string, field: FieldSpec): string[] {
     );
 }
 export const nestedFields: Record<string, FieldSpec[]> = {
+    ContractChangeAmendment: [
+        { name: "effectiveDate", type: "date", required: false, rule: "Ngày hiệu lực của phương án." },
+        { name: "newEndDate", type: "date", required: false, rule: "Ngày kết thúc mới khi gia hạn." },
+        { name: "targetRoomId", type: "id", required: false, rule: "Phòng đích cùng chủ trọ." },
+        { name: "proposal", type: "object", required: false, rule: "Điều khoản tại phòng mới." },
+    ],
     HouseProofDocument: [
         {
             name: "fileId",
@@ -77,7 +83,9 @@ export const nestedFields: Record<string, FieldSpec[]> = {
 export function childSchema(schema: string, field: FieldSpec) {
     if (schema === "HouseProof" && field.name === "documents")
         return "HouseProofDocument";
-    if (schema === "ContractChange" && field.name === "proposal")
+    if (schema === "ContractChangeDecision" && field.name === "amendment")
+        return "ContractChangeAmendment";
+    if (["ContractChange", "ContractChangeAmendment"].includes(schema) && field.name === "proposal")
         return "TransferProposal";
     return field.type.endsWith("[]") ? field.type.slice(0, -2) : "";
 }
@@ -109,6 +117,10 @@ export function validate(
     for (const field of fields) {
         let value = raw[field.name];
         const name = field.name;
+        if (schema === "ContractChangeDecision") {
+            if (raw.decision === "REJECT" && ["amendment", "proposalHash"].includes(name)) continue;
+            if (raw.decision === "APPROVE" && name === "reason") continue;
+        }
         if (
             schema === "ContractChange" &&
             raw.type !== "TRANSFER" &&
@@ -127,7 +139,8 @@ export function validate(
         )
             value = value.trim();
         if (value === undefined || value === "") {
-            if ((!patch || field.requiredOnPatch) && field.required)
+            if (((!patch || field.requiredOnPatch) && field.required)
+                || (schema === "ContractChangeDecision" && raw.decision === "REJECT" && name === "reason"))
                 errors[name] = "Vui lòng nhập thông tin này.";
             continue;
         }

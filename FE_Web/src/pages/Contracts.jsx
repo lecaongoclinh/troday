@@ -77,18 +77,17 @@ export default function Contracts() {
           <Table
             rows={changes}
             columns={[
-              { label: 'Yêu cầu', render: change => ({ RENEWAL: 'Gia hạn hợp đồng', TRANSFER: 'Chuyển phòng', TERMINATION: 'Kết thúc hợp đồng' })[change.type] },
+              { label: 'Yêu cầu', render: change => <>{({ RENEWAL: 'Gia hạn hợp đồng', TRANSFER: 'Chuyển phòng', TERMINATION: 'Kết thúc hợp đồng' })[change.type]}<small className="cell-sub">{contracts.find(c => c.id === change.contractId)?.number}</small></> },
               { label: 'Nội dung', render: change => <>{change.note}{change.newEndDate && <small className="cell-sub">Kết thúc mới: {dateLabel(change.newEndDate)}</small>}</> },
               { label: 'Ngày hiệu lực', render: change => dateLabel(change.effective) },
-              { label: 'Trạng thái', render: change => <Badge status={change.status} /> },
+              { label: 'Trạng thái', render: change => <Badge status={change.status}>{({ PENDING: 'Chờ chủ trọ duyệt', APPROVED_WAITING_CONFIRMATION: 'Chờ người thuê xác nhận', READY_TO_APPLY: 'Đủ xác nhận · Chờ áp dụng', COMPLETED: 'Đã áp dụng', EXPIRED: 'Hết hạn' })[change.status]}</Badge> },
               {
                 actions: true,
-                render: change => change.status === 'PENDING' && role === 'landlord' ? (
-                  <div className="table-actions">
-                    <Button variant="small primary" onClick={() => openDialog('apply-change', { id: change.id })}>Xem & xử lý</Button>
-                    <Button variant="small" onClick={() => openDialog('decision', { collection: 'changeRequests', id: change.id, status: 'REJECTED', title: 'Từ chối yêu cầu', reason: true })}>Từ chối</Button>
-                  </div>
-                 ) : change.status === 'APPROVED_WAITING_CONFIRMATION' && role === 'tenant' ? <Button variant="small primary" onClick={() => run(() => execute(() => send(`/contract-change-requests/${change.id}/confirm`, { proposedRevisionId: change.proposedRevisionId, proposalHash: change.proposalHash })))}>Xác nhận phương án</Button> : change.status === 'READY_TO_APPLY' ? role === 'landlord' ? <Button variant="small primary" onClick={() => run(() => execute(() => send(`/contract-change-requests/${change.id}/apply`)))}>Áp dụng thay đổi</Button> : <span className="muted tiny">Đã xác nhận phương án</span> : null,
+                render: change => <div className="table-actions">
+                  <Button variant="small" onClick={() => openDialog('review-change', { id: change.id })}>Xem phương án</Button>
+                  {role === 'landlord' && change.status === 'PENDING' && <Button variant="small" onClick={() => openDialog('decision', { collection: 'changeRequests', id: change.id, status: 'REJECTED', title: 'Từ chối yêu cầu', reason: true })}>Từ chối</Button>}
+                  {role === 'tenant' && change.requestedById === me && ['PENDING', 'APPROVED_WAITING_CONFIRMATION', 'READY_TO_APPLY'].includes(change.status) && <Button variant="small" onClick={() => openDialog('cancel-change', { id: change.id })}>Rút đề nghị</Button>}
+                </div>,
               },
             ]}
           />

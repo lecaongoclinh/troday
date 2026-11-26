@@ -30,14 +30,18 @@ export function Fields({
     onChange({ ...values, [name]: value });
   const visibleFields = fields.filter((field) => {
     if (schema === 'InvoiceInputItem' && values.type !== 'SERVICE' && ['roomServiceId', 'calculationMethod', 'previousReading', 'currentReading'].includes(field.name)) return false;
+    if (schema === "ContractChangeDecision") {
+      if (field.name === "reason" && values.decision !== "REJECT") return false;
+      if (field.name === "amendment" && values.decision !== "APPROVE") return false;
+    }
     if (
-      schema === "ContractChange" &&
+      ["ContractChange", "ContractChangeAmendment"].includes(schema) &&
       values.type !== "TRANSFER" &&
       ["proposal", "targetRoomId"].includes(field.name)
     )
       return false;
     if (
-      schema === "ContractChange" &&
+      ["ContractChange", "ContractChangeAmendment"].includes(schema) &&
       values.type !== "RENEWAL" &&
       field.name === "newEndDate"
     )
