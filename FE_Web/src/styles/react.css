@@ -6,6 +6,9 @@
 .small-title { font-size: 12px; font-weight: 600; margin: 8px 0 18px; }
 .form-error { background: #fae9e9; border-radius: 9px; padding: 12px; color: #b44e51 !important; }
 .detail-description, .contract-terms { white-space: pre-wrap; font-size: 12px; color: #788a7d; line-height: 2; }
+.listing-filters { margin-bottom: 20px; }
+.contract-version { overflow-wrap: anywhere; padding: 10px 0; }
+.contract-version summary { cursor: pointer; font-weight: 600; }
 .owner-copy { flex: 1; }
 .house-selector { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 25px; }
 .house-tile { display: flex; align-items: center; gap: 15px; padding: 18px; background: white; border: 1px solid var(--line); border-radius: 15px; text-align: left; min-width: 0; max-width: 100%; color: var(--ink); }

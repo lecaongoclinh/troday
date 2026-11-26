@@ -166,6 +166,10 @@ class Regressions(unittest.TestCase):
         body={'viewingId':vid,'contractNumber':'REG-'+uuid.uuid4().hex,'startDate':str(TODAY),'endDate':str(TODAY+dt.timedelta(days=365)),'rentAmount':1000000,'depositAmount':1000000,'content':'Terms','templateId':template,'extraMembers':[{'fullName':'Later Arrival'}]}
         contract=data('/contracts',self.owner['accessToken'],body,'POST');self.assertEqual(2,len(contract['members']))
         self.assertEqual(str(template),sql('SELECT template_id FROM contract_revisions WHERE id='+str(contract['currentRevisionId'])))
+        revision = rows(data(f"/contracts/{contract['id']}/revisions", user['accessToken']))[0]
+        self.assertEqual(template, revision['templateId'])
+        self.assertTrue(revision['templateName'])
+        self.assertGreaterEqual(revision['templateVersion'], 1)
         self.assertEqual('RESERVED',sql(f'SELECT status FROM rooms WHERE id={room_id}'))
         initial=contract['currentRevisionId']
         draft=data(f"/contracts/{contract['id']}/revision-requests",user['accessToken'],{'reason':'Change terms','revisionId':initial},'POST')
@@ -276,16 +280,18 @@ class Regressions(unittest.TestCase):
         change=data(f'/contracts/{cid}/change-requests',tenant['accessToken'],{'type':'TRANSFER','baseRevisionId':c['currentRevisionId'],'targetRoomId':room['id'],'effectiveDate':str(TODAY),'reason':'Move to another house','proposal':{'content':'New room terms','endDate':c['endDate']}},'POST')
         change=data(f"/contract-change-requests/{change['id']}/decision",self.owner['accessToken'],{'decision':'APPROVE'},'POST')
         data(f"/contract-change-requests/{change['id']}/confirm",tenant['accessToken'],{'proposalHash':change['proposalHash']},'POST')
+        sql(f"UPDATE rooms SET rent_price=2100000 WHERE id={room['id']}")
         applied=data(f"/contract-change-requests/{change['id']}/apply",self.owner['accessToken'],{},'POST')
         target=data('/contracts/'+str(applied['resultContractId']),tenant['accessToken'])
         self.assertEqual(2,len(target['members']));self.assertEqual(room['id'],target['roomId']);self.assertEqual('TERMINATED',sql(f'SELECT status FROM contracts WHERE id={cid}'))
+        self.assertEqual(2000000, float(target['rentAmount']))
 
     def test_17_refresh_rotation_and_password_reset_grant(self):
         tenant=self.new_user();old=tenant['refreshToken']
         rotated=data('/auth/refresh',body={},method='POST',headers={'Refresh-Token':old});self.assertTrue(rotated['refreshToken']);self.assertNotEqual(old,rotated['refreshToken'])
         self.assertEqual(401,call('/auth/refresh',body={},method='POST',headers={'Refresh-Token':old})[0])
         reset=data('/auth/password-resets',body={'identifier':tenant['user']['email']},method='POST')
-        inbox=Path(__file__).resolve().parents[2]/'.cache/review-inbox'
+        inbox=Path(os.getenv('VERIFICATION_LOCAL_INBOX') or Path(__file__).resolve().parents[2]/'.cache/review-inbox')
         delivery=next(file.read_text(encoding='utf-8') for file in inbox.glob('*.txt') if ('target='+tenant['user']['email']) in file.read_text(encoding='utf-8'))
         code=delivery.split('code=')[1].strip()
         grant=data('/auth/password-resets/verify',body={'selector':reset['selector'],'code':code},method='POST')['resetGrant']
@@ -323,6 +329,17 @@ class Regressions(unittest.TestCase):
         data('/me/notification-settings',token,{'inAppEnabled':False},'PATCH')
         me=data('/me',token);self.assertEqual('Updated profile',me['fullName']);self.assertFalse(me['settings']['inAppEnabled']);self.assertNotIn('ADMIN',me['roles'])
 
+    def test_21_landlord_post_filters_use_local_creation_dates(self):
+        owner = self.owner['accessToken']
+        post = rows(data('/landlord/posts?pageSize=1', owner))[0]
+        sql(f"UPDATE posts SET created_at='2026-10-24 17:00:00' WHERE id={post['id']}")
+        filters = f"houseId={post['houseId']}&roomId={post['roomId']}"
+        included = rows(data(f'/landlord/posts?{filters}&createdFrom=2026-10-25&createdTo=2026-10-25', owner))
+        self.assertIn(post['id'], [row['id'] for row in included])
+        excluded = rows(data(f'/landlord/posts?{filters}&createdTo=2026-10-24', owner))
+        self.assertNotIn(post['id'], [row['id'] for row in excluded])
+        self.assertEqual(422, call('/landlord/posts?createdFrom=2026-10-26&createdTo=2026-10-24', owner)[0])
+
     def test_22_renewal_requires_confirmation_of_the_amended_proposal(self):
         tenant = self.new_user()
         tenant_token = tenant['accessToken']
@@ -357,5 +374,23 @@ class Regressions(unittest.TestCase):
         self.assertEqual(contract['currentRevisionId'], data(contract_url, owner)['currentRevisionId'])
         self.assertEqual('COMPLETED', data(f'{url}/apply', owner, {}, 'POST')['status'])
         self.assertEqual(new_end, data(contract_url, owner)['endDate'])
+
+    def test_23_contact_invite_can_be_accepted_without_a_roommate_connection(self):
+        tenant, applicant, stranger = (self.new_user() for _ in range(3))
+        contract = self.paper_contract(tenant)
+        body = {'contractId': contract['id'], 'applicantContact': applicant['user']['email'],
+                'plannedMoveInDate': str(TODAY), 'representativeConsent': True}
+        join = data('/occupant-join-requests', tenant['accessToken'], body, 'POST')
+        url = f"/occupant-join-requests/{join['id']}"
+        self.assertTrue(join['representativeConsented'])
+        self.assertFalse(join['applicantConsented'])
+        self.assertEqual(409, call('/occupant-join-requests', tenant['accessToken'], body, 'POST')[0])
+        self.assertEqual(403, call(f'{url}/consents', stranger['accessToken'], {'consent': True}, 'POST')[0])
+        invitation = next(row for row in rows(data('/occupant-join-requests', applicant['accessToken'])) if row['id'] == join['id'])
+        self.assertEqual(contract['contractNumber'], invitation['contractNumber'])
+        self.assertEqual('PENDING_LANDLORD', data(f'{url}/consents', applicant['accessToken'], {'consent': True}, 'POST')['status'])
+        self.assertEqual('APPROVED', data(f'{url}/approve', self.owner['accessToken'], {}, 'POST')['status'])
+        result = data(f'{url}/complete', self.owner['accessToken'], {}, 'POST')
+        self.assertEqual(applicant['user']['id'], result['member']['tenantId'])
 
 if __name__=='__main__':unittest.main(verbosity=2)

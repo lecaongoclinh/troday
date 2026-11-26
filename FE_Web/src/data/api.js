@@ -69,16 +69,41 @@ export function roommateData(p) { return { ...p, id: id(p.id), tenantId: id(p.te
 export function verificationData(v, kind, me) { return { ...v, apiId: id(v.id), id: `${kind}:${v.id}`, kind, userId: id(v.tenantId ?? v.applicantUserId ?? me), type: kind === 'landlord' ? 'Xác minh chủ trọ' : 'Căn cước người thuê', date: v.createdAt, documents: v.documents || [] }; }
 const merge = (rows, value) => { const i = rows.findIndex(x => x.id === value.id); if (i < 0) rows.push(value); else rows[i] = { ...rows[i], ...value }; };
 
-export const primaryEndpoint = route => ({ discover: '/posts', favorites: '/me/favorites', properties: '/houses', listings: '/landlord/posts', contracts: '/contracts', residents: '/residents', invoices: '/invoices', chats: '/conversations', users: '/admin/users', reports: '/admin/reports', audit: '/admin/moderation-actions', moderation: '/admin/posts', templates: '/contract-templates' })[route.view];
+export const primaryEndpoint = route => ({ discover: '/posts', favorites: '/me/favorites', properties: '/houses', listings: '/landlord/posts', viewings: '/viewings', contracts: '/contracts', residents: '/residents', invoices: '/invoices', chats: '/conversations', users: '/admin/users', reports: '/admin/reports', audit: '/admin/moderation-actions', moderation: '/admin/posts', templates: '/contract-templates' })[route.view];
+export function defaultListQuery(view) {
+  return { page: 1, pageSize: 20, q: '', status: ({ residents: 'ACTIVE', moderation: 'PENDING_REVIEW' })[view] || '' };
+}
+export async function requestListPage(path, query, options) {
+  const url = new URL(path, 'http://local');
+  url.searchParams.set('page', query.page);
+  url.searchParams.set('pageSize', query.pageSize);
+  for (const key of ['q', 'status', 'houseId', 'roomId', 'contractId', 'type', 'direction', 'createdFrom', 'createdTo']) {
+    if (query[key]) url.searchParams.set(key, query[key]);
+  }
+  const value = await request(url.pathname + url.search, options);
+  if (!Array.isArray(value?.items) || !Number.isInteger(value.totalPages)) return value;
+  const lastPage = Math.max(1, value.totalPages);
+  if (value.page <= lastPage) return value;
+  url.searchParams.set('page', lastPage);
+  return request(url.pathname + url.search, options);
+}
+export function isOnListPage(data, target) {
+  return !data.pagination || data.pagination.items.some(item => id(item.id) === target);
+}
 export async function allPages(path, options = {}) {
   const first = await request(path, options);
   if (!first || !Array.isArray(first.items)) return first;
-  const items = [...first.items]; let page = first.page || 1, next = first.hasNext;
-  while (next) {
-    const url = new URL(path, 'http://local'); url.searchParams.set('page', ++page);
+  const items = [...first.items];
+  const url = new URL(path, 'http://local');
+  if (first.pageSize) url.searchParams.set('pageSize', first.pageSize);
+  let current = first;
+  while (current.hasNext ?? current.page < current.totalPages) {
+    const page = current.page + 1;
+    url.searchParams.set('page', page);
     const value = await request(url.pathname + url.search, options);
-    if (!value || !Array.isArray(value.items)) throw new Error('Phản hồi phân trang không hợp lệ.');
-    items.push(...value.items); next = value.hasNext;
+    if (!Array.isArray(value?.items) || value.page !== page) throw new Error('Phản hồi phân trang không hợp lệ.');
+    items.push(...value.items);
+    current = value;
   }
   return Object.hasOwn(first, 'counts') ? { ...first, items } : items;
 }
@@ -88,10 +113,8 @@ export async function loadData(user, route, signal) {
     try {
       const url = new URL(path, 'http://local');
       if (url.pathname === primaryEndpoint(route)) {
-        const query = route.listQuery || {};url.searchParams.set('page', query.page || 1);url.searchParams.set('pageSize', query.pageSize || 20);
-        if (query.q) url.searchParams.set('q', query.q);
-        for (const key of ['status', 'houseId', 'roomId', 'contractId', 'type', 'direction']) if (query[key]) url.searchParams.set(key, query[key]);
-        const value = await request(url.pathname + url.search, { signal });
+        const query = { ...defaultListQuery(route.view), ...route.listQuery };
+        const value = await requestListPage(path, query, { signal });
         data.pagination = value?.items ? { ...value, endpoint: url.pathname } : null;
         return value;
       }
@@ -104,7 +127,7 @@ export async function loadData(user, route, signal) {
     if (p.house) merge(data.houses, houseData(p.house, p.landlordId));
     if (p.room) merge(data.rooms, { ...roomData(p.room), amenities: p.amenities || [] });
   };
-  if (!['profile','users','audit','reports','verifications','templates'].includes(route.view)) { const rows = list(await get(`/posts${route.view === 'discover' && route.exploreQuery ? `?${route.exploreQuery}` : ''}`)); data.searchPostIds = rows.map(p => id(p.id)); rows.forEach(addPost); }
+  if (!['profile', 'users', 'audit', 'reports', 'verifications', 'templates', 'favorites', 'properties', 'listings', 'moderation'].includes(route.view)) { const rows = list(await get(`/posts${route.view === 'discover' && route.exploreQuery ? `?${route.exploreQuery}` : ''}`)); data.searchPostIds = rows.map(p => id(p.id)); rows.forEach(addPost); }
   if (user) {
     data.profiles[me] = personData(user);
     const common = [
@@ -127,7 +150,7 @@ export async function loadData(user, route, signal) {
       ['/viewings', rows => { data.viewings = list(rows).map(v => viewingData(v)); }],
       ['/viewing-proposals', rows => { data.viewingProposals = list(rows).map(v => viewingData(v, true)); }],
       ['/conversations', rows => { data.conversations = list(rows).map(conversationData); }],
-      ['/occupant-join-requests', rows => { data.joinRequests = list(rows).map(j => ({ ...j, id: id(j.id), contractId: id(j.contractId), applicantId: id(j.applicantId), requestedBy: id(j.requestedById) })); }],
+      ['/occupant-join-requests', rows => { data.joinRequests = list(rows).map(j => ({ ...j, id: id(j.id), contractId: id(j.contractId), landlordId: id(j.landlordId), applicantId: id(j.applicantId), requestedBy: id(j.requestedById) })); }],
       ['/me/identity-verifications', rows => data.verifications.push(...list(rows).map(v => verificationData(v, 'identity', me)))],
       ['/me/landlord-verifications', rows => data.verifications.push(...list(rows).map(v => verificationData(v, 'landlord', me)))],
     );
@@ -144,8 +167,25 @@ export async function loadData(user, route, signal) {
       ['/landlord/dashboard', value => { data.dashboard = value; }, {}],
     );
     if (['landlord', 'admin'].includes(role)) common.push(['/contract-templates', rows => { data.templates = list(rows).map(t => ({ ...t, id: id(t.id) })); }]);
-    const needed = ({ profile: ['/me/notifications','/me/sessions','/me/identity-verifications','/me/landlord-verifications'], users: ['/admin/users','/me/notifications'], audit: ['/admin/moderation-actions','/admin/users','/me/notifications'], reports: ['/admin/reports','/me/notifications'], templates: ['/contract-templates','/me/notifications'], moderation: ['/admin/posts','/me/notifications'], verifications: ['/admin/identity-verifications','/admin/landlord-verifications','/admin/house-verifications','/me/notifications'] })[route.view];
+    const needed = ({ discover: ['/me/favorites', '/me/notifications'], profile: ['/me/notifications','/me/sessions','/me/identity-verifications','/me/landlord-verifications'], users: ['/admin/users','/me/notifications'], audit: ['/admin/moderation-actions','/admin/users','/me/notifications'], reports: ['/admin/reports','/me/notifications'], templates: ['/contract-templates','/me/notifications'], moderation: ['/admin/posts','/me/notifications'], verifications: ['/admin/identity-verifications','/admin/landlord-verifications','/admin/house-verifications','/me/notifications'] })[route.view];
     await Promise.all(common.filter(([path]) => !needed || needed.includes(path)).map(async ([path, apply, fallback, optional]) => apply(await get(path, fallback, optional))));
+    if (role === 'tenant' && route.view === 'contracts' && !data.contracts.some(c => c.status === 'ACTIVE' && c.tenantId === me)) {
+      try {
+        const active = list(await allPages('/contracts?status=ACTIVE', { signal }));
+        active.forEach(c => merge(data.contracts, contractData(c)));
+      } catch (e) {
+        if (signal?.aborted) throw e;
+        data.errors.push({ path: '/contracts?status=ACTIVE', message: e.message, status: e.status });
+      }
+    }
+    const linked = ({ chats: ['conversations', conversationData], contracts: ['contracts', contractData], invoices: ['invoices', invoiceData] })[route.view];
+    if (route.id && linked) {
+      const [collection, adapt] = linked;
+      if (!data[collection].some(row => row.id === route.id)) {
+        const detail = await get(`${primaryEndpoint(route)}/${encodeURIComponent(route.id)}`, null);
+        if (detail) data[collection].push(adapt(detail));
+      }
+    }
     await Promise.all(data.contracts.map(async c => {
       const revisions = list(await get(`/contracts/${c.id}/revisions`));
       c.revisions = revisions.map(r => ({ ...r, id: id(r.id), version: r.revisionNumber }));

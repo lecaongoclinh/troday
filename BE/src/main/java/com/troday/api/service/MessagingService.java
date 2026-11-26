@@ -15,7 +15,21 @@ Long me=accounts.authenticatedUserId(r);Long postId=requiredLong(b,"postId");dom
         ensureParticipant(c.getId(),me);ensureParticipant(c.getId(),post.getLandlordId());
         domain.jdbc.update("INSERT IGNORE INTO api_room_inquiries(post_id,tenant_id,landlord_id,conversation_id) VALUES (?,?,?,?)",postId,me,post.getLandlordId(),c.getId());domain.jdbc.update("UPDATE conversation_participants SET deleted=FALSE,archived=FALSE WHERE conversation_id=? AND user_id=? AND left_at IS NULL",c.getId(),me);return ok("POST",conversationData(c));
  }
- public ApiResponseDto<?> list(HttpServletRequest r){Long me=accounts.authenticatedUserId(r);List<Map<String,Object>> out=participants.findByUserId(me).stream().filter(p->!p.isDeleted()&&!p.isArchived()&&participants.findByConversationId(p.getConversationId()).size()==2).map(p->conversations.findById(p.getConversationId()).map(this::conversationData).orElse(null)).filter(Objects::nonNull).toList();return ok("GET",out);}
+ public ApiResponseDto<?> list(HttpServletRequest r) {
+     Long me = accounts.authenticatedUserId(r);
+     String from = """
+         FROM conversations c
+         JOIN conversation_participants self ON self.conversation_id = c.id
+         JOIN conversation_participants peer ON peer.conversation_id = c.id AND peer.user_id <> self.user_id
+         JOIN users u ON u.id = peer.user_id
+         LEFT JOIN chat_messages m ON m.conversation_id = c.id AND m.id = c.last_message_id
+         WHERE self.user_id = ? AND self.deleted = FALSE AND self.archived = FALSE
+           AND (SELECT COUNT(*) FROM conversation_participants p WHERE p.conversation_id = c.id) = 2
+         """;
+     return ok("GET", domain.page(r, from, "c.id", "CONCAT_WS(' ', c.id, u.full_name, m.content)",
+         "c.last_message_at DESC, c.id DESC", List.of(me), Map.of("type", "c.type"),
+         id -> conversationData(conversations.findById(id).orElseThrow())));
+ }
  public ApiResponseDto<?> detail(HttpServletRequest r,Long id){Long me=accounts.authenticatedUserId(r);Conversation c=member(id,me);return ok("GET",conversationData(c));}
  public ApiResponseDto<?> messageList(HttpServletRequest r,Long id){Long me=accounts.authenticatedUserId(r);member(id,me);return ok("GET",messages.findByConversationIdOrderBySentAtAscIdAsc(id).stream().map(this::messageData).toList());}
  @Transactional public ApiResponseDto<?> sendMessage(HttpServletRequest r,Long id,JsonNode b){

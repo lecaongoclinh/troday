@@ -10,7 +10,7 @@ async function main() {
   const fixture = process.env.TRODAY_LIVE_API_URL ? { origin: process.env.TRODAY_LIVE_API_URL, live: true, close: async () => {} } : await mockBackend();
   process.env.API_PROXY_TARGET = fixture.origin;
   const { createServer } = await import('vite');
-  const server = await createServer({ root, server: { host: '127.0.0.1', port: 0 }, mode: 'test' });
+  const server = await createServer({ root, server: { host: '127.0.0.1', port: fixture.live ? 4173 : 0, strictPort: fixture.live }, mode: 'test' });
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
   const cacheRoot = path.join(root, '.cache');
@@ -72,16 +72,17 @@ async function mockBackend() {
     { id: 2, fullName: 'Chủ trọ API', email: 'landlord@test.example', roles: ['LANDLORD'], role: 'LANDLORD', status: 'ACTIVE', profile: {} },
     { id: 3, fullName: 'Quản trị API', email: 'admin@test.example', roles: ['ADMIN'], role: 'ADMIN', status: 'ACTIVE', profile: {} },
     { id: 4, fullName: 'Bạn ghép API', email: 'peer@test.example', role: 'TENANT', status: 'ACTIVE', profile: {} },
+    { id: 5, fullName: 'Người được mời', email: 'invitee@test.example', role: 'TENANT', status: 'ACTIVE', profile: {} },
   ];
   const rooms = [101, 102, 103].map((n, i) => ({ id: n, houseId: 11, code: `P${n}`, area: 25 + i, rentAmount: '3000000', depositAmount: '3000000', capacity: '3', status: n === 102 ? 'OCCUPIED' : 'AVAILABLE' }));
   const houses = [{ id: 11, name: 'Nhà từ API', address: '10 Đường Kiểm Thử, Hà Nội', provinceCode: '01', localityCode: '001' }];
-  const posts = [201, 203].map((n, i) => ({ id: n, landlordId: 2, houseId: 11, roomId: rooms[i * 2].id, title: `Tin từ API ${n}`, content: 'Nội dung từ máy chủ', status: n === 201 ? 'APPROVED' : 'PENDING_REVIEW', availabilityStatus: 'OPEN', contentVersion: '1', amenities: ['Wi-Fi'] }));
+  const posts = [201, 203].map((n, i) => ({ id: n, landlordId: 2, houseId: 11, roomId: rooms[i * 2].id, title: `Tin từ API ${n}`, content: 'Nội dung từ máy chủ', status: n === 201 ? 'APPROVED' : 'PENDING_REVIEW', availabilityStatus: 'OPEN', contentVersion: '1', amenities: ['Wi-Fi'], createdAt: `2026-11-${10 + i}T09:00:00Z` }));
   const post = p => ({ ...p, house: houses.find(h => h.id === p.houseId), room: rooms.find(r => r.id === p.roomId) });
   const contracts = [{ id: 601, contractNumber: 'HD-API-601', roomId: 102, houseId: 11, landlordId: 2, viewingTenantId: 1, status: 'ACTIVE', source: 'NEW_RENTAL', startDate: '2026-10-01', endDate: '2027-09-30', rentAmount: 3000000, depositAmount: 3000000, currentRevisionId: 901, members: [{ id: 801, contractId: 601, roomId: 102, tenantId: 1, fullName: users[0].fullName, status: 'ACTIVE', moveInDate: '2026-10-01' }] }];
   const revisions = [{ id: 901, contractId: 601, revisionNumber: 1, status: 'CONFIRMED', content: 'Điều khoản API', startDate: '2026-10-01', endDate: '2027-09-30' }];
   const viewings = [{ id: 701, roomId: 101, houseId: 11, tenantId: 1, createdById: 2, conversationId: 501, startsAt: '2026-11-12T10:00:00', endsAt: '2026-11-12T11:00:00', status: 'COMPLETED', rentalDecision: 'WAITING' }], proposals = [], invoices = [], changes = [], joins = [];
   const conversations = [{ id: 501, type: 'ROOM_INQUIRY', roomId: 101, postId: 201, participants: [{ userId: 1, joinedAt: '2026-11-01T10:00:00' }, { userId: 2, joinedAt: '2026-11-01T10:00:00' }] }], messages = [{ id: 1101, senderId: 2, content: 'Chào bạn từ API', type: 'TEXT', sentAt: '2026-11-12T10:00:00' }];
-  const services = [{ id: 1201, houseId: 11, name: 'Điện API', unit: 'kWh', unitPrice: 4000, calculationMethod: 'METERED', active: true }], settings = [], favorites = new Set(), templates = [{ id: 1301, name: 'Mẫu từ API', version: 1, content: 'Điều khoản API', active: true }];
+  const services = [{ id: 1201, houseId: 11, name: 'Điện API', unit: 'kWh', unitPrice: 4000, calculationMethod: 'METERED', active: true }], settings = [], favorites = new Set(), templates = [{ id: 1301, name: 'Mẫu từ API', version: 1, content: 'Điều khoản API', active: true }, { id: 1302, name: 'Mẫu thuê theo tháng', version: 2, content: 'Điều khoản thuê theo tháng', active: true }];
   const notifications = [{ id: 1501, title: 'Thông báo API', content: 'Nội dung máy chủ', isRead: false, resourceType: 'CONVERSATION', resourceId: 501 }];
   const invites = [{ id: 1601, senderId: 4, receiverId: 1, status: 'PENDING', message: 'Lời mời từ API' }], lifestyles = [];
   const reports = [{ id: 1701, reportedPostId: 201, reporterId: 1, type: 'POST', reason: 'Báo cáo API', status: 'PENDING' }], audit = [], calls = [], unknown = [];
@@ -155,7 +156,13 @@ async function mockBackend() {
     if (/^\/houses\/\d+\/services(?:\/\d+)?$/.test(route)) { if (method === 'GET') return reply(services.filter(s => s.houseId === suffixId)); if (method === 'PATCH') { const s = services.find(s => s.id === Number(route.split('/').at(-1))); Object.assign(s, body); return reply(s); } const s = { id: ++sequence, houseId: Number(route.split('/')[2]), ...body }; services.push(s); return reply(s); }
     if (/^\/rooms\/\d+\/service-settings$/.test(route)) return reply(settings);
     if (/^\/rooms\/\d+\/service-settings\/\d+$/.test(route)) return reply({ roomId: Number(route.split('/')[2]), houseServiceId: Number(route.split('/').at(-1)), active: body.active });
-    if (route === '/landlord/posts' || route === '/admin/posts') return reply(posts.filter(p => route === '/landlord/posts' || p.status === 'PENDING_REVIEW').map(post));
+    if (route === '/landlord/posts') return reply(posts.filter(p => {
+      const { houseId, roomId, createdFrom, createdTo } = Object.fromEntries(url.searchParams);
+      const date = p.createdAt?.slice(0, 10);
+      return (!houseId || p.houseId === Number(houseId)) && (!roomId || p.roomId === Number(roomId))
+        && (!createdFrom || date >= createdFrom) && (!createdTo || date <= createdTo);
+    }).map(post));
+    if (route === '/admin/posts') return reply(posts.map(post));
     if (route === '/posts' && method === 'POST') { const p = { ...body, id: ++sequence, roomId: Number(body.roomId), houseId: 11, landlordId: user.id, status: 'PENDING_REVIEW', contentVersion: '1' }; posts.push(p); return reply(post(p)); }
     if (/^\/posts\/\d+$/.test(route) && method === 'PATCH') { const p = posts.find(p => p.id === suffixId); Object.assign(p, body, { roomId: Number(body.roomId), status: 'PENDING_REVIEW' }); return reply(post(p)); }
     if (/^\/(?:admin\/)?posts\/\d+\/(?:decision|hide|restore)$/.test(route)) { const p = posts.find(p => p.id === suffixId); p.status = route.endsWith('/hide') ? 'HIDDEN' : body.decision === 'REJECT' ? 'REJECTED' : 'APPROVED'; return reply(post(p)); }
@@ -196,7 +203,23 @@ async function mockBackend() {
     }
     if (/^\/contracts\/\d+\/transfer-options$/.test(route)) return reply([{ roomId: 103, code: 'P103' }]);
     if (/^\/contracts\/\d+\/(?:confirm|move-ins|cancel)$/.test(route)) { const c = contracts.find(c => c.id === suffixId); c.status = route.endsWith('/confirm') ? 'CONFIRMED' : route.endsWith('/cancel') ? 'CANCELLED' : 'ACTIVE'; if (c.status === 'ACTIVE') c.members.forEach(m => m.status = 'ACTIVE'); return reply(c); }
-    if (route === '/occupant-join-requests') return reply(joins);
+    if (route === '/occupant-join-requests') {
+      if (method === 'GET') return reply(joins.filter(j => [j.applicantId, j.requestedById, j.landlordId].includes(user.id)));
+      const applicant = users.find(u => u.id === Number(body.applicantId) || u.email === body.applicantContact);
+      const contract = contracts.find(c => c.id === Number(body.contractId));
+      const join = { ...body, id: ++sequence, contractId: contract.id, contractNumber: contract.contractNumber, landlordId: contract.landlordId,
+        roomCode: rooms.find(r => r.id === contract.roomId).code, applicantId: applicant.id, applicantName: applicant.fullName,
+        requestedById: user.id, status: 'PENDING_CONSENT', representativeConsented: body.representativeConsent, applicantConsented: false };
+      joins.push(join);
+      return reply(join);
+    }
+    if (/^\/occupant-join-requests\/\d+\/(consents|approve|complete)$/.test(route)) {
+      const join = joins.find(j => j.id === suffixId);
+      if (route.endsWith('/consents')) { join.applicantConsented = true; join.status = 'PENDING_LANDLORD'; }
+      else if (route.endsWith('/approve')) join.status = 'APPROVED';
+      else join.status = 'COMPLETED';
+      return reply(join);
+    }
     if (route === '/invoices') { if (method === 'GET') return reply(invoices); const i = { ...body, id: ++sequence, contractId: Number(body.contractId), roomId: contracts.find(c => c.id === Number(body.contractId)).roomId, payerId: body.payerRoomTenantId, period: body.billingPeriod, status: 'DRAFT', total: body.items.reduce((a, i) => a + i.quantity * i.unitPrice, 0) }; invoices.push(i); return reply(i); }
     if (/^\/invoices\/\d+\/(?:issue|payment-confirmation|cancel)$/.test(route)) { const i = invoices.find(i => i.id === suffixId); i.status = route.endsWith('/issue') ? 'UNPAID' : route.endsWith('/cancel') ? 'CANCELLED' : 'PAID'; return reply(i); }
     if (route === '/residents' || route === '/residents/export') return reply(contracts.flatMap(c => c.members.map(m => ({ ...m, contractId: c.id, roomId: c.roomId }))));
@@ -227,12 +250,17 @@ async function exercise({ page, evaluate, waitFor, setInput, clickText, shot, er
   };
   const click = async (label, area = 'main') => evaluate(`(() => { const b = [...document.querySelectorAll(${JSON.stringify(area + ' button')})].find(b => b.textContent.trim() === ${JSON.stringify(label)}); if (!b) throw Error('Missing button: '+${JSON.stringify(label)}); b.click(); })()`);
   const submit = async () => { await evaluate('document.querySelector("dialog form").requestSubmit()'); await waitFor('!document.querySelector("dialog[open]") || Boolean(document.querySelector("dialog [role=alert]"))'); };
-  const login = async role => {
+  const login = async (role, account = role) => {
     await navigate('login'); await waitFor('Boolean(document.querySelector(".auth-form"))');
-    await setInput('input[name=identifier]', `${role}@test.example`); await setInput('input[name=password]', '123456');
+    await setInput('input[name=identifier]', `${account}@test.example`); await setInput('input[name=password]', '123456');
     await evaluate('document.querySelector(".auth-form").requestSubmit()');
     await waitFor(`__troday.getState().authenticated && __troday.getState().role === ${JSON.stringify(role)} && !__troday.getState().loading && Boolean(document.querySelector('main h1'))`);
   };
+  const selectValue = (selector, value) => evaluate(`(() => {
+    const select = document.querySelector(${JSON.stringify(selector)});
+    select.value = ${JSON.stringify(value)};
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  })()`);
   await waitFor('document.querySelectorAll(".property-card").length === 1');
   await evaluate('document.querySelector(".save-room").click()'); await waitFor('Boolean(document.querySelector(".auth-form"))');
   assert.equal(await evaluate('__troday.getState().favorites.length'), 0, 'Guest cannot save locally');
@@ -254,6 +282,20 @@ async function exercise({ page, evaluate, waitFor, setInput, clickText, shot, er
   await waitFor('document.querySelectorAll(".property-card").length === 0'); assert.ok(fixture.calls.some(c => c.route === '/posts' && c.query.q === 'missing'));
   await navigate('discover');assert.equal(await evaluate('document.querySelectorAll(".property-card").length'), 0, 'FE-01: reload keeps search separate from saved posts');
   await click('Xóa bộ lọc'); await waitFor('document.querySelectorAll(".property-card").length === 1');
+  const discoveryPosts = Array.from({ length: 12 }, (_, index) => ({ ...fixture.posts[0], id: 3000 + index, title: `Discovery page ${index}` }));
+  fixture.posts.push(...discoveryPosts);
+  await setInput('input[name=query]', 'Discovery page');
+  await evaluate('document.querySelector(".discovery-search").requestSubmit()');
+  await waitFor('!__troday.getState().loading && __troday.getState().pagination.totalItems === 12');
+  await selectValue('.list-paging select', '10');
+  await waitFor('!__troday.getState().loading && document.querySelectorAll(".property-card").length === 10');
+  await click('Sau');
+  await waitFor('!__troday.getState().loading && __troday.getState().pagination.page === 2 && document.querySelectorAll(".property-card").length === 2');
+  assert.equal(fixture.calls.filter(c => c.route === '/posts').at(-1).query.q, 'Discovery page');
+  await setInput('input[name=query]', 'Discovery page 4');
+  await evaluate('document.querySelector(".discovery-search").requestSubmit()');
+  await waitFor('!__troday.getState().loading && __troday.getState().pagination.page === 1 && document.querySelectorAll(".property-card").length === 1');
+  fixture.posts.splice(-discoveryPosts.length);
   const profileReadsStart = fixture.calls.length;await navigate('profile');assert.ok(fixture.calls.slice(profileReadsStart).filter(c => c.method === 'GET' && c.route !== '/events').length <= 6, 'FE-05: profile does not load rental datasets'); await setInput('input[name=fullName]', 'Tên đã cập nhật API'); await evaluate('document.querySelector("main form").requestSubmit()');
   await waitFor('document.querySelector(".profile-identity h2").textContent === "Tên đã cập nhật API"');
   await navigate('chats', '501'); await setInput('.chat-composer textarea', 'Tin nhắn qua API'); await evaluate('document.querySelector(".chat-composer").requestSubmit()');
@@ -292,14 +334,44 @@ async function exercise({ page, evaluate, waitFor, setInput, clickText, shot, er
     assert.equal(await evaluate('__troday.getState().houses.filter(h => h.name === "Giữ dữ liệu khi lỗi").length'), 0);
   }
   await evaluate('document.querySelector("dialog .dialog-header button").click()');
-  await navigate('listings'); await click('Tạo tin đăng'); await waitFor('Boolean(document.querySelector("dialog form"))'); await setInput('dialog input[name=title]', 'Tin tạo qua API'); await setInput('dialog textarea[name=description]', 'Nội dung kiểm thử'); await submit(); await waitFor('__troday.getState().posts.some(p => p.title === "Tin tạo qua API")'); assert.ok(fixture.calls.some(c => c.method === 'POST' && c.route === '/posts' && c.body.content === 'Nội dung kiểm thử'));
-  await navigate('contracts'); await click('Lập từ lịch đã xem'); await waitFor('Boolean(document.querySelector("dialog form"))'); await setInput('dialog input[name=rent]', '3000000'); await setInput('dialog input[name=deposit]', '3000000'); await submit(); await waitFor('__troday.getState().contracts.length === 2');
+  await navigate('listings');
+  await selectValue('select[name=houseId]', '11');
+  await waitFor('!__troday.getState().loading && __troday.getState().listQuery.houseId === "11"');
+  await selectValue('select[name=roomId]', '101');
+  await setInput('input[name=createdFrom]', '2026-11-10');
+  await waitFor('!__troday.getState().loading && __troday.getState().listQuery.createdFrom === "2026-11-10"');
+  assert.deepEqual(fixture.calls.filter(c => c.route === '/landlord/posts').at(-1).query, { page: '1', pageSize: '20', houseId: '11', roomId: '101', createdFrom: '2026-11-10' });
+  assert.equal(await evaluate('document.querySelectorAll("main tbody tr").length'), 1);
+  await click('Xóa lọc nhà, phòng và ngày');
+  await waitFor('!__troday.getState().loading && !__troday.getState().listQuery.createdFrom');
+  await click('Tạo tin đăng'); await waitFor('Boolean(document.querySelector("dialog form"))'); await setInput('dialog input[name=title]', 'Tin tạo qua API'); await setInput('dialog textarea[name=description]', 'Nội dung kiểm thử'); await submit(); await waitFor('__troday.getState().posts.some(p => p.title === "Tin tạo qua API")'); assert.ok(fixture.calls.some(c => c.method === 'POST' && c.route === '/posts' && c.body.content === 'Nội dung kiểm thử'));
+  await navigate('contracts');
+  await click('Xem mẫu hợp đồng');
+  await waitFor('Boolean(document.querySelector("dialog details summary"))');
+  assert.ok(await evaluate('document.querySelector("dialog").textContent.includes("Phiên bản mẫu 2")'));
+  await evaluate('document.querySelector("dialog .dialog-header button").click()');
+  await click('Lập từ lịch đã xem'); await waitFor('Boolean(document.querySelector("dialog form"))');
+  await selectValue('dialog select[name=templateId]', '1302');
+  assert.equal(await evaluate('document.querySelector("dialog textarea[name=terms]").value'), 'Điều khoản thuê theo tháng');
+  await setInput('dialog input[name=rent]', '3000000'); await setInput('dialog input[name=deposit]', '3000000'); await submit(); await waitFor('__troday.getState().contracts.length === 2');
+  assert.equal(fixture.calls.find(c => c.route === '/contracts' && c.method === 'POST').body.templateId, '1302');
   const createdContract = String(fixture.contracts.at(-1).id);
   await login('tenant'); await navigate('contracts', createdContract); await waitFor('Boolean(document.querySelector("dialog #contract-details"))'); await clickText('Xác nhận hợp đồng'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().contracts.find(c => c.id === '+JSON.stringify(createdContract)+').status === "CONFIRMED"');
   await login('landlord'); await navigate('contracts', createdContract); await waitFor('Boolean(document.querySelector("dialog #contract-details"))'); await clickText('Xác nhận vào ở'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().contracts.find(c => c.id === '+JSON.stringify(createdContract)+').status === "ACTIVE"');
   await navigate('invoices'); await click('Tạo hóa đơn'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices.length === 1');
   await click('Chi tiết'); await waitFor('Boolean(document.querySelector("dialog[open]"))'); await clickText('Phát hành'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices[0].status === "UNPAID"');
   await click('Xác nhận thu'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().invoices[0].status === "PAID"');
+  await login('tenant'); await navigate('contracts'); await click('Mời người ở ghép vào phòng');
+  await waitFor('Boolean(document.querySelector("dialog input[name=applicantContact]"))');
+  await setInput('dialog input[name=applicantContact]', 'invitee@test.example');
+  await submit(); await waitFor('__troday.getState().joinRequests[0]?.status === "PENDING_CONSENT"');
+  assert.equal(fixture.calls.find(c => c.route === '/occupant-join-requests' && c.method === 'POST').body.representativeConsent, true);
+  await login('tenant', 'invitee'); await navigate('contracts'); await click('Đồng ý vào ở');
+  await waitFor('__troday.getState().joinRequests[0]?.status === "PENDING_LANDLORD"');
+  await login('landlord'); await navigate('residents'); await click('Duyệt yêu cầu'); await submit();
+  await waitFor('__troday.getState().joinRequests[0]?.status === "APPROVED"');
+  await click('Xác nhận đã vào ở'); await submit();
+  await waitFor('__troday.getState().joinRequests[0]?.status === "COMPLETED"');
   await login('tenant'); await navigate('contracts', '601');
   await waitFor('Boolean(document.querySelector("dialog #contract-details"))');
   await evaluate('document.querySelector("dialog .contract-version summary").click()');
@@ -327,7 +399,31 @@ async function exercise({ page, evaluate, waitFor, setInput, clickText, shot, er
   await waitFor('__troday.getState().changeRequests[0]?.status === "COMPLETED"');
   await waitFor('__troday.getState().contracts.find(c => c.id === "601")?.end === "2028-10-31"');
   await login('admin'); await navigate('users'); assert.ok(await evaluate('document.querySelector("main").textContent.includes("Bạn ghép API")')); await click('Khóa tài khoản'); await waitFor('Boolean(document.querySelector("dialog form"))'); await setInput('dialog textarea[name=reason]', 'Lý do kiểm thử'); await submit(); await waitFor('__troday.getState().lockedUsers.length === 1');
-  await navigate('moderation'); await click('Duyệt'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit(); await waitFor('__troday.getState().posts.some(p => p.id === "203" && p.status === "APPROVED")');
+  await navigate('moderation'); await click('Duyệt'); await waitFor('Boolean(document.querySelector("dialog form"))'); await submit();
+  await waitFor('!__troday.getState().posts.some(p => p.id === "203")');
+  assert.equal(fixture.posts.find(p => p.id === 203).status, 'APPROVED');
+  const extraPosts = Array.from({ length: 12 }, (_, i) => ({ ...fixture.posts[0], id: 4000 + i, title: `Paging example ${4000 + i}` }));
+  fixture.posts.push(...extraPosts);
+  await click('Đã duyệt');
+  await waitFor('!__troday.getState().loading && __troday.getState().posts.some(p => p.id === "203")');
+  assert.equal(fixture.calls.filter(c => c.route === '/admin/posts').at(-1).query.status, 'APPROVED');
+  await evaluate('(() => { const select = document.querySelector(".list-paging select"); select.value = "10"; select.dispatchEvent(new Event("change", { bubbles: true })); })()');
+  await waitFor('!__troday.getState().loading && __troday.getState().pagination.pageSize === 10');
+  assert.equal(await evaluate('document.querySelectorAll("main table tbody tr").length'), 10);
+  const firstPostIds = await evaluate('__troday.getState().posts.map(post => post.id)');
+  await click('Sau');
+  await waitFor('!__troday.getState().loading && __troday.getState().pagination.page === 2');
+  const secondPostIds = await evaluate('__troday.getState().posts.map(post => post.id)');
+  assert.ok(secondPostIds.every(id => !firstPostIds.includes(id)), 'The second page contains different rows');
+  await click('Trước');
+  await waitFor('!__troday.getState().loading && __troday.getState().pagination.page === 1');
+  await click('Sau');
+  await waitFor('!__troday.getState().loading && __troday.getState().pagination.page === 2');
+  await setInput('.server-list-controls input', 'Paging example 4000');
+  await evaluate('document.querySelector(".server-list-controls form").requestSubmit()');
+  await waitFor('!__troday.getState().loading && __troday.getState().pagination.page === 1 && __troday.getState().pagination.totalItems === 1');
+  assert.deepEqual(await evaluate('__troday.getState().posts.map(post => post.id)'), ['4000']);
+  fixture.posts.splice(-extraPosts.length);
   await navigate('reports'); await click('Xử lý'); await waitFor('Boolean(document.querySelector("dialog form"))'); await setInput('dialog textarea[name=resolution]', 'Đang kiểm tra'); await submit(); await waitFor('__troday.getState().reports[0].status === "INVESTIGATING"');
   await login('tenant');await navigate('discover');const releaseSearch = fixture.delayNextPosts();await setInput('input[name=query]', 'missing');await evaluate('document.querySelector(".discovery-search").requestSubmit()');await new Promise(resolve => setTimeout(resolve,80));
   await login('admin');await navigate('moderation');const moderationBefore = await evaluate('JSON.stringify(__troday.getState().posts.map(p => p.id))');releaseSearch();await new Promise(resolve => setTimeout(resolve,150));assert.equal(await evaluate('JSON.stringify(__troday.getState().posts.map(p => p.id))'),moderationBefore,'FE-06: stale public search cannot replace moderation data');

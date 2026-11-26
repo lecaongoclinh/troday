@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { send } from '../data/api';
+import { isOnListPage } from '../data/api';
 import { dateLabel, money, visibleContracts } from '../data/selectors';
+import OccupantJoinRequests from '../components/OccupantJoinRequests';
 import { Badge, Button, Icon, PageHeader, Section, Table, Tabs } from '../components/ui';
 
 export default function Contracts() {
-  const { data, route, role, me, room, house, person, openDialog, execute, run, setListQuery } = useApp();
-  const [filter, setFilter] = useState('all');
+  const { data, route, role, me, room, house, person, openDialog, setListQuery } = useApp();
+  const filter = route.listQuery.status || 'all';
   const contracts = visibleContracts(data, me, role);
-  const rows = contracts.filter(contract => filter === 'all' || contract.status === filter);
-  const current = contracts.find(contract => contract.status === 'ACTIVE');
+  const rows = contracts.filter(contract => isOnListPage(data, contract.id));
+  const current = contracts.find(contract => contract.status === 'ACTIVE' && contract.tenantId === me)
+    || contracts.find(contract => contract.status === 'ACTIVE' && contract.members.some(m => m.tenantId === me && m.status === 'ACTIVE'));
   const currentRoom = room(current?.roomId);
-  const currentHouse = house(currentRoom?.houseId);
+  const currentHouse = house(current?.houseId || currentRoom?.houseId);
   const changes = data.changeRequests.filter(change => contracts.some(contract => contract.id === change.contractId));
   const linkedContractId = contracts.find(contract => contract.id === route.id)?.id;
 
@@ -22,7 +24,7 @@ export default function Contracts() {
   return (
     <>
       <PageHeader title="Hợp đồng thuê trọ" description="Mọi thỏa thuận đều rõ ràng, mọi hành trình đều an tâm.">
-        {role === 'landlord' && <><Button icon="plus" variant="primary" onClick={() => openDialog('contract')}>Lập từ lịch đã xem</Button><Button onClick={() => openDialog('paper-import')}>Nhập hợp đồng giấy</Button></>}
+        {role === 'landlord' && <><Button icon="plus" variant="primary" onClick={() => openDialog('contract')}>Lập từ lịch đã xem</Button><Button onClick={() => openDialog('contract-templates')}>Xem mẫu hợp đồng</Button><Button onClick={() => openDialog('paper-import')}>Nhập hợp đồng giấy</Button></>}
       </PageHeader>
 
       {role === 'tenant' && current && (
@@ -30,17 +32,18 @@ export default function Contracts() {
           <span className="quick-icon"><Icon name="home" /></span>
           <div>
             <span className="eyebrow">NGÔI NHÀ HIỆN TẠI CỦA BẠN</span>
-            <h2>{currentRoom?.code} · {currentHouse?.name}</h2>
-            <p>{currentHouse?.address}</p>
+            <h2>{[currentRoom?.code || `Phòng #${current.roomId}`, currentHouse?.name].filter(Boolean).join(' · ')}</h2>
+            {currentHouse?.address && <p>{currentHouse.address}</p>}
           </div>
           <Badge status="ACTIVE" />
+          {current.tenantId === me && <Button onClick={() => openDialog('join', { id: current.id })}>Mời người ở ghép vào phòng</Button>}
         </div>
       )}
 
       <div className="filter-bar">
         <Tabs
           value={filter}
-          onChange={value => { setFilter(value);setListQuery({ status: value === 'all' ? '' : value, page: 1 }); }}
+          onChange={value => setListQuery({ status: value === 'all' ? '' : value })}
           items={[
             ['all', 'Tất cả'],
             ['ACTIVE', 'Đang hiệu lực'],
@@ -71,7 +74,7 @@ export default function Contracts() {
         ]}
       />
 
-      {data.joinRequests.length > 0 && role === 'tenant' && <Section title="Yêu cầu thêm người"><Table rows={data.joinRequests} columns={[{ label: 'Người ở ghép', render: j => person(j.applicantId).name }, { label: 'Trạng thái', render: j => <Badge status={j.status} /> }, { actions: true, render: j => ['PENDING_CONSENT', 'PENDING_LANDLORD'].includes(j.status) && <div className="table-actions"><Button onClick={() => run(() => execute(() => send(`/occupant-join-requests/${j.id}/consents`, { consent: true })))}>Đồng ý</Button><Button onClick={() => run(() => execute(() => send(`/occupant-join-requests/${j.id}/cancel`, { reason: 'Rút yêu cầu' })))}>Rút yêu cầu</Button></div> }]} /></Section>}
+      <OccupantJoinRequests />
       {changes.length > 0 && (
         <Section title="Yêu cầu thay đổi hợp đồng">
           <Table

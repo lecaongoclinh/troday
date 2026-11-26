@@ -29,7 +29,7 @@ function Editor({ title, fields = [], initial = {}, onSubmit, beforeFields, chil
     catch (e) { setError(e.message || 'Vui lòng kiểm tra thông tin và thử lại.'); }
     finally { submitting.current = false; setBusy(false); }
   };
-  return <Frame title={title}><form onSubmit={submit}><fieldset disabled={busy} className="form-fieldset">{beforeFields}<div className="form-grid">{fields.map(f => <Field key={f.name} label={f.label} full={f.full}>{f.type === 'select' ? <select name={f.name} required={f.required} defaultValue={initial?.[f.name] ?? f.options[0]?.[0]}>{f.options.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select> : f.type === 'textarea' ? <textarea name={f.name} defaultValue={initial?.[f.name] || ''} required={f.required} maxLength={10000} /> : <input type={f.type || 'text'} name={f.name} defaultValue={initial?.[f.name] ?? f.defaultValue ?? ''} required={f.required} min={f.min} max={f.max} step={f.type === 'number' ? f.step || 'any' : undefined} maxLength={f.maxLength || 500} />}</Field>)}</div>{children}{error && <p className="form-error" role="alert">{error}</p>}<div className="form-actions"><Button onClick={closeDialog}>Hủy</Button><Button type="submit" variant="primary" disabled={busy}>{busy ? 'Đang lưu…' : submitLabel}</Button></div></fieldset></form></Frame>;
+  return <Frame title={title}><form onSubmit={submit}><fieldset disabled={busy} className="form-fieldset">{beforeFields}<div className="form-grid">{fields.map(f => <Field key={f.name} label={f.label} full={f.full}>{f.type === 'select' ? <select name={f.name} required={f.required} defaultValue={initial?.[f.name] ?? f.options[0]?.[0]}>{f.options.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select> : f.type === 'textarea' ? <textarea name={f.name} {...(f.onChange ? { value: f.value, onChange: f.onChange } : { defaultValue: initial?.[f.name] || '' })} required={f.required} maxLength={10000} /> : <input type={f.type || 'text'} name={f.name} defaultValue={initial?.[f.name] ?? f.defaultValue ?? ''} required={f.required} min={f.min} max={f.max} step={f.type === 'number' ? f.step || 'any' : undefined} maxLength={f.maxLength || 500} />}</Field>)}</div>{children}{error && <p className="form-error" role="alert">{error}</p>}<div className="form-actions"><Button onClick={closeDialog}>Hủy</Button><Button type="submit" variant="primary" disabled={busy}>{busy ? 'Đang lưu…' : submitLabel}</Button></div></fieldset></form></Frame>;
 }
 function Unavailable({ title, children }) { return <Frame title={title}><Empty title="Chưa thể hoàn tất thao tác">{children}</Empty></Frame>; }
 
@@ -41,7 +41,7 @@ function DialogContent() {
   switch (d.type) {
     case 'help': return <Frame title="Chào bạn, Trọday đây!"><p>Tìm phòng, lưu tin yêu thích, hẹn xem và kết nối bạn ở ghép. Đăng nhập để sử dụng các chức năng của tài khoản.</p></Frame>;
     case 'menu': return <Frame title="Không gian của bạn"><div className="mobile-menu-grid">{NAV[role].map(([view, label, icon]) => <Button key={view} icon={icon} onClick={() => navigate(view)}>{label}</Button>)}</div><div className="form-actions"><Button onClick={app.session ? logout : () => navigate('login')}>{app.session ? 'Đăng xuất' : 'Đăng nhập / Đăng ký'}</Button></div></Frame>;
-    case 'notifications': return <Frame title="Thông báo"><div className="notification-list">{data.notifications.map(n => <div key={n.id} className={`notification-item ${n.read ? '' : 'unread'}`}><Icon name="bell" /><div><p>{n.text}</p>{!n.read && <Button onClick={() => app.patch('notifications', n.id, { read: true })}>Đánh dấu đã đọc</Button>}{n.resourceId && <Button variant="text-button" onClick={() => navigate(({ CONVERSATION: 'chats', CONTRACT: 'contracts', INVOICE: 'invoices', VIEWING: 'viewings' })[n.resourceType] || 'profile', n.resourceId)}>Xem nội dung</Button>}</div></div>)}{!data.notifications.length && <Empty title="Chưa có thông báo" />}</div><div className="form-actions"><Button onClick={() => run(() => execute(() => send('/me/notifications/read-all')))}>Đọc tất cả</Button></div></Frame>;
+    case 'notifications': return <Frame title="Thông báo"><div className="notification-list">{data.notifications.map(n => <div key={n.id} className={`notification-item ${n.read ? '' : 'unread'}`}><Icon name="bell" /><div><p>{n.text}</p>{!n.read && <Button onClick={() => app.patch('notifications', n.id, { read: true })}>Đánh dấu đã đọc</Button>}{n.resourceId && <Button variant="text-button" onClick={() => n.resourceType === 'OCCUPANT_JOIN_REQUEST' ? navigate('contracts') : navigate(({ CONVERSATION: 'chats', CONTRACT: 'contracts', INVOICE: 'invoices', VIEWING: 'viewings' })[n.resourceType] || 'profile', n.resourceId)}>Xem nội dung</Button>}</div></div>)}{!data.notifications.length && <Empty title="Chưa có thông báo" />}</div><div className="form-actions"><Button onClick={() => run(() => execute(() => send('/me/notifications/read-all')))}>Đọc tất cả</Button></div></Frame>;
     case 'house': {
       const h = house(d.id);
       return <Editor title={h ? 'Chỉnh sửa nhà trọ' : 'Thêm nhà trọ'} initial={h} fields={[text('name', 'Tên nhà trọ'), text('address', 'Địa chỉ đầy đủ', { full: true }), text('provinceCode', 'Mã tỉnh / thành phố'), text('localityCode', 'Mã phường / xã', { required: false })]} onSubmit={v => save('houses', h, v)} />;
@@ -69,6 +69,12 @@ function DialogContent() {
     }
     case 'contract-detail': return <Frame title={`Chi tiết hợp đồng ${contract(d.id)?.number || ''}`}><ContractDetails id={d.id} /></Frame>;
     case 'contract': return <ContractEditor />;
+    case 'contract-templates': return <Frame title="Mẫu hợp đồng đang sử dụng">
+      {data.templates.filter(t => t.active).map(t => <details className="contract-version" key={t.id}>
+        <summary>{t.name} · Phiên bản mẫu {t.version}</summary><p className="contract-terms">{t.content}</p>
+      </details>)}
+      {!data.templates.some(t => t.active) && <Empty title="Chưa có mẫu hợp đồng đang sử dụng" />}
+    </Frame>;
     case 'paper-import': return <PaperImportEditor />;
     case 'invoice': return <InvoiceEditor />;
     case 'invoice-detail': return <InvoiceDetail />;
@@ -87,10 +93,27 @@ function DialogContent() {
     case 'review-change': return <ChangeReview />;
     case 'cancel-change': return <Editor title="Rút đề nghị điều chỉnh" fields={[text('reason', 'Lý do', { type: 'textarea', full: true, required: false })]} onSubmit={v => execute(() => send(`/contract-change-requests/${d.id}/cancel`, v))} submitLabel="Rút đề nghị" />;
     case 'approve-join': return <Editor title="Duyệt yêu cầu thêm người" onSubmit={() => decide('joinRequests', d.id, { status: 'APPROVED' })} submitLabel="Duyệt yêu cầu"><p>Chỉ duyệt khi các bên đã đồng ý và phòng còn đủ sức chứa.</p></Editor>;
+    case 'complete-join': return <Editor title="Xác nhận đã vào ở" onSubmit={() => execute(() => send(`/occupant-join-requests/${d.id}/complete`))} submitLabel="Xác nhận đã vào ở"><p>Xác nhận khi người được mời đã đến ở thực tế.</p></Editor>;
+    case 'cancel-join-hold': return <Editor title="Hủy giữ chỗ" fields={[text('reason', 'Lý do hủy', { type: 'textarea', full: true })]} onSubmit={v => execute(() => send(`/occupant-join-requests/${d.id}/cancel-hold`, v))} submitLabel="Hủy giữ chỗ" />;
     case 'join': {
-      const peers = data.roommateInvites.filter(i => i.status === 'ACCEPTED').map(i => i.senderId === me ? i.receiverId : i.senderId);
-      if (!peers.length) return <Unavailable title="Thêm người ở ghép">Bạn cần có một kết nối ở ghép đã được chấp nhận.</Unavailable>;
-      return <Editor title="Đề nghị thêm người ở ghép" fields={[select('applicantId', 'Người ở ghép', peers.map(p => [p, person(p).name])), text('plannedMoveInDate', 'Ngày dự kiến vào ở', { type: 'date' }), text('message', 'Lời nhắn', { required: false, type: 'textarea', full: true })]} onSubmit={v => execute(() => send('/occupant-join-requests', { ...v, contractId: d.id }))} />;
+      const c = contract(d.id);
+      if (role !== 'tenant' || c?.status !== 'ACTIVE' || c.tenantId !== me || c.end < day()) return <Unavailable title="Thêm người ở ghép">Cần hợp đồng đang hiệu lực và quyền đại diện để gửi lời mời.</Unavailable>;
+      const peers = [...new Set(data.roommateInvites.filter(i => i.status === 'ACCEPTED').map(i => i.senderId === me ? i.receiverId : i.senderId))];
+      const firstDay = c.start > day() ? c.start : day();
+      return <Editor title="Mời thêm người ở ghép" initial={{ plannedMoveInDate: firstDay }} beforeFields={<p>Phòng {room(c.roomId)?.code || `#${c.roomId}`} · Hợp đồng {c.number}. Người được mời đồng ý trước khi chủ trọ duyệt.</p>} fields={[
+        ...(peers.length ? [select('applicantId', 'Bạn đã kết nối', [['', 'Chọn kết nối nếu có'], ...peers.map(id => [id, person(id).name])], { required: false })] : []),
+        text('applicantContact', 'Email hoặc số điện thoại đăng nhập của người được mời', { required: !peers.length, maxLength: 150, full: true }),
+        text('plannedMoveInDate', 'Ngày dự kiến vào ở', { type: 'date', min: firstDay, max: c.end }),
+        text('message', 'Lời nhắn', { required: false, type: 'textarea', full: true }),
+      ]} submitLabel="Đồng ý và gửi lời mời" onSubmit={v => {
+        const contact = v.applicantContact.trim();
+        if (Boolean(v.applicantId) === Boolean(contact)) throw new Error('Chọn một kết nối hoặc nhập email/số điện thoại đăng nhập.');
+        if (v.message.length > 2000) throw new Error('Lời nhắn dài tối đa 2.000 ký tự.');
+        return execute(() => send('/occupant-join-requests', {
+          contractId: c.id, ...(contact ? { applicantContact: contact } : { applicantId: v.applicantId }),
+          plannedMoveInDate: v.plannedMoveInDate, message: v.message, representativeConsent: true,
+        }));
+      }} />;
     }
     case 'roommate-profile': {
       const p = data.roommateProfile, active = data.contracts.flatMap(c => c.members).find(m => m.tenantId === me && m.status === 'ACTIVE');
@@ -152,17 +175,36 @@ function ContractEditor() {
   const { data, dialog: d, execute } = useApp();
   const c = data.contracts.find(c => c.id === d.id), draft = c?.revisions.find(r => r.status === 'DRAFT');
   const eligible = data.viewings.filter(v => v.status === 'COMPLETED' && v.decision === 'AGREED');
+  const templates = data.templates.filter(t => t.active);
+  const [templateId, setTemplateId] = useState(templates[0]?.id || '');
+  const [appliedTemplateId, setAppliedTemplateId] = useState(templateId);
+  const [terms, setTerms] = useState(draft?.content || (c ? '' : templates[0]?.content || ''));
+  const template = templates.find(t => t.id === templateId);
   const [viewingId, setViewingId] = useState(d.viewingId || eligible[0]?.id || '');
   const [impact, setImpact] = useState(null);
   useEffect(() => { if (!c && viewingId) { let active = true; request(`/viewings/${viewingId}/contract-impact`).then(x => { if (active) setImpact(x); }).catch(() => { if (active) setImpact(null); }); return () => { active = false; }; } }, [c?.id, viewingId]);
   if (c && !draft) return <Unavailable title="Chỉnh sửa hợp đồng">Người thuê cần gửi góp ý để tạo bản nháp chỉnh sửa trước khi gửi lại hợp đồng.</Unavailable>;
   if (!c && !eligible.length) return <Unavailable title="Lập hợp đồng">Chọn một lịch đã xem và người thuê đã đồng ý thuê. Nhập hợp đồng giấy cần chức năng tải tài liệu, hiện chưa sẵn sàng.</Unavailable>;
-  const initial = draft ? { start: draft.startDate, end: draft.endDate, rent: draft.rentAmount, deposit: draft.depositAmount, terms: draft.content } : { number: `HD-${Date.now()}`, start: day(), end: day(365), terms: data.templates.find(t => t.active)?.content || '' };
-  return <Editor title={c ? 'Chỉnh sửa và gửi lại hợp đồng' : 'Lập hợp đồng từ lịch đã xem'} initial={initial} fields={[...(!c ? [text('number', 'Số hợp đồng', { full: true })] : []), text('start', 'Ngày bắt đầu', { type: 'date' }), text('end', 'Ngày kết thúc', { type: 'date' }), number('rent', 'Tiền phòng / tháng (đ)'), number('deposit', 'Tiền đặt cọc (đ)'), text('terms', 'Điều khoản', { type: 'textarea', full: true })]} onSubmit={v => {
+  const initial = draft ? { start: draft.startDate, end: draft.endDate, rent: draft.rentAmount, deposit: draft.depositAmount } : { number: `HD-${Date.now()}`, start: day(), end: day(365) };
+  return <Editor title={c ? 'Chỉnh sửa và gửi lại hợp đồng' : 'Lập hợp đồng từ lịch đã xem'} initial={initial} beforeFields={!c && <>
+    <Field label="Lịch đủ điều kiện"><select value={viewingId} onChange={e => setViewingId(e.target.value)}>{eligible.map(v => <option key={v.id} value={v.id}>Lịch #{v.id} · Phòng #{v.roomId} · Người thuê #{v.tenantId}</option>)}</select></Field>
+    <Field label="Mẫu hợp đồng"><select name="templateId" value={templateId} onChange={e => {
+      const next = templates.find(t => t.id === e.target.value);
+      setTemplateId(e.target.value);
+      if (!next) setAppliedTemplateId('');
+      if (next && (!terms || terms === templates.find(t => t.id === appliedTemplateId)?.content)) {
+        setTerms(next.content);
+        setAppliedTemplateId(next.id);
+      }
+    }}><option value="">Tự soạn</option>{templates.map(t => <option key={t.id} value={t.id}>{t.name} · Phiên bản mẫu {t.version}</option>)}</select></Field>
+    {template && <details className="contract-version"><summary>Xem nội dung mẫu</summary><p className="contract-terms">{template.content}</p></details>}
+    {template && template.id !== appliedTemplateId && <Button onClick={() => { setTerms(template.content); setAppliedTemplateId(template.id); }}>Thay điều khoản bằng nội dung mẫu</Button>}
+  </>} fields={[...(!c ? [text('number', 'Số hợp đồng', { full: true })] : []), text('start', 'Ngày bắt đầu', { type: 'date' }), text('end', 'Ngày kết thúc', { type: 'date' }), number('rent', 'Tiền phòng / tháng (đ)'), number('deposit', 'Tiền đặt cọc (đ)'), text('terms', 'Điều khoản', { type: 'textarea', full: true, value: terms, onChange: e => setTerms(e.target.value) })]} onSubmit={v => {
     if (v.end <= v.start) throw new Error('Ngày kết thúc phải sau ngày bắt đầu.');
+    if (!c && templateId !== appliedTemplateId) throw new Error('Hãy dùng nội dung mẫu vừa chọn hoặc chọn Tự soạn để giữ điều khoản đã nhập.');
     const body = { startDate: v.start, endDate: v.end, rentAmount: v.rent, depositAmount: v.deposit, content: v.terms };
-    return execute(async () => { if (!c) return send('/contracts', { ...body, contractNumber: v.number, viewingId }); await send(`/contracts/${c.id}/revisions/${draft.id}`, body, 'PATCH'); return send(`/contracts/${c.id}/revisions/${draft.id}/submit`); });
-  }} submitLabel="Gửi hợp đồng xác nhận">{!c && <Field label="Lịch đủ điều kiện"><select value={viewingId} onChange={e => setViewingId(e.target.value)}>{eligible.map(v => <option key={v.id} value={v.id}>Lịch #{v.id} · Phòng #{v.roomId} · Người thuê #{v.tenantId}</option>)}</select></Field>}{impact && <p>Số lịch sắp tới trên phòng: {impact.futureViewingsCount}. Số đề nghị đang chờ theo máy chủ: {impact.pendingProposalsCount}.</p>}</Editor>;
+    return execute(async () => { if (!c) return send('/contracts', { ...body, contractNumber: v.number, viewingId, ...(templateId ? { templateId } : {}) }); await send(`/contracts/${c.id}/revisions/${draft.id}`, body, 'PATCH'); return send(`/contracts/${c.id}/revisions/${draft.id}/submit`); });
+  }} submitLabel="Gửi hợp đồng xác nhận">{impact && <p>Số lịch sắp tới trên phòng: {impact.futureViewingsCount}. Số đề nghị đang chờ theo máy chủ: {impact.pendingProposalsCount}.</p>}</Editor>;
 }
 function useTransferOptions(contractId) {
   const [targets, setTargets] = useState([]), [error, setError] = useState('');

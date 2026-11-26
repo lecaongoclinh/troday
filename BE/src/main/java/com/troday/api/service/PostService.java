@@ -11,7 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,8 +38,38 @@ public class PostService {
     }
 
     public ApiResponseDto<?> landlordPosts(HttpServletRequest r) {
-Long me=accounts.authenticatedUserId(r);return ok("GET",domain.page(r,"FROM posts p WHERE p.landlord_id=?","p.id","CONCAT_WS(' ',p.title,p.content)","p.id DESC",List.of(me),Map.of("status","p.status","roomId","p.room_id","houseId","p.house_id"),id->postData(posts.findById(id).orElseThrow())));
+        Long me = accounts.authenticatedUserId(r);
+        LocalDate from = filterDate(r, "createdFrom"), to = filterDate(r, "createdTo");
+        if (from != null && to != null && from.isAfter(to)) throw bad("Ngày tạo từ phải trước hoặc bằng ngày tạo đến");
+        StringBuilder scope = new StringBuilder("FROM posts p JOIN rooms r ON r.id=p.room_id WHERE p.landlord_id=?");
+        List<Object> args = new ArrayList<>();
+        args.add(me);
+        if (from != null) {
+            scope.append(" AND p.created_at>=?");
+            args.add(vietnamDayStart(from));
+        }
+        if (to != null) {
+            scope.append(" AND p.created_at<?");
+            args.add(vietnamDayStart(to.plusDays(1)));
+        }
+        return ok("GET", domain.page(r, scope.toString(), "p.id", "CONCAT_WS(' ',p.title,p.content,r.room_number)",
+            "p.id DESC", args, Map.of("status", "p.status", "roomId", "p.room_id", "houseId", "p.house_id"),
+            id -> postData(posts.findById(id).orElseThrow())));
  }
+
+    private LocalDate filterDate(HttpServletRequest request, String name) {
+        String value = request.getParameter(name);
+        if (value == null || value.isBlank()) return null;
+        try {
+            LocalDate date = LocalDate.parse(value);
+            if (date.getYear() >= 1000 && date.getYear() < 9999) return date;
+        } catch (DateTimeParseException ignored) { }
+        throw bad("Ngày tạo phải có định dạng YYYY-MM-DD và nằm trong khoảng năm 1000–9998");
+    }
+
+    private LocalDateTime vietnamDayStart(LocalDate date) {
+        return date.atStartOfDay(ZoneId.of("Asia/Ho_Chi_Minh")).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
+    }
 
     @Transactional public ApiResponseDto<?> create(HttpServletRequest r, JsonNode b) {
         Long owner = accounts.authenticatedUserId(r); requireBody(b); Room room = room(b); RentalHouse house = ownedHouse(owner, room.getHouseId());
@@ -53,7 +87,7 @@ Long me=accounts.authenticatedUserId(r);return ok("GET",domain.page(r,"FROM post
     }
 
     public ApiResponseDto<?> adminList(HttpServletRequest r) {
-accounts.requireAdminId(r);return ok("GET",domain.page(r,"FROM posts p WHERE 1=1","p.id","CONCAT_WS(' ',p.title,p.content)","p.id DESC",List.of(),Map.of("status","p.status","roomId","p.room_id","houseId","p.house_id"),id->postData(posts.findById(id).orElseThrow())));
+ accounts.requireAdminId(r);return ok("GET",domain.page(r,"FROM posts p JOIN rooms r ON r.id=p.room_id WHERE 1=1","p.id","CONCAT_WS(' ',p.title,p.content,r.room_number)","p.id DESC",List.of(),Map.of("status","p.status","roomId","p.room_id","houseId","p.house_id"),id->postData(posts.findById(id).orElseThrow())));
  }
 
     @Transactional public ApiResponseDto<?> decision(HttpServletRequest r, Long id, JsonNode b) {
@@ -124,6 +158,7 @@ String sort=Optional.ofNullable(r.getParameter("sort")).orElse("newest");
         Map<String, Object> m = new LinkedHashMap<>(); m.put("id", p.getId()); m.put("landlordId", p.getLandlordId()); m.put("houseId", p.getHouseId()); m.put("roomId", p.getRoomId());
         m.put("title", Objects.toString(p.getTitle(), "")); m.put("content", Objects.toString(p.getContent(), "")); m.put("status", Objects.toString(p.getStatus(), ""));
         m.put("availabilityStatus", Objects.toString(p.getAvailabilityStatus(), "STALE")); m.put("contentVersion", Objects.toString(p.getContentVersion(), "1"));
+        m.put("createdAt", p.getCreatedAt() == null ? null : p.getCreatedAt().atOffset(ZoneOffset.UTC));
         Room room = rooms.findById(p.getRoomId()).orElse(null); m.put("area", room == null ? "" : Objects.toString(room.getArea(), "")); m.put("rentAmount", room == null ? "" : Objects.toString(room.getRentPrice(), ""));
         RentalHouse house = houses.findById(p.getHouseId()).orElse(null); m.put("room", roomData(room)); m.put("house", houseData(house)); m.put("amenities", postAmenities.findByPostId(p.getId()).stream().map(PostAmenity::getAmenity).toList()); List<String> photos=domain.jdbc.query("SELECT COALESCE(pi.external_url,CONCAT('/api/v1/files/',pi.file_id,'/content')) AS url FROM post_images pi LEFT JOIN files f ON f.id=pi.file_id WHERE pi.post_id=? AND (pi.external_url IS NOT NULL OR f.status='ACTIVE') ORDER BY pi.position",(rs,n)->rs.getString(1),p.getId());m.put("imageFileIds",domain.jdbc.queryForList("SELECT file_id FROM post_images WHERE post_id=? AND file_id IS NOT NULL ORDER BY position",Long.class,p.getId()));m.put("images",photos);m.put("photoUrl",photos.isEmpty()?"":photos.get(0));return m;
     }

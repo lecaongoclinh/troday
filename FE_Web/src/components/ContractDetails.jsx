@@ -52,12 +52,12 @@ export default function ContractDetails({ id }) {
               {['CONFIRMED', 'ACTIVE'].includes(contract.status) && role === 'landlord' && contract.members.some(member => member.status === 'PLANNED') && (
                 <Button variant="primary" onClick={() => openDialog('move-in', { id: contract.id })}>Xác nhận vào ở</Button>
               )}
-              {contract.status === 'PENDING_CONFIRMATION' && role === 'landlord' && (
+              {contract.status === 'DRAFT' && role === 'landlord' && contract.revisions.some(revision => revision.status === 'DRAFT') && (
                 <Button onClick={() => openDialog('contract', { id: contract.id })}>Chỉnh sửa và gửi lại</Button>
               )}
               {contract.status === 'ACTIVE' && role === 'tenant' && contract.tenantId === me && (
                 <>
-                  <Button onClick={() => openDialog('join', { id: contract.id })}>Đề nghị thêm người</Button>
+                  <Button onClick={() => openDialog('join', { id: contract.id })}>Mời người ở ghép vào phòng</Button>
                   {!data.changeRequests.some(change => change.contractId === contract.id && ['PENDING', 'APPROVED_WAITING_CONFIRMATION', 'READY_TO_APPLY'].includes(change.status)) && <Button onClick={() => openDialog('contract-change', { id: contract.id })}>Đề nghị điều chỉnh</Button>}
                 </>
               )}

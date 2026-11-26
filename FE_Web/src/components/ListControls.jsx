@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { primaryEndpoint } from '../data/api';
 import { Button } from './ui';
 
-export default function ListControls() {
-  const { data, route, setListQuery, loading } = useApp();
+export default function ListControls({ busy = false }) {
+  const { data, route, setListQuery, loading: fetching } = useApp();
+  const loading = busy || fetching;
   const [query, setQuery] = useState(route.listQuery?.q || '');
   useEffect(() => setQuery(route.listQuery?.q || ''), [route.view, route.listQuery?.q]);
   const page = data.pagination;
-  if (!page) return null;
+  if (!page || page.endpoint !== primaryEndpoint(route)) return null;
   return <section className="server-list-controls" aria-label="Tìm kiếm và phân trang">
     {route.view !== 'discover' && <form onSubmit={e => { e.preventDefault(); setListQuery({ q: query.trim(), page: 1 }); }}>
       <input aria-label="Tìm trong danh sách" placeholder="Tìm trong danh sách…" value={query} onChange={e => setQuery(e.target.value)} />
@@ -15,9 +17,9 @@ export default function ListControls() {
     </form>}
     <div className="list-paging">
       <span>{page.totalItems} kết quả · Trang {page.page} / {Math.max(1, page.totalPages)}</span>
-      <label>Số dòng <select aria-label="Số dòng mỗi trang" value={page.pageSize} onChange={e => setListQuery({ pageSize: Number(e.target.value), page: 1 })}>{[10, 20, 50, 100].map(size => <option key={size}>{size}</option>)}</select></label>
+      <label>Số dòng <select aria-label="Số dòng mỗi trang" disabled={loading} value={page.pageSize} onChange={e => setListQuery({ pageSize: Number(e.target.value), page: 1 })}>{[10, 20, 50, 100].map(size => <option key={size}>{size}</option>)}</select></label>
       <Button disabled={loading || page.page <= 1} onClick={() => setListQuery({ page: page.page - 1 })}>Trước</Button>
-      <Button disabled={loading || !page.hasNext} onClick={() => setListQuery({ page: page.page + 1 })}>Sau</Button>
+      <Button disabled={loading || page.page >= page.totalPages} onClick={() => setListQuery({ page: page.page + 1 })}>Sau</Button>
     </div>
   </section>;
 }

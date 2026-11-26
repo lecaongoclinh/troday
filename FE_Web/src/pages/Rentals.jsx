@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { send } from '../data/api';
-import { asset, dateLabel, houseVerified, money, normalize, ownHouses, ownRooms, shortMoney } from '../data/selectors';
+import { isOnListPage, send } from '../data/api';
+import { asset, dateLabel, houseVerified, money, ownHouses, ownRooms, shortMoney } from '../data/selectors';
 import { Avatar, Badge, Button, Empty, Field, Icon, PageHeader, Section, Table, Tabs } from '../components/ui';
 
 export function RoomDetail() {
@@ -35,17 +35,48 @@ export function Services() {
 }
 
 export function Listings() {
-  const { data, me, room, navigate, openDialog } = useApp();
-  const [filter, setFilter] = useState('all'), [query, setQuery] = useState('');
-  const rooms = ownRooms(data, me), posts = data.posts.filter(p => rooms.some(r => r.id === p.roomId) && (filter === 'all' || p.status === filter) && normalize(`${p.title} ${room(p.roomId)?.code}`).includes(normalize(query)));
-  return <><PageHeader title="Tin đăng" description="Chia sẻ không gian của bạn với người đang tìm nhà."><Button variant="primary" icon="plus" disabled={!rooms.length} onClick={() => openDialog('listing')}>Tạo tin đăng</Button></PageHeader><div className="filter-bar"><input className="search-input" aria-label="Tìm tin đăng" placeholder="Tìm tiêu đề, mã phòng..." value={query} onChange={e => setQuery(e.target.value)} /><Tabs value={filter} onChange={setFilter} items={ [['all', 'Tất cả'], ['APPROVED', 'Đã duyệt'], ['PENDING_REVIEW', 'Chờ duyệt'], ['HIDDEN', 'Đã ẩn'], ['REJECTED', 'Từ chối']] } /></div><Table rows={posts} columns={[{ label: 'Tin đăng', render: p => <div className="room-row"><img src={asset(p.photo)} alt="" /><div><strong>{p.title}</strong><span className="cell-sub">{room(p.roomId)?.code}</span></div></div> }, { label: 'Giá thuê', render: p => money(room(p.roomId)?.price) }, { label: 'Trạng thái', render: p => <><Badge status={p.status} />{p.rejectionReason && <span className="cell-sub">{p.rejectionReason}</span>}</> }, { actions: true, render: p => <div className="table-actions"><Button variant="small" onClick={() => navigate('detail', p.id)}>Xem</Button><Button variant="small" onClick={() => openDialog('listing', { id: p.id })}>Sửa</Button>{p.status === 'APPROVED' && <Button variant="small" onClick={() => openDialog('decision', { collection: 'posts', id: p.id, status: 'HIDDEN', title: 'Ẩn tin đăng', reason: true })}>Ẩn tin</Button>}</div> }]} /></>;
-}
+  const { data, me, room, house, openDialog, navigate, route, setListQuery, loading } = useApp();
+  const { status, houseId = '', roomId = '', createdFrom = '', createdTo = '' } = route.listQuery;
+  const houses = ownHouses(data, me);
+  const rooms = ownRooms(data, me).filter(r => !houseId || r.houseId === houseId);
+  const rows = data.posts.filter(p => p.ownerId === me && isOnListPage(data, p.id));
+  const date = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
 
+  return <>
+    <PageHeader title="Tin đăng" description="Quản lý các tin đăng cho thuê.">
+      <Button variant="primary" icon="plus" onClick={() => openDialog('listing')}>Tạo tin đăng</Button>
+    </PageHeader>
+    <div className="filter-bar">
+      <Tabs value={status || 'all'} onChange={value => setListQuery({ status: value === 'all' ? '' : value })}
+        items={ [['all', 'Tất cả'], ['APPROVED', 'Đã duyệt'], ['PENDING_REVIEW', 'Chờ duyệt'], ['HIDDEN', 'Đã ẩn'], ['REJECTED', 'Từ chối']] } />
+    </div>
+    <div className="form-grid listing-filters" aria-label="Bộ lọc tin đăng">
+      <Field label="Nhà trọ"><select name="houseId" value={houseId} disabled={loading} onChange={e => setListQuery({ houseId: e.target.value, roomId: '' })}>
+        <option value="">Tất cả nhà</option>
+        {houses.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
+      </select></Field>
+      <Field label="Phòng"><select name="roomId" value={roomId} disabled={loading} onChange={e => setListQuery({ roomId: e.target.value })}>
+        <option value="">Tất cả phòng</option>
+        {rooms.map(r => <option key={r.id} value={r.id}>{house(r.houseId)?.name} · {r.code}</option>)}
+      </select></Field>
+      <Field label="Ngày tạo từ"><input name="createdFrom" type="date" value={createdFrom} max={createdTo || undefined} onChange={e => setListQuery({ createdFrom: e.target.value, ...(createdTo && e.target.value > createdTo ? { createdTo: '' } : {}) })} /></Field>
+      <Field label="Ngày tạo đến"><input name="createdTo" type="date" value={createdTo} min={createdFrom || undefined} onChange={e => setListQuery({ createdTo: e.target.value, ...(createdFrom && e.target.value && e.target.value < createdFrom ? { createdFrom: '' } : {}) })} /></Field>
+      {(houseId || roomId || createdFrom || createdTo) && <div><Button onClick={() => setListQuery({ houseId: '', roomId: '', createdFrom: '', createdTo: '' })}>Xóa lọc nhà, phòng và ngày</Button></div>}
+    </div>
+    <Table rows={rows} columns={[
+      { label: 'Tin đăng', render: p => <div className="room-row"><img src={asset(p.photo)} alt="" /><div><strong>{p.title}</strong><span className="cell-sub">{house(p.houseId)?.name} · {room(p.roomId)?.code}</span></div></div> },
+      { label: 'Ngày tạo', render: p => p.createdAt ? date.format(new Date(p.createdAt)) : '—' },
+      { label: 'Giá thuê', render: p => money(room(p.roomId)?.price) },
+      { label: 'Trạng thái', render: p => <><Badge status={p.status} />{p.rejectionReason && <span className="cell-sub">{p.rejectionReason}</span>}</> },
+      { actions: true, render: p => <div className="table-actions"><Button variant="small" onClick={() => navigate('detail', p.id)}>Xem</Button><Button variant="small" onClick={() => openDialog('listing', { id: p.id })}>Sửa</Button>{p.status === 'APPROVED' && <Button variant="small" onClick={() => openDialog('decision', { collection: 'posts', id: p.id, status: 'HIDDEN', title: 'Ẩn tin đăng', reason: true })}>Ẩn</Button>}{p.status === 'HIDDEN' && <Button variant="small" onClick={() => openDialog('decision', { collection: 'posts', id: p.id, status: 'APPROVED', title: 'Khôi phục tin', reason: true })}>Khôi phục</Button>}</div> },
+    ]} />
+  </>;
+}
 export function Viewings() {
-  const { data, role, me, room, person, patch, openDialog } = useApp();
-  const [tab, setTab] = useState('all');
+  const { data, route, role, me, room, person, patch, openDialog, setListQuery } = useApp();
+  const tab = route.listQuery.status || 'all';
   const visible = list => list.filter(v => role === 'landlord' ? v.ownerId === me : v.tenantId === me);
   const proposals = visible(data.viewingProposals);
-  const rows = visible(data.viewings).filter(v => tab === 'all' || v.status === tab);
-  return <><PageHeader title="Lịch xem phòng" description="Một cuộc hẹn nhỏ, một khởi đầu mới.">{role === 'landlord' && <Button variant="primary" icon="plus" onClick={() => openDialog('viewing')}>Tạo lịch xem</Button>}</PageHeader>{proposals.length > 0 && <Section title="Đề nghị lịch xem"><Table rows={proposals} columns={[{ label: 'Phòng', render: v => room(v.roomId)?.code }, { label: 'Lịch đề nghị', render: v => `${v.time} · ${dateLabel(v.date)}` }, { label: 'Người thuê', render: v => person(v.tenantId).name }, { label: 'Trạng thái', render: v => <Badge status={v.status} /> }, { actions: true, render: v => v.status === 'PENDING' && <div className="table-actions">{role === 'landlord' ? <><Button variant="small primary" onClick={() => openDialog('accept-viewing', { id: v.id })}>Chấp nhận</Button><Button variant="small" onClick={() => openDialog('decision', { collection: 'viewingProposals', id: v.id, status: 'REJECTED', title: 'Từ chối đề nghị', reason: true })}>Từ chối</Button></> : <Button variant="small" onClick={() => patch('viewingProposals', v.id, { status: 'WITHDRAWN' })}>Rút đề nghị</Button>}</div> }]} /></Section>}<div className="filter-bar"><Tabs value={tab} onChange={setTab} items={ [['all', 'Tất cả'], ['SCHEDULED', 'Sắp tới'], ['COMPLETED', 'Đã xem'], ['CANCELLED', 'Đã hủy']] } /></div><Table rows={rows} columns={[{ label: 'Phòng', render: v => <><strong>{room(v.roomId)?.code}</strong><span className="cell-sub">{room(v.roomId)?.title}</span></> }, { label: 'Thời gian', render: v => <><strong>{v.time}</strong><span className="cell-sub">{dateLabel(v.date)}</span></> }, { label: role === 'landlord' ? 'Người thuê' : 'Chủ trọ', render: v => person(role === 'landlord' ? v.tenantId : v.ownerId).name }, { label: 'Trạng thái', render: v => <><Badge status={v.status} />{v.status === 'COMPLETED' && <span className="cell-sub"><Badge status={v.decision} /></span>}{v.reason && <span className="cell-sub">{v.reason}</span>}</> }, { actions: true, render: v => <div className="table-actions">{v.status === 'SCHEDULED' && <>{role === 'landlord' && <><Button variant="small primary" onClick={() => openDialog('decision', { collection: 'viewings', id: v.id, status: 'COMPLETED', title: 'Xác nhận đã xem phòng' })}>Đã đến xem</Button><Button variant="small" onClick={() => openDialog('decision', { collection: 'viewings', id: v.id, status: 'NO_SHOW', title: 'Ghi nhận không đến' })}>Không đến</Button></>}<Button variant="small" onClick={() => openDialog('decision', { collection: 'viewings', id: v.id, status: 'CANCELLED', title: 'Hủy lịch xem', reason: true })}>Hủy lịch</Button></>}{v.status === 'COMPLETED' && v.decision === 'WAITING' && role === 'tenant' && <><Button variant="small primary" onClick={() => patch('viewings', v.id, { decision: 'AGREED' })}>Đồng ý thuê</Button><Button variant="small" onClick={() => patch('viewings', v.id, { decision: 'DECLINED' })}>Không thuê</Button></>}{v.status === 'COMPLETED' && v.decision === 'AGREED' && role === 'tenant' && <Button variant="small" onClick={() => patch('viewings', v.id, { decision: 'WITHDRAWN' })}>Rút quyết định thuê</Button>}{v.status === 'COMPLETED' && v.decision === 'AGREED' && role === 'landlord' && <Button variant="small primary" onClick={() => openDialog('contract', { viewingId: v.id, roomId: v.roomId })}>Lập hợp đồng</Button>}</div> }]} /></>;
+  const rows = visible(data.viewings);
+  return <><PageHeader title="Lịch xem phòng" description="Một cuộc hẹn nhỏ, một khởi đầu mới.">{role === 'landlord' && <Button variant="primary" icon="plus" onClick={() => openDialog('viewing')}>Tạo lịch xem</Button>}</PageHeader>{proposals.length > 0 && <Section title="Đề nghị lịch xem"><Table rows={proposals} columns={[{ label: 'Phòng', render: v => room(v.roomId)?.code }, { label: 'Lịch đề nghị', render: v => `${v.time} · ${dateLabel(v.date)}` }, { label: 'Người thuê', render: v => person(v.tenantId).name }, { label: 'Trạng thái', render: v => <Badge status={v.status} /> }, { actions: true, render: v => v.status === 'PENDING' && <div className="table-actions">{role === 'landlord' ? <><Button variant="small primary" onClick={() => openDialog('accept-viewing', { id: v.id })}>Chấp nhận</Button><Button variant="small" onClick={() => openDialog('decision', { collection: 'viewingProposals', id: v.id, status: 'REJECTED', title: 'Từ chối đề nghị', reason: true })}>Từ chối</Button></> : <Button variant="small" onClick={() => patch('viewingProposals', v.id, { status: 'WITHDRAWN' })}>Rút đề nghị</Button>}</div> }]} /></Section>}<div className="filter-bar"><Tabs value={tab} onChange={value => setListQuery({ status: value === 'all' ? '' : value })} items={ [['all', 'Tất cả'], ['SCHEDULED', 'Sắp tới'], ['COMPLETED', 'Đã xem'], ['CANCELLED', 'Đã hủy']] } /></div><Table rows={rows} columns={[{ label: 'Phòng', render: v => <><strong>{room(v.roomId)?.code}</strong><span className="cell-sub">{room(v.roomId)?.title}</span></> }, { label: 'Thời gian', render: v => <><strong>{v.time}</strong><span className="cell-sub">{dateLabel(v.date)}</span></> }, { label: role === 'landlord' ? 'Người thuê' : 'Chủ trọ', render: v => person(role === 'landlord' ? v.tenantId : v.ownerId).name }, { label: 'Trạng thái', render: v => <><Badge status={v.status} />{v.status === 'COMPLETED' && <span className="cell-sub"><Badge status={v.decision} /></span>}{v.reason && <span className="cell-sub">{v.reason}</span>}</> }, { actions: true, render: v => <div className="table-actions">{v.status === 'SCHEDULED' && <>{role === 'landlord' && <><Button variant="small primary" onClick={() => openDialog('decision', { collection: 'viewings', id: v.id, status: 'COMPLETED', title: 'Xác nhận đã xem phòng' })}>Đã đến xem</Button><Button variant="small" onClick={() => openDialog('decision', { collection: 'viewings', id: v.id, status: 'NO_SHOW', title: 'Ghi nhận không đến' })}>Không đến</Button></>}<Button variant="small" onClick={() => openDialog('decision', { collection: 'viewings', id: v.id, status: 'CANCELLED', title: 'Hủy lịch xem', reason: true })}>Hủy lịch</Button></>}{v.status === 'COMPLETED' && v.decision === 'WAITING' && role === 'tenant' && <><Button variant="small primary" onClick={() => patch('viewings', v.id, { decision: 'AGREED' })}>Đồng ý thuê</Button><Button variant="small" onClick={() => patch('viewings', v.id, { decision: 'DECLINED' })}>Không thuê</Button></>}{v.status === 'COMPLETED' && v.decision === 'AGREED' && role === 'tenant' && <Button variant="small" onClick={() => patch('viewings', v.id, { decision: 'WITHDRAWN' })}>Rút quyết định thuê</Button>}{v.status === 'COMPLETED' && v.decision === 'AGREED' && role === 'landlord' && <Button variant="small primary" onClick={() => openDialog('contract', { viewingId: v.id, roomId: v.roomId })}>Lập hợp đồng</Button>}</div> }]} /></>;
 }
